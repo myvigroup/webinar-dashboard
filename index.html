@@ -54,6 +54,8 @@
   .seg button{border:none;background:transparent;color:var(--muted);font-weight:600;padding:9px 18px;border-radius:9px;}
   .seg button.on{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(0,40,90,.12);}
   .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start;}
+  #detail{margin-top:16px;}
+  #detail-head{font-family:Outfit;font-weight:700;color:var(--navy);font-size:16px;margin-bottom:12px;line-height:1.3;}
   .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 2px 10px rgba(0,40,90,.04);}
   .panel + .panel{margin-top:14px;}
   .ptitle{font-family:Outfit;font-weight:700;color:var(--navy);font-size:14px;margin-bottom:12px;}
@@ -80,7 +82,7 @@
   .cal-cell.today{border-color:var(--navy);}
   .cal-cell.today .cal-daynum{color:var(--navy);font-weight:800;}
   .cal-daynum{color:var(--muted);font-weight:600;}
-  .cal-badge{margin-top:5px;display:inline-block;background:var(--navy);color:#fff;font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px;}
+  .cal-badge{margin-top:4px;display:inline-block;background:var(--navy);color:#fff;font-size:9px;font-weight:600;border-radius:5px;padding:1px 6px;white-space:nowrap;letter-spacing:.1px;}
   /* Webinar-Items */
   .wlist{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
   .witem{text-align:left;width:100%;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;display:block;}
@@ -145,6 +147,7 @@
           <div class="wlist" id="day-list"></div>
         </div>
         <div id="detail" class="hidden">
+          <div id="detail-head"></div>
           <div class="cards" style="margin-bottom:14px;">
             <div class="stat"><div class="label">Deine Anmeldungen</div><div class="val" id="s-mine">–</div></div>
             <div class="stat"><div class="label">Anmeldungen gesamt</div><div class="val" id="s-total">–</div></div>
@@ -187,7 +190,9 @@ $("tab-list").onclick = () => switchView("list");
 $("cal-prev").onclick = () => { viewM--; if(viewM<0){viewM=11;viewY--;} renderCalendar(); };
 $("cal-next").onclick = () => { viewM++; if(viewM>11){viewM=0;viewY++;} renderCalendar(); };
 
-function dateKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+// Zeiten werden als gespeicherte Wandzeit angezeigt (timeZone UTC), daher Datumsteile in UTC.
+function dateKey(d){ return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0")+"-"+String(d.getUTCDate()).padStart(2,"0"); }
+const TZ = "UTC";
 function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
 function presLine(w){ return w.presenters ? '<span><b style="color:var(--navy)">Referent:</b> '+esc(w.presenters)+'</span>' : ''; }
 function linkLine(w){ return w.web_url ? '<a href="'+esc(w.web_url)+'" target="_blank" rel="noopener">Zum Webinar ↗</a>' : ''; }
@@ -199,6 +204,7 @@ function switchView(v){
   $("list-panel").classList.toggle("hidden",cal);
   $("day-panel").classList.toggle("hidden",!cal);
   if(!cal) renderList();
+  else if(selectedDate) selectDay(selectedDate);
 }
 
 async function init() {
@@ -223,14 +229,14 @@ async function loadData() {
   });
   // Kalender immer im aktuellen Monat starten
   const today = new Date();
-  viewY = today.getFullYear(); viewM = today.getMonth();
+  viewY = today.getUTCFullYear(); viewM = today.getUTCMonth();
   renderCalendar();
   // Webinar im aktuellen Monat auswählen, das heute am nächsten liegt
   let pick = null, best = Infinity, now = today.getTime();
   totals.forEach(w => {
     if (!w.starts_at) return;
     const d = new Date(w.starts_at);
-    if (d.getFullYear() === viewY && d.getMonth() === viewM) {
+    if (d.getUTCFullYear() === viewY && d.getUTCMonth() === viewM) {
       const diff = Math.abs(d.getTime() - now);
       if (diff < best) { best = diff; pick = d; }
     }
@@ -259,7 +265,7 @@ function renderCalendar() {
 
 function webinarItem(w, withDate){
   const d = new Date(w.starts_at);
-  const dateStr = withDate ? d.toLocaleDateString("de-DE",{day:"2-digit",month:"short"}) : d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});
+  const dateStr = withDate ? d.toLocaleDateString("de-DE",{day:"2-digit",month:"short",timeZone:TZ}) : d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ});
   const meta = [presLine(w), '<span class="cnt">'+w.total_registrations+' Anmeldungen</span>', linkLine(w)].filter(Boolean).join("");
   const b = document.createElement("div");
   b.className = "witem" + (w.webinar_id===selectedWid ? " sel" : "");
@@ -287,19 +293,31 @@ function renderList(){
   const past = totals.filter(w=>w.starts_at && new Date(w.starts_at).getTime() < now - 36e5*12).sort((a,b)=> new Date(b.starts_at)-new Date(a.starts_at));
   const ordered = up.concat(past);
   const el = $("up-list"); el.innerHTML = "";
-  if(!ordered.length){ el.innerHTML='<div class="muted">Keine Webinare vorhanden.</div>'; return; }
-  ordered.forEach(w => el.appendChild(webinarItem(w,true)));
+  if(!ordered.length){ el.innerHTML='<div class="muted">Keine Webinare vorhanden.</div>'; }
+  else ordered.forEach(w => el.appendChild(webinarItem(w,true)));
+  // Standardansicht: Summe über alle anstehenden Webinare
+  renderAggregate(up);
 }
 
-function selectWebinar(wid){
-  selectedWid = wid;
-  markSelection();
-  renderWebinar(wid);
+function selectWebinar(wid){ selectedWid = wid; markSelection(); renderWebinar(wid); }
+
+function drawChart(labels,data,colors){
+  if (chart) chart.destroy();
+  chart = new Chart($("chart"), { type: "bar",
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 5 }] },
+    options: { indexAxis: "y", responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks:{ font:{ family:"Inter", size:12 } } } } } });
+}
+function fillTable(rows){
+  $("mytbl").innerHTML = rows.length ? rows.map(r => `<tr><td>${esc(r.attendee_name)||"–"}</td><td>${esc(r.attendee_email)||"–"}</td><td>${r.registered_at ? new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}) : "–"}</td></tr>`).join("") : '<tr><td colspan="3" class="muted">Keine eigenen Anmeldungen.</td></tr>';
 }
 
 function renderWebinar(wid) {
   $("detail").classList.remove("hidden");
-  const total = totals.find(w => w.webinar_id === wid)?.total_registrations || 0;
+  const w = totals.find(x => x.webinar_id === wid);
+  if (w){ const d = w.starts_at ? new Date(w.starts_at) : null;
+    $("detail-head").textContent = w.title + (d ? " · " + d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"long",year:"numeric",timeZone:TZ}) + ", " + d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ}) + " Uhr" : ""); }
+  const total = w?.total_registrations || 0;
   const rows = counts.filter(c => c.webinar_id === wid && Number(c.registrations) > 0).sort((a,b) => b.registrations - a.registrations);
   const mineRow = counts.find(c => c.webinar_id === wid && (c.email||"").toLowerCase() === me);
   const mineCount = mineRow ? Number(mineRow.registrations) : 0;
@@ -308,17 +326,28 @@ function renderWebinar(wid) {
   $("s-total").textContent = total;
   $("s-share").textContent = total ? Math.round(mineCount/total*100) + " %" : "–";
   $("s-rank").textContent = (mineCount>0) ? rank + " / " + rows.length : "–";
-  const labels = rows.map(r => r.advisor_name);
-  const data = rows.map(r => Number(r.registrations));
-  const colors = rows.map(r => (r.email||"").toLowerCase() === me ? "#06BADD" : "#9db4c9");
-  if (chart) chart.destroy();
-  chart = new Chart($("chart"), { type: "bar",
-    data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 5 }] },
-    options: { indexAxis: "y", responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-      scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks:{ font:{ family:"Inter", size:12 } } } } } });
-  const tbl = $("mytbl");
-  const myRows = mine.filter(r => r.webinar_id === wid);
-  tbl.innerHTML = myRows.length ? myRows.map(r => `<tr><td>${esc(r.attendee_name)||"–"}</td><td>${esc(r.attendee_email)||"–"}</td><td>${r.registered_at ? new Date(r.registered_at).toLocaleString("de-DE") : "–"}</td></tr>`).join("") : '<tr><td colspan="3" class="muted">Keine eigenen Anmeldungen für dieses Webinar.</td></tr>';
+  drawChart(rows.map(r=>r.advisor_name), rows.map(r=>Number(r.registrations)), rows.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9"));
+  fillTable(mine.filter(r => r.webinar_id === wid));
+}
+
+// Summe über mehrere Webinare (z. B. alle anstehenden)
+function renderAggregate(list){
+  $("detail").classList.remove("hidden");
+  selectedWid = null; markSelection();
+  const ids = new Set(list.map(w=>w.webinar_id));
+  const total = list.reduce((s,w)=> s + Number(w.total_registrations||0), 0);
+  const byAdv = {};
+  counts.forEach(c => { if (ids.has(c.webinar_id) && Number(c.registrations)>0){ const k=c.advisor_id||c.advisor_name; if(!byAdv[k]) byAdv[k]={name:c.advisor_name,email:c.email,n:0}; byAdv[k].n += Number(c.registrations); } });
+  const rows = Object.values(byAdv).sort((a,b)=> b.n - a.n);
+  const mineCount = rows.filter(r=>(r.email||"").toLowerCase()===me).reduce((s,r)=> s+r.n, 0);
+  const myRank = rows.findIndex(r=>(r.email||"").toLowerCase()===me) + 1;
+  $("detail-head").textContent = "Alle anstehenden Webinare · " + list.length + (list.length===1?" Termin":" Termine");
+  $("s-mine").textContent = mineCount;
+  $("s-total").textContent = total;
+  $("s-share").textContent = total ? Math.round(mineCount/total*100) + " %" : "–";
+  $("s-rank").textContent = (mineCount>0 && myRank>0) ? myRank + " / " + rows.length : "–";
+  drawChart(rows.map(r=>r.name), rows.map(r=>r.n), rows.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9"));
+  fillTable(mine.filter(r => ids.has(r.webinar_id)));
 }
 
 sb.auth.onAuthStateChange(() => init());
