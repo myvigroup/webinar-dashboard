@@ -10,12 +10,11 @@
   body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);}
   header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--card);border-bottom:1px solid var(--line);flex-wrap:wrap;gap:12px;}
   h1{font-size:18px;font-weight:600;margin:0;}
-  .wrap{max-width:920px;margin:0 auto;padding:24px;}
+  .wrap{max-width:960px;margin:0 auto;padding:24px;}
   .muted{color:var(--muted);}
   button{font:inherit;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:9px 16px;cursor:pointer;}
   button.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
   button:hover{filter:brightness(.97);}
-  select{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);max-width:340px;}
   .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0;}
   .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;}
   .stat .label{font-size:13px;color:var(--muted);margin-bottom:6px;}
@@ -27,6 +26,24 @@
   table{width:100%;border-collapse:collapse;font-size:14px;}
   th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);}
   th{color:var(--muted);font-weight:500;}
+  /* Kalender */
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .cal-title{font-size:16px;font-weight:600;text-transform:capitalize;}
+  .cal-nav{display:flex;gap:8px;}
+  .cal-nav button{padding:6px 12px;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .cal-dow{font-size:12px;color:var(--muted);text-align:center;padding:4px 0;font-weight:500;}
+  .cal-cell{min-height:60px;border:1px solid var(--line);border-radius:8px;padding:6px;font-size:13px;position:relative;background:var(--card);}
+  .cal-cell.empty{background:transparent;border:none;}
+  .cal-cell.has{cursor:pointer;}
+  .cal-cell.has:hover{border-color:var(--accent);}
+  .cal-cell.sel{border:2px solid var(--accent);background:var(--accent-soft);}
+  .cal-daynum{color:var(--muted);}
+  .cal-badge{margin-top:4px;display:inline-block;background:var(--accent);color:#fff;font-size:11px;font-weight:600;border-radius:10px;padding:1px 7px;}
+  .day-list{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+  .wbtn{text-align:left;width:100%;}
+  .wbtn.sel{border-color:var(--accent);background:var(--accent-soft);}
+  .wtime{color:var(--muted);font-size:12px;margin-right:6px;}
 </style>
 </head>
 <body>
@@ -47,21 +64,38 @@
     </div>
   </header>
   <div class="wrap">
-    <select id="webinar"></select>
-    <div class="cards">
-      <div class="stat"><div class="label">Deine Anmeldungen</div><div class="val" id="s-mine">–</div></div>
-      <div class="stat"><div class="label">Anmeldungen gesamt</div><div class="val" id="s-total">–</div></div>
-      <div class="stat"><div class="label">Dein Anteil</div><div class="val" id="s-share">–</div></div>
-      <div class="stat"><div class="label">Dein Rang im Team</div><div class="val" id="s-rank">–</div></div>
-    </div>
     <div class="panel">
-      <div class="muted" style="margin-bottom:10px;">Anmeldungen pro Berater</div>
-      <div style="position:relative;height:280px;"><canvas id="chart"></canvas></div>
+      <div class="cal-head">
+        <div class="cal-title" id="cal-title">—</div>
+        <div class="cal-nav">
+          <button id="cal-prev">‹</button>
+          <button id="cal-next">›</button>
+        </div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
     </div>
-    <div class="panel">
-      <div class="muted" style="margin-bottom:10px;">Deine Anmeldungen (Teilnehmer)</div>
-      <table><thead><tr><th>Teilnehmer</th><th>E-Mail</th><th>Angemeldet am</th></tr></thead>
-      <tbody id="mytbl"><tr><td colspan="3" class="muted">–</td></tr></tbody></table>
+
+    <div class="panel" id="day-panel">
+      <div class="muted" id="day-title">Wähle einen Tag mit Webinaren im Kalender.</div>
+      <div class="day-list" id="day-list"></div>
+    </div>
+
+    <div id="detail" class="hidden">
+      <div class="cards">
+        <div class="stat"><div class="label">Deine Anmeldungen</div><div class="val" id="s-mine">–</div></div>
+        <div class="stat"><div class="label">Anmeldungen gesamt</div><div class="val" id="s-total">–</div></div>
+        <div class="stat"><div class="label">Dein Anteil</div><div class="val" id="s-share">–</div></div>
+        <div class="stat"><div class="label">Dein Rang im Team</div><div class="val" id="s-rank">–</div></div>
+      </div>
+      <div class="panel">
+        <div class="muted" style="margin-bottom:10px;">Anmeldungen pro Berater</div>
+        <div style="position:relative;height:300px;"><canvas id="chart"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="muted" style="margin-bottom:10px;">Deine Anmeldungen (Teilnehmer)</div>
+        <table><thead><tr><th>Teilnehmer</th><th>E-Mail</th><th>Angemeldet am</th></tr></thead>
+        <tbody id="mytbl"><tr><td colspan="3" class="muted">–</td></tr></tbody></table>
+      </div>
     </div>
   </div>
 </div>
@@ -72,9 +106,14 @@
 const SUPABASE_URL = "https://umgbtymowqavnmsbgceh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_uwCtealR7TogA86X68-RZg_3FQ1RPT0";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 const $ = (id) => document.getElementById(id);
+const DOW = ["Mo","Di","Mi","Do","Fr","Sa","So"];
+const MONTHS = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
 let chart, me = "";
+let totals = [], counts = [], mine = [];
+let byDate = {};            // 'YYYY-MM-DD' -> [webinar]
+let viewY, viewM;           // angezeigter Monat
+let selectedDate = null, selectedWid = null;
 
 $("btn-login").onclick = async () => {
   const { error } = await sb.auth.signInWithOAuth({
@@ -84,6 +123,8 @@ $("btn-login").onclick = async () => {
   if (error) $("login-err").textContent = error.message;
 };
 $("btn-logout").onclick = async () => { await sb.auth.signOut(); location.reload(); };
+
+function dateKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 
 async function init() {
   const { data: { session } } = await sb.auth.getSession();
@@ -96,36 +137,78 @@ async function init() {
   await loadData();
 }
 
-let totals = [], counts = [], mine = [];
 async function loadData() {
   const [t, c, m] = await Promise.all([
-    sb.rpc("webinar_totals"),
-    sb.rpc("webinar_advisor_counts"),
-    sb.rpc("webinar_my_registrations"),
+    sb.rpc("webinar_totals"), sb.rpc("webinar_advisor_counts"), sb.rpc("webinar_my_registrations"),
   ]);
   totals = t.data || []; counts = c.data || []; mine = m.data || [];
-  const sel = $("webinar"); sel.innerHTML = "";
-  if (!totals.length) { sel.innerHTML = "<option>Noch keine Webinare synchronisiert</option>"; return; }
+  byDate = {};
+  let latest = null;
   totals.forEach(w => {
-    const o = document.createElement("option");
-    o.value = w.webinar_id;
-    o.textContent = w.title + (w.starts_at ? " · " + new Date(w.starts_at).toLocaleDateString("de-DE") : "");
-    sel.appendChild(o);
+    if (!w.starts_at) return;
+    const d = new Date(w.starts_at);
+    const k = dateKey(d);
+    (byDate[k] = byDate[k] || []).push(w);
+    if (!latest || d > latest) latest = d;
   });
-  sel.onchange = () => render(sel.value);
-  render(totals[0].webinar_id);
+  const start = latest || new Date();
+  viewY = start.getFullYear(); viewM = start.getMonth();
+  renderCalendar();
+  // automatisch den letzten Tag mit Webinaren auswählen
+  if (latest) selectDay(dateKey(latest));
 }
 
-function render(wid) {
+function renderCalendar() {
+  $("cal-title").textContent = MONTHS[viewM] + " " + viewY;
+  const grid = $("cal-grid"); grid.innerHTML = "";
+  DOW.forEach(d => { const e=document.createElement("div"); e.className="cal-dow"; e.textContent=d; grid.appendChild(e); });
+  const first = new Date(viewY, viewM, 1);
+  let lead = (first.getDay() + 6) % 7; // Montag = 0
+  for (let i=0;i<lead;i++){ const e=document.createElement("div"); e.className="cal-cell empty"; grid.appendChild(e); }
+  const days = new Date(viewY, viewM+1, 0).getDate();
+  for (let day=1; day<=days; day++){
+    const k = viewY+"-"+String(viewM+1).padStart(2,"0")+"-"+String(day).padStart(2,"0");
+    const list = byDate[k];
+    const e = document.createElement("div");
+    e.className = "cal-cell" + (list ? " has" : "") + (k===selectedDate ? " sel" : "");
+    e.innerHTML = '<span class="cal-daynum">'+day+'</span>';
+    if (list){
+      const total = list.reduce((s,w)=> s + Number(totals.find(t=>t.webinar_id===w.webinar_id)?.total_registrations||0), 0);
+      e.innerHTML += '<br><span class="cal-badge">'+list.length+(list.length>1?' Webinare':' Webinar')+'</span>';
+      e.title = total + " Anmeldungen";
+      e.onclick = () => selectDay(k);
+    }
+    grid.appendChild(e);
+  }
+}
+
+function selectDay(k){
+  selectedDate = k; renderCalendar();
+  const list = (byDate[k]||[]).slice().sort((a,b)=> new Date(a.starts_at)-new Date(b.starts_at));
+  const dl = $("day-list"); dl.innerHTML = "";
+  const d = new Date(k+"T00:00:00");
+  $("day-title").textContent = "Webinare am " + d.toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  list.forEach(w => {
+    const b = document.createElement("button"); b.className = "wbtn";
+    const tm = new Date(w.starts_at).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});
+    b.innerHTML = '<span class="wtime">'+tm+'</span>'+w.title;
+    b.onclick = () => { selectedWid = w.webinar_id; [...dl.children].forEach(c=>c.classList.remove("sel")); b.classList.add("sel"); renderWebinar(w.webinar_id); };
+    dl.appendChild(b);
+  });
+  if (list.length){ selectedWid = list[0].webinar_id; dl.children[0].classList.add("sel"); renderWebinar(selectedWid); }
+}
+
+function renderWebinar(wid) {
+  $("detail").classList.remove("hidden");
   const total = totals.find(w => w.webinar_id === wid)?.total_registrations || 0;
-  const rows = counts.filter(c => c.webinar_id === wid).sort((a,b) => b.registrations - a.registrations);
+  const rows = counts.filter(c => c.webinar_id === wid && Number(c.registrations) > 0).sort((a,b) => b.registrations - a.registrations);
   const mineRow = counts.find(c => c.webinar_id === wid && (c.email||"").toLowerCase() === me);
   const mineCount = mineRow ? Number(mineRow.registrations) : 0;
-  const rank = mineRow ? rows.findIndex(r => r.advisor_id === mineRow.advisor_id) + 1 : "–";
+  const rank = mineRow && mineCount>0 ? rows.findIndex(r => r.advisor_id === mineRow.advisor_id) + 1 : "–";
   $("s-mine").textContent = mineCount;
   $("s-total").textContent = total;
   $("s-share").textContent = total ? Math.round(mineCount/total*100) + " %" : "–";
-  $("s-rank").textContent = mineRow ? rank + " / " + rows.length : "–";
+  $("s-rank").textContent = (mineCount>0) ? rank + " / " + rows.length : "–";
 
   const labels = rows.map(r => r.advisor_name);
   const data = rows.map(r => Number(r.registrations));
@@ -144,6 +227,9 @@ function render(wid) {
     `<tr><td>${r.attendee_name||"–"}</td><td>${r.attendee_email||"–"}</td><td>${r.registered_at ? new Date(r.registered_at).toLocaleString("de-DE") : "–"}</td></tr>`
   ).join("") : '<tr><td colspan="3" class="muted">Keine eigenen Anmeldungen für dieses Webinar.</td></tr>';
 }
+
+$("cal-prev").onclick = () => { viewM--; if(viewM<0){viewM=11;viewY--;} renderCalendar(); };
+$("cal-next").onclick = () => { viewM++; if(viewM>11){viewM=0;viewY++;} renderCalendar(); };
 
 sb.auth.onAuthStateChange(() => init());
 init();
