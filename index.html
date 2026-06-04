@@ -201,17 +201,18 @@ async function loadData() {
     sb.rpc("webinar_totals"), sb.rpc("webinar_advisor_counts"), sb.rpc("webinar_my_registrations"),
   ]);
   totals = t.data || []; counts = c.data || []; mine = m.data || [];
-  byDate = {}; let latest = null;
+  byDate = {}; let nearest = null, now = Date.now(), best = Infinity;
   totals.forEach(w => {
     if (!w.starts_at) return;
     const d = new Date(w.starts_at), k = dateKey(d);
     (byDate[k] = byDate[k] || []).push(w);
-    if (!latest || d > latest) latest = d;
+    const diff = Math.abs(d.getTime() - now);
+    if (diff < best) { best = diff; nearest = d; }
   });
-  const start = latest || new Date();
+  const start = nearest || new Date();
   viewY = start.getFullYear(); viewM = start.getMonth();
   renderCalendar();
-  if (latest) selectDay(dateKey(latest));
+  if (nearest) selectDay(dateKey(nearest));
 }
 
 function renderCalendar() {
