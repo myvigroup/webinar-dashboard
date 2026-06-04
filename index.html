@@ -3,74 +3,135 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Webinar-Anmeldungen · Dashboard</title>
+<title>Webinar-Anmeldungen · mitNORM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#f6f7f9;--card:#fff;--line:#e6e8eb;--text:#1a1d21;--muted:#6b7280;--accent:#378ADD;--accent-soft:#e6f1fb;}
+  :root{
+    --navy:#004283; --navy-d:#02315f; --cyan:#06BADD; --cyan-d:#0596b3;
+    --ink:#0b2138; --muted:#5b7088; --line:#e4eaf1; --bg:#eef3f8; --card:#fff;
+  }
   *{box-sizing:border-box;}
-  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);}
-  header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--card);border-bottom:1px solid var(--line);flex-wrap:wrap;gap:12px;}
-  h1{font-size:18px;font-weight:600;margin:0;}
-  .wrap{max-width:960px;margin:0 auto;padding:24px;}
+  body{margin:0;font-family:Inter,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);}
+  h1,h2,h3,.font-display{font-family:Outfit,Inter,sans-serif;}
   .muted{color:var(--muted);}
-  button{font:inherit;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:9px 16px;cursor:pointer;}
-  button.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
-  button:hover{filter:brightness(.97);}
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0;}
-  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;}
-  .stat .label{font-size:13px;color:var(--muted);margin-bottom:6px;}
-  .stat .val{font-size:26px;font-weight:600;}
-  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;margin-top:16px;}
-  .login{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;}
-  .avatar{width:34px;height:34px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;}
+  button{font:inherit;cursor:pointer;border-radius:10px;}
+  .ms-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:var(--ink);border:1px solid var(--line);padding:13px 22px;font-weight:600;font-size:15px;box-shadow:0 4px 14px rgba(0,40,90,.08);}
+  .ms-btn:hover{box-shadow:0 6px 20px rgba(0,40,90,.14);}
+  .ghost{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;padding:8px 14px;font-weight:500;}
+  .ghost.dark{border-color:var(--line);color:var(--navy);}
+
+  /* ===== Login (Split-Layout, mitNORM) ===== */
+  .login{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;}
+  .login-left{background:
+      linear-gradient(0deg,rgba(6,186,221,.04),rgba(6,186,221,.04)),
+      linear-gradient(var(--line) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:100% 100%,28px 28px,28px 28px;background-color:#f3f7fb;
+    padding:8vh 6vw;display:flex;flex-direction:column;justify-content:center;}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:48px;}
+  .brand .mark{width:46px;height:46px;border-radius:13px;background:linear-gradient(140deg,var(--cyan),var(--navy));display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(0,66,131,.25);}
+  .brand .name{font-family:Outfit;font-weight:800;font-size:22px;color:var(--navy);letter-spacing:-.5px;}
+  .login-left h1{font-size:46px;line-height:1.05;font-weight:800;margin:0 0 18px;color:var(--navy-d);letter-spacing:-1px;}
+  .login-left h1 .ac{color:var(--cyan);}
+  .login-left p{font-size:17px;color:var(--muted);max-width:420px;margin:0 0 32px;}
+  .feat{display:flex;align-items:center;gap:12px;margin:14px 0;font-weight:500;color:var(--navy-d);}
+  .feat .ck{width:24px;height:24px;border-radius:7px;background:rgba(6,186,221,.14);color:var(--cyan-d);display:flex;align-items:center;justify-content:center;font-weight:700;}
+  .login-right{background:radial-gradient(120% 120% at 80% 0%,#0a4f93 0%,var(--navy) 45%,var(--navy-d) 100%);color:#fff;padding:8vh 6vw;display:flex;flex-direction:column;justify-content:center;}
+  .login-right .label{font-family:Outfit;font-weight:700;font-size:12px;letter-spacing:2px;color:var(--cyan);margin-bottom:14px;}
+  .login-right h2{font-size:38px;font-weight:800;margin:0 0 12px;letter-spacing:-.5px;}
+  .login-right .sub{color:#bcd2e8;font-size:16px;max-width:420px;margin:0 0 28px;}
+  .login-right .hint{color:#8fb0d0;font-size:13px;margin-top:18px;max-width:430px;line-height:1.6;}
+  .login-right .foot{color:#5e80a3;font-size:12px;margin-top:40px;}
+  .err{background:rgba(255,90,90,.12);border:1px solid rgba(255,120,120,.4);color:#ffd2d2;padding:12px 14px;border-radius:10px;font-size:14px;margin-bottom:18px;}
+
+  /* ===== App ===== */
   .hidden{display:none;}
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:var(--card);border-bottom:1px solid var(--line);flex-wrap:wrap;gap:12px;}
+  .hbrand{display:flex;align-items:center;gap:11px;}
+  .hbrand .mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(140deg,var(--cyan),var(--navy));}
+  .hbrand .t{font-family:Outfit;font-weight:800;font-size:17px;color:var(--navy);letter-spacing:-.3px;}
+  .hbrand .s{font-size:12px;color:var(--muted);}
+  .huser{display:flex;align-items:center;gap:10px;}
+  .avatar{width:34px;height:34px;border-radius:50%;background:rgba(6,186,221,.15);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;font-family:Outfit;}
+  .wrap{max-width:980px;margin:0 auto;padding:28px 24px 60px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:18px;box-shadow:0 2px 10px rgba(0,40,90,.04);}
+  .ptitle{font-family:Outfit;font-weight:700;color:var(--navy);font-size:15px;margin-bottom:14px;}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-top:18px;}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 2px 10px rgba(0,40,90,.04);}
+  .stat .label{font-size:13px;color:var(--muted);margin-bottom:8px;}
+  .stat .val{font-family:Outfit;font-size:30px;font-weight:800;color:var(--navy);}
   table{width:100%;border-collapse:collapse;font-size:14px;}
-  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);}
-  th{color:var(--muted);font-weight:500;}
+  th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line);}
+  th{color:var(--muted);font-weight:600;font-size:12px;letter-spacing:.3px;text-transform:uppercase;}
   /* Kalender */
-  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-  .cal-title{font-size:16px;font-weight:600;text-transform:capitalize;}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .cal-title{font-family:Outfit;font-size:18px;font-weight:700;color:var(--navy);text-transform:capitalize;}
   .cal-nav{display:flex;gap:8px;}
-  .cal-nav button{padding:6px 12px;}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
-  .cal-dow{font-size:12px;color:var(--muted);text-align:center;padding:4px 0;font-weight:500;}
-  .cal-cell{min-height:60px;border:1px solid var(--line);border-radius:8px;padding:6px;font-size:13px;position:relative;background:var(--card);}
+  .cal-nav button{width:36px;height:36px;border:1px solid var(--line);background:#fff;color:var(--navy);font-size:18px;}
+  .cal-nav button:hover{border-color:var(--cyan);color:var(--cyan-d);}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;}
+  .cal-dow{font-size:12px;color:var(--muted);text-align:center;padding:4px 0;font-weight:600;}
+  .cal-cell{min-height:64px;border:1px solid var(--line);border-radius:10px;padding:7px;font-size:13px;background:#fff;}
   .cal-cell.empty{background:transparent;border:none;}
-  .cal-cell.has{cursor:pointer;}
-  .cal-cell.has:hover{border-color:var(--accent);}
-  .cal-cell.sel{border:2px solid var(--accent);background:var(--accent-soft);}
-  .cal-daynum{color:var(--muted);}
-  .cal-badge{margin-top:4px;display:inline-block;background:var(--accent);color:#fff;font-size:11px;font-weight:600;border-radius:10px;padding:1px 7px;}
-  .day-list{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
-  .wbtn{text-align:left;width:100%;}
-  .wbtn.sel{border-color:var(--accent);background:var(--accent-soft);}
-  .wtime{color:var(--muted);font-size:12px;margin-right:6px;}
+  .cal-cell.has{cursor:pointer;transition:.12s;}
+  .cal-cell.has:hover{border-color:var(--cyan);background:rgba(6,186,221,.05);}
+  .cal-cell.sel{border:2px solid var(--cyan);background:rgba(6,186,221,.10);}
+  .cal-daynum{color:var(--muted);font-weight:600;}
+  .cal-badge{margin-top:6px;display:inline-block;background:var(--navy);color:#fff;font-size:11px;font-weight:700;border-radius:20px;padding:2px 9px;}
+  .day-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+  .wbtn{text-align:left;width:100%;background:#fff;border:1px solid var(--line);padding:12px 14px;color:var(--ink);font-weight:500;}
+  .wbtn:hover{border-color:var(--cyan);}
+  .wbtn.sel{border:1.5px solid var(--cyan);background:rgba(6,186,221,.08);}
+  .wtime{color:var(--cyan-d);font-weight:700;font-size:12px;margin-right:10px;}
+  @media(max-width:820px){.login{grid-template-columns:1fr;}.login-left{display:none;}.login-left h1{font-size:34px;}}
 </style>
 </head>
 <body>
 <div id="login" class="login">
-  <h1>Webinar-Anmeldungen</h1>
-  <p class="muted">Melde dich mit deinem Microsoft-Konto an, um deine Anmeldezahlen zu sehen.</p>
-  <button class="primary" id="btn-login">Mit Microsoft anmelden</button>
-  <p class="muted" id="login-err" style="color:#c0392b;"></p>
+  <div class="login-left">
+    <div class="brand">
+      <div class="mark"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="15" rx="2.5" stroke="#fff" stroke-width="2"/><path d="M3 9h18M8 3v4M16 3v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
+      <div class="name">mitNORM</div>
+    </div>
+    <h1>Webinar-<br>Anmeldungen.</h1>
+    <p>Sieh auf einen Blick, wie viele Teilnehmer du für jedes Webinar gewonnen hast – und wie das Team insgesamt performt.</p>
+    <div class="feat"><span class="ck">✓</span> Anmeldungen pro Webinar & gesamt</div>
+    <div class="feat"><span class="ck">✓</span> Dein Anteil und Rang im Team</div>
+    <div class="feat"><span class="ck">✓</span> Übersicht im Kalender nach Datum</div>
+  </div>
+  <div class="login-right">
+    <div class="label">WEBINAR-DASHBOARD · BERATER-LOGIN</div>
+    <h2>Willkommen</h2>
+    <div class="sub">Melde dich mit deinem mitNORM-Microsoft-Konto an, um deine Anmeldezahlen zu sehen.</div>
+    <p id="login-err" class="err" style="display:none;"></p>
+    <button class="ms-btn" id="btn-login" style="align-self:flex-start;">
+      <svg width="18" height="18" viewBox="0 0 23 23" aria-hidden="true"><rect width="10" height="10" x="1" y="1" fill="#F25022"/><rect width="10" height="10" x="12" y="1" fill="#7FBA00"/><rect width="10" height="10" x="1" y="12" fill="#00A4EF"/><rect width="10" height="10" x="12" y="12" fill="#FFB900"/></svg>
+      Mit Microsoft anmelden
+    </button>
+    <div class="hint">Melde dich mit deinem mitNORM-Microsoft-Konto (@mitnorm.com oder @myvi.de) an. Dein Konto muss als Berater hinterlegt sein.</div>
+    <div class="foot">mitNORM · Interne Anwendung</div>
+  </div>
 </div>
 
 <div id="app" class="hidden">
   <header>
-    <h1>Webinar-Anmeldungen</h1>
-    <div style="display:flex;align-items:center;gap:10px;">
+    <div class="hbrand">
+      <div class="mark"></div>
+      <div><div class="t">Webinar-Anmeldungen</div><div class="s">mitNORM Dashboard</div></div>
+    </div>
+    <div class="huser">
       <div class="avatar" id="avatar">–</div>
       <span class="muted" id="who"></span>
-      <button id="btn-logout">Abmelden</button>
+      <button class="ghost dark" id="btn-logout">Abmelden</button>
     </div>
   </header>
   <div class="wrap">
     <div class="panel">
       <div class="cal-head">
         <div class="cal-title" id="cal-title">—</div>
-        <div class="cal-nav">
-          <button id="cal-prev">‹</button>
-          <button id="cal-next">›</button>
-        </div>
+        <div class="cal-nav"><button id="cal-prev">‹</button><button id="cal-next">›</button></div>
       </div>
       <div class="cal-grid" id="cal-grid"></div>
     </div>
@@ -88,11 +149,11 @@
         <div class="stat"><div class="label">Dein Rang im Team</div><div class="val" id="s-rank">–</div></div>
       </div>
       <div class="panel">
-        <div class="muted" style="margin-bottom:10px;">Anmeldungen pro Berater</div>
+        <div class="ptitle">Anmeldungen pro Berater</div>
         <div style="position:relative;height:300px;"><canvas id="chart"></canvas></div>
       </div>
       <div class="panel">
-        <div class="muted" style="margin-bottom:10px;">Deine Anmeldungen (Teilnehmer)</div>
+        <div class="ptitle">Deine Anmeldungen (Teilnehmer)</div>
         <table><thead><tr><th>Teilnehmer</th><th>E-Mail</th><th>Angemeldet am</th></tr></thead>
         <tbody id="mytbl"><tr><td colspan="3" class="muted">–</td></tr></tbody></table>
       </div>
@@ -111,16 +172,14 @@ const DOW = ["Mo","Di","Mi","Do","Fr","Sa","So"];
 const MONTHS = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
 let chart, me = "";
 let totals = [], counts = [], mine = [];
-let byDate = {};            // 'YYYY-MM-DD' -> [webinar]
-let viewY, viewM;           // angezeigter Monat
-let selectedDate = null, selectedWid = null;
+let byDate = {}, viewY, viewM, selectedDate = null, selectedWid = null;
 
 $("btn-login").onclick = async () => {
   const { error } = await sb.auth.signInWithOAuth({
     provider: "azure",
     options: { scopes: "openid email profile", redirectTo: window.location.origin + window.location.pathname },
   });
-  if (error) $("login-err").textContent = error.message;
+  if (error){ const e=$("login-err"); e.style.display="block"; e.textContent = error.message; }
 };
 $("btn-logout").onclick = async () => { await sb.auth.signOut(); location.reload(); };
 
@@ -128,8 +187,8 @@ function dateKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(
 
 async function init() {
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) { $("login").classList.remove("hidden"); $("app").classList.add("hidden"); return; }
-  $("login").classList.add("hidden"); $("app").classList.remove("hidden");
+  if (!session) { $("login").style.display="grid"; $("app").classList.add("hidden"); return; }
+  $("login").style.display="none"; $("app").classList.remove("hidden");
   me = (session.user.email || "").toLowerCase();
   const name = session.user.user_metadata?.full_name || session.user.email || "";
   $("who").textContent = name;
@@ -142,19 +201,16 @@ async function loadData() {
     sb.rpc("webinar_totals"), sb.rpc("webinar_advisor_counts"), sb.rpc("webinar_my_registrations"),
   ]);
   totals = t.data || []; counts = c.data || []; mine = m.data || [];
-  byDate = {};
-  let latest = null;
+  byDate = {}; let latest = null;
   totals.forEach(w => {
     if (!w.starts_at) return;
-    const d = new Date(w.starts_at);
-    const k = dateKey(d);
+    const d = new Date(w.starts_at), k = dateKey(d);
     (byDate[k] = byDate[k] || []).push(w);
     if (!latest || d > latest) latest = d;
   });
   const start = latest || new Date();
   viewY = start.getFullYear(); viewM = start.getMonth();
   renderCalendar();
-  // automatisch den letzten Tag mit Webinaren auswählen
   if (latest) selectDay(dateKey(latest));
 }
 
@@ -163,7 +219,7 @@ function renderCalendar() {
   const grid = $("cal-grid"); grid.innerHTML = "";
   DOW.forEach(d => { const e=document.createElement("div"); e.className="cal-dow"; e.textContent=d; grid.appendChild(e); });
   const first = new Date(viewY, viewM, 1);
-  let lead = (first.getDay() + 6) % 7; // Montag = 0
+  let lead = (first.getDay() + 6) % 7;
   for (let i=0;i<lead;i++){ const e=document.createElement("div"); e.className="cal-cell empty"; grid.appendChild(e); }
   const days = new Date(viewY, viewM+1, 0).getDate();
   for (let day=1; day<=days; day++){
@@ -173,9 +229,7 @@ function renderCalendar() {
     e.className = "cal-cell" + (list ? " has" : "") + (k===selectedDate ? " sel" : "");
     e.innerHTML = '<span class="cal-daynum">'+day+'</span>';
     if (list){
-      const total = list.reduce((s,w)=> s + Number(totals.find(t=>t.webinar_id===w.webinar_id)?.total_registrations||0), 0);
       e.innerHTML += '<br><span class="cal-badge">'+list.length+(list.length>1?' Webinare':' Webinar')+'</span>';
-      e.title = total + " Anmeldungen";
       e.onclick = () => selectDay(k);
     }
     grid.appendChild(e);
@@ -212,13 +266,14 @@ function renderWebinar(wid) {
 
   const labels = rows.map(r => r.advisor_name);
   const data = rows.map(r => Number(r.registrations));
-  const colors = rows.map(r => (r.email||"").toLowerCase() === me ? "#378ADD" : "#b4b2a9");
+  const colors = rows.map(r => (r.email||"").toLowerCase() === me ? "#06BADD" : "#9db4c9");
   if (chart) chart.destroy();
   chart = new Chart($("chart"), {
     type: "bar",
-    data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 4 }] },
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 5 }] },
     options: { indexAxis: "y", responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } },
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks:{ font:{ family:"Inter", size:12 } } } } },
   });
 
   const tbl = $("mytbl");
