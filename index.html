@@ -77,6 +77,8 @@
   .cal-cell.has{cursor:pointer;transition:.12s;}
   .cal-cell.has:hover{border-color:var(--cyan);background:rgba(6,186,221,.05);}
   .cal-cell.sel{border:2px solid var(--cyan);background:rgba(6,186,221,.10);}
+  .cal-cell.today{border-color:var(--navy);}
+  .cal-cell.today .cal-daynum{color:var(--navy);font-weight:800;}
   .cal-daynum{color:var(--muted);font-weight:600;}
   .cal-badge{margin-top:5px;display:inline-block;background:var(--navy);color:#fff;font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px;}
   /* Webinar-Items */
@@ -215,22 +217,32 @@ async function init() {
 async function loadData() {
   const [t, c, m] = await Promise.all([ sb.rpc("webinar_totals"), sb.rpc("webinar_advisor_counts"), sb.rpc("webinar_my_registrations") ]);
   totals = t.data || []; counts = c.data || []; mine = m.data || [];
-  byDate = {}; let nearest = null, now = Date.now(), best = Infinity;
+  byDate = {};
   totals.forEach(w => {
     if (!w.starts_at) return;
     const d = new Date(w.starts_at), k = dateKey(d);
     (byDate[k] = byDate[k] || []).push(w);
-    const diff = Math.abs(d.getTime() - now);
-    if (diff < best) { best = diff; nearest = d; }
   });
-  const start = nearest || new Date();
-  viewY = start.getFullYear(); viewM = start.getMonth();
+  // Kalender immer im aktuellen Monat starten
+  const today = new Date();
+  viewY = today.getFullYear(); viewM = today.getMonth();
   renderCalendar();
-  if (nearest) selectDay(dateKey(nearest));
+  // Webinar im aktuellen Monat auswählen, das heute am nächsten liegt
+  let pick = null, best = Infinity, now = today.getTime();
+  totals.forEach(w => {
+    if (!w.starts_at) return;
+    const d = new Date(w.starts_at);
+    if (d.getFullYear() === viewY && d.getMonth() === viewM) {
+      const diff = Math.abs(d.getTime() - now);
+      if (diff < best) { best = diff; pick = d; }
+    }
+  });
+  if (pick) selectDay(dateKey(pick));
 }
 
 function renderCalendar() {
   $("cal-title").textContent = MONTHS[viewM] + " " + viewY;
+  const todayKey = dateKey(new Date());
   const grid = $("cal-grid"); grid.innerHTML = "";
   DOW.forEach(d => { const e=document.createElement("div"); e.className="cal-dow"; e.textContent=d; grid.appendChild(e); });
   const first = new Date(viewY, viewM, 1); let lead = (first.getDay() + 6) % 7;
@@ -240,8 +252,8 @@ function renderCalendar() {
     const k = viewY+"-"+String(viewM+1).padStart(2,"0")+"-"+String(day).padStart(2,"0");
     const list = byDate[k];
     const e = document.createElement("div");
-    e.className = "cal-cell" + (list ? " has" : "") + (k===selectedDate ? " sel" : "");
-    e.innerHTML = '<span class="cal-daynum">'+day+'</span>';
+    e.className = "cal-cell" + (list ? " has" : "") + (k===selectedDate ? " sel" : "") + (k===todayKey ? " today" : "");
+    e.innerHTML = '<span class="cal-daynum">'+day+(k===todayKey?' · heute':'')+'</span>';
     if (list){ e.innerHTML += '<br><span class="cal-badge">'+list.length+(list.length>1?' Webinare':' Webinar')+'</span>'; e.onclick = () => selectDay(k); }
     grid.appendChild(e);
   }
