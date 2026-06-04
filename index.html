@@ -94,7 +94,28 @@
   .witem .meta{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:3px;}
   .witem .cnt{color:var(--cyan-d);font-weight:700;}
   @media(max-width:1000px){.layout{grid-template-columns:1fr;}}
-  @media(max-width:820px){.login{grid-template-columns:1fr;}.login-left{display:none;}}
+  @media(max-width:820px){.login{grid-template-columns:1fr;}.login-left{display:none;}.login-right{min-height:100vh;justify-content:center;}}
+  @media(max-width:600px){
+    .wrap{padding:14px 12px 48px;}
+    header{padding:12px 14px;}
+    .hbrand .t{font-size:15px;} .hbrand .s{font-size:11px;}
+    .toolbar{justify-content:stretch;} .seg{width:100%;display:flex;} .seg button{flex:1;padding:10px 6px;}
+    .panel{padding:12px;border-radius:12px;}
+    .cal-title{font-size:16px;}
+    .cal-grid{gap:4px;}
+    .cal-dow{font-size:10px;padding:2px 0;}
+    .cal-cell{min-height:46px;padding:4px;border-radius:7px;}
+    .cal-daynum{font-size:12px;}
+    .cal-nav button{width:30px;height:30px;font-size:15px;}
+    .cal-badge{font-size:9px;padding:1px 5px;}
+    .cal-badge .blbl{display:none;}
+    .tlbl{display:none;}
+    .cards{gap:8px;}
+    .stat{padding:11px;} .stat .val{font-size:20px;}
+    #detail-head{font-size:15px;}
+    .witem{padding:11px 12px;} .witem .ttl{font-size:14px;}
+    .login-right{padding:7vh 7vw;} .login-right h2{font-size:30px;}
+  }
 </style>
 </head>
 <body>
@@ -174,7 +195,7 @@
 const SUPABASE_URL = "https://umgbtymowqavnmsbgceh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_uwCtealR7TogA86X68-RZg_3FQ1RPT0";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const APP_URL = "https://webinar-dashboard-six.vercel.app/"; // fester Rücksprung nach Microsoft-Login
+const APP_URL = "https://webinare.mitnorm.de/"; // fester Rücksprung nach Microsoft-Login (Custom-Domain)
 const $ = (id) => document.getElementById(id);
 const DOW = ["Mo","Di","Mi","Do","Fr","Sa","So"];
 const MONTHS = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
@@ -258,8 +279,8 @@ function renderCalendar() {
     const list = byDate[k];
     const e = document.createElement("div");
     e.className = "cal-cell" + (list ? " has" : "") + (k===selectedDate ? " sel" : "") + (k===todayKey ? " today" : "");
-    e.innerHTML = '<span class="cal-daynum">'+day+(k===todayKey?' · heute':'')+'</span>';
-    if (list){ e.innerHTML += '<br><span class="cal-badge">'+list.length+(list.length>1?' Webinare':' Webinar')+'</span>'; e.onclick = () => selectDay(k); }
+    e.innerHTML = '<span class="cal-daynum">'+day+(k===todayKey?'<span class="tlbl"> · heute</span>':'')+'</span>';
+    if (list){ e.innerHTML += '<br><span class="cal-badge">'+list.length+'<span class="blbl"> '+(list.length>1?'Webinare':'Webinar')+'</span></span>'; e.onclick = () => selectDay(k); }
     grid.appendChild(e);
   }
 }
