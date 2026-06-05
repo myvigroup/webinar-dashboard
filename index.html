@@ -175,6 +175,7 @@
             <div class="stat"><div class="label">Dein Anteil</div><div class="val" id="s-share">–</div></div>
             <div class="stat"><div class="label">Dein Rang im Team</div><div class="val" id="s-rank">–</div></div>
           </div>
+          <div id="detail-cancel" class="muted" style="margin:-4px 0 10px;font-size:13px;"></div>
           <div class="panel">
             <div class="ptitle">Anmeldungen pro Berater</div>
             <div style="position:relative;height:240px;"><canvas id="chart"></canvas></div>
@@ -288,7 +289,8 @@ function renderCalendar() {
 function webinarItem(w, withDate){
   const d = new Date(w.starts_at);
   const dateStr = withDate ? d.toLocaleDateString("de-DE",{day:"2-digit",month:"short",timeZone:TZ}) : d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ});
-  const meta = [presLine(w), '<span class="cnt">'+w.total_registrations+' Anmeldungen</span>', linkLine(w)].filter(Boolean).join("");
+  const cancelStr = Number(w.canceled)>0 ? '<span style="color:#b03a3a;">'+w.canceled+' storniert</span>' : '';
+  const meta = [presLine(w), '<span class="cnt">'+w.total_registrations+' Anmeldungen</span>', cancelStr, linkLine(w)].filter(Boolean).join("");
   const b = document.createElement("div");
   b.className = "witem" + (w.webinar_id===selectedWid ? " sel" : "");
   b.dataset.wid = w.webinar_id;
@@ -331,7 +333,10 @@ function drawChart(labels,data,colors){
       scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks:{ font:{ family:"Inter", size:12 } } } } } });
 }
 function fillTable(rows){
-  $("mytbl").innerHTML = rows.length ? rows.map(r => `<tr><td>${esc(r.attendee_name)||"–"}</td><td>${esc(r.attendee_email)||"–"}</td><td>${r.registered_at ? new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}) : "–"}</td></tr>`).join("") : '<tr><td colspan="3" class="muted">Keine eigenen Anmeldungen.</td></tr>';
+  $("mytbl").innerHTML = rows.length ? rows.map(r => {
+    const cancel = r.status==='canceled' ? ' <span style="color:#b03a3a;font-size:11px;font-weight:600;">storniert</span>' : '';
+    return `<tr><td>${esc(r.attendee_name)||"–"}${cancel}</td><td>${esc(r.attendee_email)||"–"}</td><td>${r.registered_at ? new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}) : "–"}</td></tr>`;
+  }).join("") : '<tr><td colspan="3" class="muted">Keine eigenen Anmeldungen.</td></tr>';
 }
 
 function renderWebinar(wid) {
@@ -340,6 +345,7 @@ function renderWebinar(wid) {
   if (w){ const d = w.starts_at ? new Date(w.starts_at) : null;
     $("detail-head").textContent = w.title + (d ? " · " + d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"long",year:"numeric",timeZone:TZ}) + ", " + d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ}) + " Uhr" : ""); }
   const total = w?.total_registrations || 0;
+  $("detail-cancel").textContent = (w && Number(w.canceled)>0) ? ("Davon storniert: " + w.canceled) : "";
   const rows = counts.filter(c => c.webinar_id === wid && Number(c.registrations) > 0).sort((a,b) => b.registrations - a.registrations);
   const mineRow = counts.find(c => c.webinar_id === wid && (c.email||"").toLowerCase() === me);
   const mineCount = mineRow ? Number(mineRow.registrations) : 0;
@@ -358,6 +364,8 @@ function renderAggregate(list){
   selectedWid = null; markSelection();
   const ids = new Set(list.map(w=>w.webinar_id));
   const total = list.reduce((s,w)=> s + Number(w.total_registrations||0), 0);
+  const canceled = list.reduce((s,w)=> s + Number(w.canceled||0), 0);
+  $("detail-cancel").textContent = canceled>0 ? ("Davon storniert: " + canceled) : "";
   const byAdv = {};
   counts.forEach(c => { if (ids.has(c.webinar_id) && Number(c.registrations)>0){ const k=c.advisor_id||c.advisor_name; if(!byAdv[k]) byAdv[k]={name:c.advisor_name,email:c.email,n:0}; byAdv[k].n += Number(c.registrations); } });
   const rows = Object.values(byAdv).sort((a,b)=> b.n - a.n);
