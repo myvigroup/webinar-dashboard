@@ -182,7 +182,7 @@
           </div>
           <div class="panel">
             <div class="ptitle">Deine Anmeldungen (Teilnehmer)</div>
-            <table><thead><tr><th>Teilnehmer</th><th>E-Mail</th><th>Angemeldet am</th></tr></thead><tbody id="mytbl"><tr><td colspan="3" class="muted">–</td></tr></tbody></table>
+            <table><thead><tr><th>Teilnehmer</th><th>E-Mail</th><th>Angemeldet am</th><th>Anwesend</th><th>Dauer</th></tr></thead><tbody id="mytbl"><tr><td colspan="5" class="muted">–</td></tr></tbody></table>
           </div>
         </div>
       </div>
@@ -336,8 +336,18 @@ function drawChart(labels,data,colors){
 function fillTable(rows){
   $("mytbl").innerHTML = rows.length ? rows.map(r => {
     const cancel = r.status==='canceled' ? ' <span style="color:#b03a3a;font-size:11px;font-weight:600;">storniert</span>' : '';
-    return `<tr><td>${esc(r.attendee_name)||"–"}${cancel}</td><td>${esc(r.attendee_email)||"–"}</td><td>${r.registered_at ? new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}) : "–"}</td></tr>`;
-  }).join("") : '<tr><td colspan="3" class="muted">Keine eigenen Anmeldungen.</td></tr>';
+    let anw = '<span class="muted">–</span>', dauer = '<span class="muted">–</span>';
+    if (r.status !== 'canceled') {
+      if (r.attended === true) {
+        anw = '<span style="color:#1a7d4b;font-weight:600;">✓ anwesend</span>';
+        const s = Number(r.attended_seconds || 0);
+        if (s > 0) { const m = Math.round(s/60); dauer = m >= 60 ? `${Math.floor(m/60)} Std ${m%60} Min` : `${m} Min`; }
+      } else if (r.attended === false) {
+        anw = '<span style="color:#b03a3a;font-weight:600;">nicht dabei</span>';
+      }
+    }
+    return `<tr><td>${esc(r.attendee_name)||"–"}${cancel}</td><td>${esc(r.attendee_email)||"–"}</td><td>${r.registered_at ? new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}) : "–"}</td><td>${anw}</td><td>${dauer}</td></tr>`;
+  }).join("") : '<tr><td colspan="5" class="muted">Keine eigenen Anmeldungen.</td></tr>';
 }
 
 function renderWebinar(wid) {
