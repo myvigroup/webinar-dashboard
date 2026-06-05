@@ -290,7 +290,8 @@ function webinarItem(w, withDate){
   const d = new Date(w.starts_at);
   const dateStr = withDate ? d.toLocaleDateString("de-DE",{day:"2-digit",month:"short",timeZone:TZ}) : d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ});
   const cancelStr = Number(w.canceled)>0 ? '<span style="color:#b03a3a;">'+w.canceled+' storniert</span>' : '';
-  const meta = [presLine(w), '<span class="cnt">'+w.total_registrations+' Anmeldungen</span>', cancelStr, linkLine(w)].filter(Boolean).join("");
+  const attStr = (w.attended!=null) ? '<span style="color:#0596b3;font-weight:700;">'+w.attended+' anwesend</span>' : '';
+  const meta = [presLine(w), '<span class="cnt">'+w.total_registrations+' Anmeldungen</span>', attStr, cancelStr, linkLine(w)].filter(Boolean).join("");
   const b = document.createElement("div");
   b.className = "witem" + (w.webinar_id===selectedWid ? " sel" : "");
   b.dataset.wid = w.webinar_id;
@@ -345,7 +346,7 @@ function renderWebinar(wid) {
   if (w){ const d = w.starts_at ? new Date(w.starts_at) : null;
     $("detail-head").textContent = w.title + (d ? " · " + d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"long",year:"numeric",timeZone:TZ}) + ", " + d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ}) + " Uhr" : ""); }
   const total = w?.total_registrations || 0;
-  $("detail-cancel").textContent = (w && Number(w.canceled)>0) ? ("Davon storniert: " + w.canceled) : "";
+  { const ex=[]; if (w && w.attended!=null) ex.push("Teilnehmer anwesend: "+w.attended); if (w && Number(w.canceled)>0) ex.push("Davon storniert: "+w.canceled); $("detail-cancel").textContent = ex.join("   ·   "); }
   const rows = counts.filter(c => c.webinar_id === wid && Number(c.registrations) > 0).sort((a,b) => b.registrations - a.registrations);
   const mineRow = counts.find(c => c.webinar_id === wid && (c.email||"").toLowerCase() === me);
   const mineCount = mineRow ? Number(mineRow.registrations) : 0;
@@ -365,7 +366,8 @@ function renderAggregate(list){
   const ids = new Set(list.map(w=>w.webinar_id));
   const total = list.reduce((s,w)=> s + Number(w.total_registrations||0), 0);
   const canceled = list.reduce((s,w)=> s + Number(w.canceled||0), 0);
-  $("detail-cancel").textContent = canceled>0 ? ("Davon storniert: " + canceled) : "";
+  const attendedSum = list.reduce((s,w)=> s + (w.attended!=null?Number(w.attended):0), 0);
+  { const ex=[]; if (list.some(w=>w.attended!=null)) ex.push("Teilnehmer anwesend (gesamt): "+attendedSum); if (canceled>0) ex.push("Davon storniert: "+canceled); $("detail-cancel").textContent = ex.join("   ·   "); }
   const byAdv = {};
   counts.forEach(c => { if (ids.has(c.webinar_id) && Number(c.registrations)>0){ const k=c.advisor_id||c.advisor_name; if(!byAdv[k]) byAdv[k]={name:c.advisor_name,email:c.email,n:0}; byAdv[k].n += Number(c.registrations); } });
   const rows = Object.values(byAdv).sort((a,b)=> b.n - a.n);
