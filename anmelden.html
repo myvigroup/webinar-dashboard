@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Webinar-Anmeldung · mitNORM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#004283;--cyan:#06BADD;--bg:#eef3f8;--line:#e4eaf1;--muted:#5b7088;--text:#0b2138;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--text);}
+  .wrap{max-width:560px;margin:0 auto;padding:24px 16px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 6px 24px rgba(0,40,80,.06);}
+  .head{background:var(--navy);padding:24px;}
+  .brand{color:var(--cyan);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+  h1{font-family:Outfit,sans-serif;color:#fff;font-size:22px;margin:6px 0 0;font-weight:800;}
+  .body{padding:24px;}
+  .inv{background:#eef7fb;border:1px solid #cdeaf3;border-radius:10px;padding:12px 14px;font-size:14px;margin-bottom:18px;}
+  .inv b{color:var(--navy);}
+  label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px;font-weight:500;}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;}
+  input:focus,select:focus{outline:none;border-color:var(--cyan);}
+  .row{display:flex;gap:10px;}
+  .row>div{flex:1;}
+  .consent{display:flex;gap:8px;align-items:flex-start;margin:16px 0;font-size:12.5px;color:var(--muted);line-height:1.5;}
+  .consent input{width:auto;margin-top:2px;}
+  button{width:100%;margin-top:8px;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:13px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;}
+  button:disabled{opacity:.6;cursor:not-allowed;}
+  button:hover:not(:disabled){background:#013463;}
+  .msg{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:14px;display:none;}
+  .ok{background:#eaf7ef;border:1px solid #bfe6cc;color:#1a7d4b;}
+  .err{background:#fdf0ee;border:1px solid #f3cfc8;color:#b03a3a;}
+  .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:16px;}
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="head"><div class="brand">mitNORM · Live-Workshops</div><h1>Zum Webinar anmelden</h1></div>
+    <div class="body">
+      <div id="inv" class="inv hidden"></div>
+      <div id="form">
+        <div class="row">
+          <div><label>Vorname</label><input id="vorname" autocomplete="given-name" /></div>
+          <div><label>Nachname</label><input id="nachname" autocomplete="family-name" /></div>
+        </div>
+        <label>E-Mail</label>
+        <input id="email" type="email" autocomplete="email" />
+        <label>Webinar</label>
+        <select id="webinar"><option value="">Wird geladen…</option></select>
+        <label class="consent"><input id="consent" type="checkbox" /> <span>Ich bin mit der Verarbeitung meiner Daten zur Webinar-Anmeldung einverstanden. Es gilt die <a href="https://www.mitnorm.com/datenschutz" target="_blank" rel="noopener">Datenschutzerklärung</a>.</span></label>
+        <button id="submit">Jetzt anmelden</button>
+        <div id="msg" class="msg"></div>
+      </div>
+      <div class="foot">mitNORM GmbH · Bei Fragen: service@mitnorm.com</div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://umgbtymowqavnmsbgceh.supabase.co";
+const SUPABASE_KEY = "sb_publishable_uwCtealR7TogA86X68-RZg_3FQ1RPT0";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = (id) => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const slug = (params.get("b") || "").trim();
+const preW = (params.get("w") || "").trim();
+const TZ = "UTC";
+
+async function init(){
+  if(!slug){ showMsg("err","Dieser Link ist unvollständig. Bitte nutze den persönlichen Link deines Beraters."); $("submit").disabled=true; return; }
+  const [{ data: adv }, { data: webs }] = await Promise.all([
+    sb.rpc("webinar_advisor_by_slug", { p_slug: slug }),
+    sb.rpc("webinar_public_upcoming"),
+  ]);
+  const advisor = adv && adv[0];
+  if(advisor){ $("inv").classList.remove("hidden"); $("inv").innerHTML = "Du wurdest von <b>"+esc(advisor.name)+"</b> zu unseren Live-Workshops eingeladen."; }
+  const sel = $("webinar"); sel.innerHTML = "";
+  const list = webs || [];
+  if(!list.length){ sel.innerHTML = "<option value=''>Aktuell keine Webinare verfügbar</option>"; return; }
+  sel.innerHTML = "<option value=''>Bitte wählen…</option>";
+  list.forEach(w => {
+    const o = document.createElement("option");
+    o.value = w.webinar_id;
+    const d = new Date(w.starts_at);
+    o.textContent = w.title + " · " + d.toLocaleDateString("de-DE",{day:"2-digit",month:"long",timeZone:TZ}) + ", " + d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ}) + " Uhr";
+    sel.appendChild(o);
+  });
+  if(preW && list.some(w=>w.webinar_id===preW)) sel.value = preW;
+}
+function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+function showMsg(cls, text){ const m=$("msg"); m.className="msg "+cls; m.textContent=text; m.style.display="block"; }
+
+$("submit").onclick = async () => {
+  const payload = { b: slug, w: $("webinar").value, vorname: $("vorname").value.trim(), nachname: $("nachname").value.trim(), email: $("email").value.trim(), consent: $("consent").checked };
+  if(!payload.w){ showMsg("err","Bitte wähle ein Webinar aus."); return; }
+  if(!payload.vorname || !payload.nachname || !payload.email){ showMsg("err","Bitte fülle alle Felder aus."); return; }
+  if(!payload.consent){ showMsg("err","Bitte stimme der Datenverarbeitung zu."); return; }
+  $("submit").disabled = true; $("submit").textContent = "Wird angemeldet…"; $("msg").style.display="none";
+  try{
+    const { data, error } = await sb.functions.invoke("webinar-register", { body: payload });
+    if(error || !data || data.ok===false){ showMsg("err", (data && data.error) || "Anmeldung fehlgeschlagen. Bitte später erneut versuchen."); $("submit").disabled=false; $("submit").textContent="Jetzt anmelden"; return; }
+    $("form").innerHTML = '<div class="msg ok" style="display:block;">✓ '+(data.already ? "Du bist für dieses Webinar bereits angemeldet." : "Anmeldung erfolgreich! Du erhältst die Zugangsdaten per E-Mail von Microsoft Teams.")+'</div><div class="foot" style="margin-top:16px;">mitNORM GmbH · service@mitnorm.com</div>';
+  }catch(e){ showMsg("err","Es ist ein Fehler aufgetreten. Bitte später erneut versuchen."); $("submit").disabled=false; $("submit").textContent="Jetzt anmelden"; }
+};
+init();
+</script>
+</body>
+</html>
