@@ -170,10 +170,10 @@
         <div id="detail" class="hidden">
           <div id="detail-head"></div>
           <div class="cards" style="margin-bottom:14px;">
-            <div class="stat"><div class="label">Deine Anmeldungen</div><div class="val" id="s-mine">–</div></div>
+            <div class="stat"><div class="label" id="l-mine">Deine Anmeldungen</div><div class="val" id="s-mine">–</div></div>
             <div class="stat"><div class="label">Anmeldungen gesamt</div><div class="val" id="s-total">–</div></div>
-            <div class="stat"><div class="label">Dein Anteil</div><div class="val" id="s-share">–</div></div>
-            <div class="stat"><div class="label">Dein Rang im Team</div><div class="val" id="s-rank">–</div></div>
+            <div class="stat"><div class="label" id="l-share">Dein Anteil</div><div class="val" id="s-share">–</div></div>
+            <div class="stat"><div class="label" id="l-rank">Dein Rang im Team</div><div class="val" id="s-rank">–</div></div>
           </div>
           <div id="detail-cancel" class="muted" style="margin:-4px 0 10px;font-size:13px;"></div>
           <div class="panel">
@@ -181,8 +181,18 @@
             <div style="position:relative;height:240px;"><canvas id="chart"></canvas></div>
           </div>
           <div class="panel">
-            <div class="ptitle">Deine Anmeldungen (Teilnehmer)</div>
-            <table><thead><tr><th>Teilnehmer</th><th>E-Mail</th><th>Angemeldet am</th><th>Anwesend</th><th>Dauer</th></tr></thead><tbody id="mytbl"><tr><td colspan="5" class="muted">–</td></tr></tbody></table>
+            <div class="ptitle" id="mytbl-title">Deine Anmeldungen (Teilnehmer)</div>
+            <div style="overflow-x:auto"><table id="mytable"></table></div>
+          </div>
+          <div id="admin-section" class="hidden">
+            <div class="panel">
+              <div class="ptitle">Übersicht aller Webinare · Admin</div>
+              <div style="overflow-x:auto"><table id="admin-overview-tbl"></table></div>
+            </div>
+            <div class="panel">
+              <div class="ptitle">Berater-Ranking gesamt · Admin</div>
+              <table id="admin-rank-tbl"></table>
+            </div>
           </div>
         </div>
       </div>
@@ -201,6 +211,7 @@ const $ = (id) => document.getElementById(id);
 const DOW = ["Mo","Di","Mi","Do","Fr","Sa","So"];
 const MONTHS = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
 let chart, me = "";
+const ADMIN = ["l.jacob@myvi.de","digitalmarketing@myvi.de"]; let isAdmin = false;
 let totals = [], counts = [], mine = [], byDate = {}, viewY, viewM, selectedDate = null, selectedWid = null;
 
 $("btn-login").onclick = async () => {
@@ -235,8 +246,9 @@ async function init() {
   if (!session) { $("login").style.display="grid"; $("app").classList.add("hidden"); return; }
   $("login").style.display="none"; $("app").classList.remove("hidden");
   me = (session.user.email || "").toLowerCase();
+  isAdmin = ADMIN.includes(me);
   const name = session.user.user_metadata?.full_name || session.user.email || "";
-  $("who").textContent = name;
+  $("who").textContent = isAdmin ? name + " · Admin" : name;
   $("avatar").textContent = name.split(" ").map(s => s[0]).slice(0,2).join("").toUpperCase();
   await loadData();
 }
@@ -265,6 +277,29 @@ async function loadData() {
     }
   });
   if (pick) selectDay(dateKey(pick));
+  if (isAdmin) loadAdmin();
+}
+
+async function loadAdmin(){
+  $("admin-section").classList.remove("hidden");
+  const [ov, rk] = await Promise.all([ sb.rpc("webinar_admin_overview"), sb.rpc("webinar_admin_ranking") ]);
+  renderAdminOverview(ov.data || []);
+  renderAdminRanking(rk.data || []);
+}
+function fmtD(s){ return s ? new Date(s).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"2-digit",timeZone:TZ}) : "–"; }
+function renderAdminOverview(rows){
+  const head = '<thead><tr><th>Datum</th><th>Webinar</th><th>Angem.</th><th>Anwesend</th><th>Quote</th><th>Storno</th><th>Ø Dauer</th><th>TN-Mails</th><th>NoShow</th></tr></thead>';
+  const body = rows.length ? rows.map(w=>{
+    const q = (w.attended!=null && Number(w.registered)>0) ? Math.round(w.attended/w.registered*100)+' %' : '–';
+    const dur = w.avg_seconds ? Math.round(w.avg_seconds/60)+' Min' : '–';
+    return `<tr><td>${fmtD(w.starts_at)}</td><td>${esc(w.title)}</td><td>${w.registered}</td><td>${w.attended??'–'}</td><td>${q}</td><td>${w.canceled||0}</td><td>${dur}</td><td>${w.teilnehmer_mails||0}</td><td>${w.noshow_mails||0}</td></tr>`;
+  }).join("") : '<tr><td colspan="9" class="muted">Keine Daten.</td></tr>';
+  $("admin-overview-tbl").innerHTML = head + '<tbody>'+body+'</tbody>';
+}
+function renderAdminRanking(rows){
+  const head = '<thead><tr><th>Berater</th><th>Anmeldungen</th><th>Teilgenommen</th></tr></thead>';
+  const body = rows.length ? rows.map((r,i)=>`<tr><td>${i+1}. ${esc(r.advisor)}</td><td>${r.anmeldungen}</td><td>${r.teilgenommen}</td></tr>`).join("") : '<tr><td colspan="3" class="muted">Keine Daten.</td></tr>';
+  $("admin-rank-tbl").innerHTML = head + '<tbody>'+body+'</tbody>';
 }
 
 function renderCalendar() {
@@ -333,21 +368,23 @@ function drawChart(labels,data,colors){
     options: { indexAxis: "y", responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
       scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks:{ font:{ family:"Inter", size:12 } } } } } });
 }
-function fillTable(rows){
-  $("mytbl").innerHTML = rows.length ? rows.map(r => {
-    const cancel = r.status==='canceled' ? ' <span style="color:#b03a3a;font-size:11px;font-weight:600;">storniert</span>' : '';
-    let anw = '<span class="muted">–</span>', dauer = '<span class="muted">–</span>';
-    if (r.status !== 'canceled') {
-      if (r.attended === true) {
-        anw = '<span style="color:#1a7d4b;font-weight:600;">✓ anwesend</span>';
-        const s = Number(r.attended_seconds || 0);
-        if (s > 0) { const m = Math.round(s/60); dauer = m >= 60 ? `${Math.floor(m/60)} Std ${m%60} Min` : `${m} Min`; }
-      } else if (r.attended === false) {
-        anw = '<span style="color:#b03a3a;font-weight:600;">nicht dabei</span>';
-      }
-    }
-    return `<tr><td>${esc(r.attendee_name)||"–"}${cancel}</td><td>${esc(r.attendee_email)||"–"}</td><td>${r.registered_at ? new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}) : "–"}</td><td>${anw}</td><td>${dauer}</td></tr>`;
-  }).join("") : '<tr><td colspan="5" class="muted">Keine eigenen Anmeldungen.</td></tr>';
+function durStr(s){ s = Number(s||0); if(!s) return ''; const m = Math.round(s/60); return m>=60 ? `${Math.floor(m/60)} Std ${m%60} Min` : `${m} Min`; }
+function regRow(r, withAdv){
+  const cancel = r.status==='canceled' ? ' <span style="color:#b03a3a;font-size:11px;font-weight:600;">storniert</span>' : '';
+  let anw = '<span class="muted">–</span>', dauer = '<span class="muted">–</span>';
+  if (r.status !== 'canceled') {
+    if (r.attended === true) { anw = '<span style="color:#1a7d4b;font-weight:600;">✓ anwesend</span>'; const d = durStr(r.attended_seconds); if (d) dauer = d; }
+    else if (r.attended === false) { anw = '<span style="color:#b03a3a;font-weight:600;">nicht dabei</span>'; }
+  }
+  const adv = withAdv ? `<td>${esc(r.advisor)||"–"}</td>` : '';
+  return `<tr><td>${esc(r.attendee_name)||"–"}${cancel}</td><td>${esc(r.attendee_email)||"–"}</td>${adv}<td>${r.registered_at ? new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}) : "–"}</td><td>${anw}</td><td>${dauer}</td></tr>`;
+}
+function fillTable(rows, withAdv){
+  rows = rows || [];
+  const cols = withAdv ? 6 : 5;
+  const head = `<thead><tr><th>Teilnehmer</th><th>E-Mail</th>${withAdv?'<th>Berater</th>':''}<th>Angemeldet am</th><th>Anwesend</th><th>Dauer</th></tr></thead>`;
+  const body = rows.length ? rows.map(r=>regRow(r,withAdv)).join("") : `<tr><td colspan="${cols}" class="muted">Keine Anmeldungen.</td></tr>`;
+  $("mytable").innerHTML = head + '<tbody>'+body+'</tbody>';
 }
 
 function renderWebinar(wid) {
@@ -365,8 +402,14 @@ function renderWebinar(wid) {
   $("s-total").textContent = total;
   $("s-share").textContent = total ? Math.round(mineCount/total*100) + " %" : "–";
   $("s-rank").textContent = (mineCount>0) ? rank + " / " + rows.length : "–";
+  if (isAdmin && w){
+    $("l-mine").textContent = "Anwesend"; $("s-mine").textContent = (w.attended!=null) ? w.attended : "–";
+    $("l-share").textContent = "Anwesenheitsquote"; $("s-share").textContent = (w.attended!=null && total) ? Math.round(w.attended/total*100)+" %" : "–";
+    $("l-rank").textContent = "Storniert"; $("s-rank").textContent = w.canceled || 0;
+  }
   drawChart(rows.map(r=>r.advisor_name), rows.map(r=>Number(r.registrations)), rows.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9"));
-  fillTable(mine.filter(r => r.webinar_id === wid));
+  if (isAdmin){ $("mytbl-title").textContent = "Alle Anmeldungen (mit Berater)"; sb.rpc("webinar_admin_registrations",{p_webinar_id:wid}).then(({data})=>fillTable(data||[], true)); }
+  else fillTable(mine.filter(r => r.webinar_id === wid), false);
 }
 
 // Summe über mehrere Webinare (z. B. alle anstehenden)
@@ -388,8 +431,14 @@ function renderAggregate(list){
   $("s-total").textContent = total;
   $("s-share").textContent = total ? Math.round(mineCount/total*100) + " %" : "–";
   $("s-rank").textContent = (mineCount>0 && myRank>0) ? myRank + " / " + rows.length : "–";
+  if (isAdmin){
+    $("l-mine").textContent = "Anwesend gesamt"; $("s-mine").textContent = attendedSum;
+    $("l-share").textContent = "Anwesenheitsquote"; $("s-share").textContent = total ? Math.round(attendedSum/total*100)+" %" : "–";
+    $("l-rank").textContent = "Storniert"; $("s-rank").textContent = canceled;
+  }
   drawChart(rows.map(r=>r.name), rows.map(r=>r.n), rows.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9"));
-  fillTable(mine.filter(r => ids.has(r.webinar_id)));
+  if (isAdmin){ $("mytbl-title").textContent = "Alle Anmeldungen — einzelnes Webinar wählen"; fillTable([], true); }
+  else fillTable(mine.filter(r => ids.has(r.webinar_id)), false);
 }
 
 sb.auth.onAuthStateChange(() => init());
