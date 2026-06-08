@@ -222,7 +222,7 @@ const $ = (id) => document.getElementById(id);
 const DOW = ["Mo","Di","Mi","Do","Fr","Sa","So"];
 const MONTHS = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
 let chart, me = "";
-const ADMIN = ["l.jacob@myvi.de"]; let isAdmin = false;
+const ADMIN = ["l.jacob@myvi.de"]; let isAdmin = false; let presenterWids = new Set();
 let totals = [], counts = [], mine = [], byDate = {}, viewY, viewM, selectedDate = null, selectedWid = null;
 
 $("btn-login").onclick = async () => {
@@ -287,6 +287,11 @@ async function init() {
 async function loadData() {
   const [t, c, m] = await Promise.all([ sb.rpc("webinar_totals"), sb.rpc("webinar_advisor_counts"), sb.rpc("webinar_my_registrations") ]);
   totals = t.data || []; counts = c.data || []; mine = m.data || [];
+  if (!isAdmin){
+    const rw = await sb.rpc("webinar_referent_webinars");
+    presenterWids = new Set((rw.data || []).map(x => x.webinar_id));
+    if (presenterWids.size){ const w0 = $("who"); if(!/Referent/.test(w0.textContent)) w0.textContent += " · Referent"; }
+  }
   byDate = {};
   totals.forEach(w => {
     if (!w.starts_at) return;
@@ -441,7 +446,8 @@ function renderWebinar(wid) {
   }
   drawChart(rows.map(r=>r.advisor_name), rows.map(r=>Number(r.registrations)), rows.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9"));
   if (isAdmin){ $("mytbl-title").textContent = "Alle Anmeldungen (mit Berater)"; sb.rpc("webinar_admin_registrations",{p_webinar_id:wid}).then(({data})=>fillTable(data||[], true)); }
-  else fillTable(mine.filter(r => r.webinar_id === wid), false);
+  else if (presenterWids.has(wid)){ $("mytbl-title").textContent = "Alle Anmeldungen zu deinem Webinar (mit Berater)"; sb.rpc("webinar_referent_registrations",{p_webinar_id:wid}).then(({data})=>fillTable(data||[], true)); }
+  else { $("mytbl-title").textContent = "Deine Anmeldungen (Teilnehmer)"; fillTable(mine.filter(r => r.webinar_id === wid), false); }
 }
 
 // Summe über mehrere Webinare (z. B. alle anstehenden)
@@ -471,7 +477,7 @@ function renderAggregate(list){
   }
   drawChart(rows.map(r=>r.name), rows.map(r=>r.n), rows.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9"));
   if (isAdmin){ $("mytbl-title").textContent = "Alle Anmeldungen — einzelnes Webinar wählen"; fillTable([], true); }
-  else fillTable(mine.filter(r => ids.has(r.webinar_id)), false);
+  else { $("mytbl-title").textContent = presenterWids.size ? "Deine Anmeldungen — für die Gesamtübersicht ein Webinar wählen" : "Deine Anmeldungen (Teilnehmer)"; fillTable(mine.filter(r => ids.has(r.webinar_id)), false); }
 }
 
 sb.auth.onAuthStateChange(() => init());
