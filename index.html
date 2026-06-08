@@ -169,6 +169,16 @@
         </div>
         <div id="detail" class="hidden">
           <div id="detail-head"></div>
+          <div id="admin-edit" class="panel hidden" style="margin:8px 0 12px;">
+            <div class="ptitle">Admin · Webinar bearbeiten</div>
+            <label style="display:block;font-size:13px;color:var(--muted);margin:6px 0 2px;">Buchungs-/Anmeldelink</label>
+            <input id="ae-link" type="url" placeholder="https://…" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;">
+            <label style="display:block;font-size:13px;color:var(--muted);margin:8px 0 2px;">Referent(en)</label>
+            <input id="ae-pres" type="text" placeholder="z. B. Karsten Hintsch" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;margin:10px 0;"><input id="ae-all" type="checkbox"> Für alle Termine mit diesem Titel übernehmen</label>
+            <button id="ae-save" style="background:var(--navy);color:#fff;border:none;padding:9px 18px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;">Speichern</button>
+            <span id="ae-status" class="muted" style="margin-left:10px;font-size:13px;"></span>
+          </div>
           <div class="cards" style="margin-bottom:14px;">
             <div class="stat"><div class="label" id="l-mine">Deine Anmeldungen</div><div class="val" id="s-mine">–</div></div>
             <div class="stat"><div class="label">Anmeldungen gesamt</div><div class="val" id="s-total">–</div></div>
@@ -219,6 +229,17 @@ $("btn-login").onclick = async () => {
   if (error){ const e=$("login-err"); e.style.display="block"; e.textContent = error.message; }
 };
 $("btn-logout").onclick = async () => { await sb.auth.signOut(); location.reload(); };
+$("ae-save").onclick = saveMeta;
+async function saveMeta(){
+  if(!selectedWid){ return; }
+  $("ae-status").textContent = "Speichere…";
+  const { error } = await sb.rpc("webinar_admin_set_meta", { p_webinar_id: selectedWid, p_web_url: $("ae-link").value, p_presenters: $("ae-pres").value, p_apply_all: $("ae-all").checked });
+  if (error){ $("ae-status").textContent = "Fehler: " + error.message; return; }
+  $("ae-status").textContent = "Gespeichert ✓";
+  const keep = selectedWid;
+  await loadData();
+  selectWebinar(keep);
+}
 $("tab-cal").onclick = () => switchView("cal");
 $("tab-list").onclick = () => switchView("list");
 $("cal-prev").onclick = () => { viewM--; if(viewM<0){viewM=11;viewY--;} renderCalendar(); };
@@ -392,6 +413,8 @@ function renderWebinar(wid) {
   const w = totals.find(x => x.webinar_id === wid);
   if (w){ const d = w.starts_at ? new Date(w.starts_at) : null;
     $("detail-head").textContent = w.title + (d ? " · " + d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"long",year:"numeric",timeZone:TZ}) + ", " + d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ}) + " Uhr" : ""); }
+  if (isAdmin && w){ $("admin-edit").classList.remove("hidden"); $("ae-link").value = w.web_url||""; $("ae-pres").value = w.presenters||""; $("ae-all").checked=false; $("ae-status").textContent=""; }
+  else { $("admin-edit").classList.add("hidden"); }
   const total = w?.total_registrations || 0;
   { const ex=[]; if (w && w.attended!=null) ex.push("Teilnehmer anwesend: "+w.attended); if (w && Number(w.canceled)>0) ex.push("Davon storniert: "+w.canceled); $("detail-cancel").textContent = ex.join("   ·   "); }
   const rows = counts.filter(c => c.webinar_id === wid && Number(c.registrations) > 0).sort((a,b) => b.registrations - a.registrations);
@@ -415,6 +438,7 @@ function renderWebinar(wid) {
 // Summe über mehrere Webinare (z. B. alle anstehenden)
 function renderAggregate(list){
   $("detail").classList.remove("hidden");
+  $("admin-edit").classList.add("hidden");
   selectedWid = null; markSelection();
   const ids = new Set(list.map(w=>w.webinar_id));
   const total = list.reduce((s,w)=> s + Number(w.total_registrations||0), 0);
