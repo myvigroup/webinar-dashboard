@@ -381,10 +381,9 @@ function selectDay(k){
 function renderList(){
   const now = Date.now();
   const up = totals.filter(w=>w.starts_at && new Date(w.starts_at).getTime() >= now - 36e5*12).sort((a,b)=> new Date(a.starts_at)-new Date(b.starts_at));
-  const past = totals.filter(w=>w.starts_at && new Date(w.starts_at).getTime() < now - 36e5*12).sort((a,b)=> new Date(b.starts_at)-new Date(a.starts_at));
-  const ordered = up.concat(past);
+  const ordered = up; // nur kommende Webinare; vergangene bleiben im Kalender + Admin-Übersicht
   const el = $("up-list"); el.innerHTML = "";
-  if(!ordered.length){ el.innerHTML='<div class="muted">Keine Webinare vorhanden.</div>'; }
+  if(!ordered.length){ el.innerHTML='<div class="muted">Keine kommenden Webinare.</div>'; }
   else ordered.forEach(w => el.appendChild(webinarItem(w,true)));
   // Standardansicht: Summe über alle anstehenden Webinare
   renderAggregate(up);
