@@ -19,7 +19,6 @@
   .invite{background:#eef7fb;border:1px solid #cdeaf3;border-radius:12px;padding:12px 16px;font-size:14px;margin-bottom:22px;display:flex;align-items:center;gap:10px;}
   .av{width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:0 0 auto;}
   .invite b{color:var(--navy);}
-  /* Topic grid */
   h2.sec{font-family:Outfit,sans-serif;font-size:24px;color:var(--navy);margin:6px 0 4px;font-weight:800;}
   .lead{color:var(--muted);margin:0 0 22px;}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
@@ -28,15 +27,22 @@
   .ticon{width:46px;height:46px;border-radius:12px;background:#eef7fb;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:12px;}
   .tcard h3{font-family:Outfit,sans-serif;font-size:18px;margin:0 0 6px;color:var(--navy);font-weight:700;}
   .tcard p{margin:0 0 14px;color:var(--muted);font-size:14px;flex:1;}
-  .tnext{font-size:13px;color:var(--text);font-weight:600;}
-  .tnext span{color:var(--cyan);}
+  .tnext{font-size:13px;color:var(--text);font-weight:600;}.tnext span{color:var(--cyan);}
   .go{margin-top:14px;color:var(--navy);font-weight:700;font-size:14px;}
-  /* Hero (topic) */
-  .hero{background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:18px;padding:32px;color:#fff;margin-bottom:24px;}
+  .hero{background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:18px;padding:32px;color:#fff;margin-bottom:18px;}
   .hero .tag{color:var(--cyan);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
   .hero h1{font-family:Outfit,sans-serif;font-size:30px;line-height:1.15;margin:8px 0 10px;font-weight:800;}
   .hero p{margin:0;color:#cfe0f0;font-size:16px;max-width:640px;}
-  .cols{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:start;}
+  .badges{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 22px;}
+  .badge{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--navy);display:flex;align-items:center;gap:6px;}
+  .badge.free{background:#eafaf0;border-color:#bfe6cc;color:#1a7d4b;}
+  .problem{background:#fff;border:1px solid var(--line);border-left:4px solid var(--cyan);border-radius:14px;padding:20px 22px;margin-bottom:18px;box-shadow:0 4px 16px rgba(0,40,80,.04);}
+  .problem h3{font-family:Outfit,sans-serif;color:var(--navy);font-size:19px;margin:0 0 8px;font-weight:700;}
+  .problem p{margin:0 0 12px;color:var(--text);}
+  .pains{list-style:none;padding:0;margin:0;display:grid;gap:8px;}
+  .pains li{position:relative;padding-left:26px;color:var(--muted);font-size:14.5px;}
+  .pains li::before{content:"–";position:absolute;left:6px;top:0;color:#b03a3a;font-weight:800;}
+  .cols{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;align-items:start;}
   @media(max-width:820px){.cols{grid-template-columns:1fr;}.hero h1{font-size:25px;}}
   .panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 4px 16px rgba(0,40,80,.04);}
   .panel h3{font-family:Outfit,sans-serif;color:var(--navy);font-size:18px;margin:0 0 14px;font-weight:700;}
@@ -44,30 +50,38 @@
   .ben li{position:relative;padding:8px 0 8px 30px;border-bottom:1px solid var(--line);font-size:15px;}
   .ben li:last-child{border-bottom:none;}
   .ben li::before{content:"✓";position:absolute;left:0;top:8px;width:20px;height:20px;background:#eafaff;color:var(--cyan);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
-  .back{display:inline-block;margin-bottom:14px;color:var(--muted);text-decoration:none;font-size:14px;}
-  .back:hover{color:var(--navy);}
+  .back{display:inline-block;margin-bottom:14px;color:var(--muted);text-decoration:none;font-size:14px;}.back:hover{color:var(--navy);}
   label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px;font-weight:500;}
   input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;}
   input:focus{outline:none;border-color:var(--cyan);}
   .frow{display:flex;gap:10px;}.frow>div{flex:1;}
-  .dates{display:flex;flex-direction:column;gap:10px;margin:4px 0 4px;}
+  .dates{display:flex;flex-direction:column;gap:10px;margin:4px 0;}
   .date{display:flex;align-items:center;gap:12px;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:.12s;}
   .date:hover{border-color:#cdeaf3;}
   .date.sel{border-color:var(--cyan);background:#f3fbfe;}
   .dbox{flex:0 0 auto;width:52px;height:52px;border-radius:10px;background:var(--navy);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;}
-  .dbox .d{font-size:20px;font-weight:800;font-family:Outfit,sans-serif;}
-  .dbox .m{font-size:11px;text-transform:uppercase;margin-top:2px;}
-  .dmeta{font-size:14px;}.dmeta b{display:block;}
-  .dmeta span{color:var(--muted);font-size:13px;}
+  .dbox .d{font-size:20px;font-weight:800;font-family:Outfit,sans-serif;}.dbox .m{font-size:11px;text-transform:uppercase;margin-top:2px;}
+  .dmeta{font-size:14px;}.dmeta b{display:block;}.dmeta span{color:var(--muted);font-size:13px;}
   .radio{margin-left:auto;width:20px;height:20px;border:2px solid var(--line);border-radius:50%;flex:0 0 auto;}
   .date.sel .radio{border-color:var(--cyan);background:radial-gradient(circle,var(--cyan) 0 6px,#fff 7px);}
+  .guests{margin-top:6px;}
+  .guestrow{border:1px dashed var(--line);border-radius:10px;padding:10px;margin-top:8px;position:relative;}
+  .addbtn{margin-top:10px;background:#eef7fb;color:var(--navy);border:1px solid #cdeaf3;border-radius:10px;padding:10px;font:inherit;font-weight:600;font-size:14px;cursor:pointer;width:100%;}
+  .addbtn:hover{background:#e2f0f9;}
+  .rm{position:absolute;top:6px;right:8px;color:#b03a3a;cursor:pointer;font-size:13px;}
+  .hint{font-size:12.5px;color:var(--muted);margin:6px 0 0;}
   .consent{display:flex;gap:8px;align-items:flex-start;margin:14px 0;font-size:12.5px;color:var(--muted);}
   .consent input{width:auto;margin-top:2px;}
-  button{width:100%;margin-top:6px;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:14px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;}
-  button:disabled{opacity:.6;cursor:not-allowed;}button:hover:not(:disabled){background:var(--navy2);}
+  button.cta{width:100%;margin-top:6px;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:14px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;}
+  button.cta:disabled{opacity:.6;cursor:not-allowed;}button.cta:hover:not(:disabled){background:var(--navy2);}
   .msg{margin-top:12px;padding:12px 14px;border-radius:10px;font-size:14px;display:none;}
   .ok{background:#eaf7ef;border:1px solid #bfe6cc;color:#1a7d4b;}
   .err{background:#fdf0ee;border:1px solid #f3cfc8;color:#b03a3a;}
+  .share{margin-top:16px;background:#f3fbfe;border:1px solid #cdeaf3;border-radius:12px;padding:16px;}
+  .share h4{margin:0 0 6px;font-family:Outfit,sans-serif;color:var(--navy);font-size:16px;}
+  .sharebtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+  .sbtn{flex:1;min-width:140px;text-align:center;border-radius:10px;padding:11px;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--navy);}
+  .sbtn.wa{background:#25D366;color:#fff;border-color:#25D366;}
   .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:30px;}
   .hidden{display:none;}
 </style>
@@ -79,7 +93,6 @@
   <div id="view"></div>
   <div class="foot">mitNORM GmbH · Bei Fragen: service@mitnorm.com · <a href="https://www.mitnorm.com/datenschutz" target="_blank" rel="noopener">Datenschutz</a></div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL="https://umgbtymowqavnmsbgceh.supabase.co";
@@ -95,31 +108,43 @@ const TOPICS=[
  {key:"immobilie",match:/immobilie als kapitalanlage/i,label:"Immobilie als Kapitalanlage",icon:"🏠",
   headline:"Mit Immobilien clever Vermögen aufbauen",
   sub:"Warum sich ein Immobilien-Investment lohnen kann – und worauf es bei Lage, Finanzierung und Steuer wirklich ankommt.",
+  problem:"Das Geld auf dem Konto verliert durch die Inflation an Wert – und Immobilien wirken auf den ersten Blick teuer und kompliziert.",
+  pains:["Kein Plan, wie man ohne riesiges Eigenkapital startet","Angst, beim ersten Objekt teure Fehler zu machen","Unklar, was sich nach Steuern wirklich rechnet"],
   benefits:["Immobilien als Baustein für den Vermögensaufbau","Worauf es bei Lage, Finanzierung & Steuer ankommt","Typische Fehler beim ersten Objekt vermeiden","Realistische Einschätzung: Chancen & Risiken"]},
  {key:"ruhestand",match:/ruhestandsplaner/i,label:"Ruhestandsplanung",icon:"🌅",
   headline:"Heute planen, später entspannt leben",
   sub:"So findest du heraus, wie viel du für deinen Ruhestand wirklich brauchst – und wie du die Versorgungslücke schließt.",
+  problem:"Die gesetzliche Rente reicht für die meisten nicht aus – aber kaum jemand weiß, wie groß die eigene Lücke wirklich ist.",
+  pains:["Keine klare Zahl, wie viel im Alter fehlt","Ein unübersichtlicher Mix aus alten Verträgen","Das Gefühl, zu wenig oder das Falsche zu tun"],
   benefits:["Wie viel du wirklich für später brauchst","Versorgungslücke erkennen und schließen","Die Bausteine der privaten Altersvorsorge","Konkrete nächste Schritte für deine Planung"]},
  {key:"baufi",match:/baufinanzierung/i,label:"Baufinanzierung",icon:"🔑",
   headline:"Deine Traumimmobilie sicher finanzieren",
   sub:"Zins, Tilgung, Förderung – verständlich erklärt, damit du deine Finanzierung solide und planbar aufstellst.",
+  problem:"Die Wunschimmobilie ist gefunden – aber die Finanzierung wirkt wie ein Buch mit sieben Siegeln.",
+  pains:["Unklar, wie viel Haus realistisch drin ist","Zins, Tilgung & Förderung sind verwirrend","Angst vor einer zu hohen monatlichen Belastung"],
   benefits:["Wie du deine Wunschimmobilie solide finanzierst","Zins, Tilgung & Laufzeit verständlich erklärt","Wie viel Haus du dir leisten kannst","Fördermöglichkeiten clever nutzen"]},
  {key:"riester",match:/riester|altersvorsorgedepot/i,label:"Riester & Altersvorsorge",icon:"📜",
   headline:"Riester-Reform 2026: Sichern, wechseln oder warten?",
   sub:"Was die Reform für dich bedeutet und welche Altersvorsorge sich jetzt wirklich für dich lohnt.",
+  problem:"Mit der Riester-Reform 2026 ändert sich viel – und viele wissen nicht, ob ihr Vertrag noch sinnvoll ist.",
+  pains:["Unsicherheit, was die Reform konkret bedeutet","Alter Vertrag – lohnt der sich überhaupt noch?","Keine Übersicht über die Alternativen"],
   benefits:["Was die Reform 2026 für dich bedeutet","Riester behalten, wechseln oder kündigen?","Das Altersvorsorgedepot als Alternative","Was sich jetzt konkret für dich lohnt"]},
  {key:"steuern",match:/steuern sparen/i,label:"Steuern sparen",icon:"🧾",
   headline:"Legale Steuervorteile clever nutzen",
   sub:"Die wichtigsten Stellschrauben, mit denen Angestellte und Selbstständige bares Geld sparen.",
+  problem:"Viele zahlen Jahr für Jahr zu viel Steuern – einfach weil sie die legalen Stellschrauben nicht kennen.",
+  pains:["Das Gefühl, Geld an den Staat zu verschenken","Unklar, welche Ausgaben absetzbar sind","Keine Strategie über das Jahr verteilt"],
   benefits:["Legale Steuervorteile, die viele verschenken","Für Angestellte & Selbstständige","Die wichtigsten Stellschrauben im Überblick","Was du noch dieses Jahr angehen kannst"]},
  {key:"geldanlage",match:/geldanlage/i,label:"Geldanlage",icon:"📈",
   headline:"Vermögen sicher und smart aufbauen",
   sub:"Wie du dein Geld strukturiert anlegst, Risiken streust und langfristig dranbleibst – ohne Spekulation.",
+  problem:"Geld auf dem Konto verliert an Wert – aber Anlegen wirkt riskant, unübersichtlich und kompliziert.",
+  pains:["Angst, zum falschen Zeitpunkt einzusteigen","Zu viele Produkte, keine klare Linie","Unklar, was zur eigenen Situation passt"],
   benefits:["Vermögen sicher und strukturiert aufbauen","Risiko streuen statt spekulieren","Welche Anlageklassen zu dir passen","Wie du langfristig dranbleibst"]},
 ];
 function topicOf(title){ return TOPICS.find(t=>t.match.test(title||"")); }
 
-let advisor=null, webs=[], selectedW="";
+let advisor=null, webs=[], selectedW="", guestCount=0;
 function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));}
 function fmtDay(d){return new Date(d).toLocaleDateString("de-DE",{day:"2-digit",timeZone:TZ});}
 function fmtMon(d){return new Date(d).toLocaleDateString("de-DE",{month:"short",timeZone:TZ}).replace(".","");}
@@ -146,53 +171,75 @@ function renderOverview(list){
   if(!list.length){ $("view").innerHTML='<h2 class="sec">Aktuell keine Termine</h2><p class="lead">Schau bald wieder vorbei – neue Live-Workshops sind in Planung.</p>'; return; }
   const cards=list.map(t=>{
     const next=t.dates[0];
-    return '<a class="tcard" href="?b='+encodeURIComponent(slug)+'&t='+t.key+'">'+
-      '<div class="ticon">'+t.icon+'</div>'+
-      '<h3>'+esc(t.label)+'</h3><p>'+esc(t.sub)+'</p>'+
-      '<div class="tnext">Nächster Termin: <span>'+fmtFull(next.starts_at)+'</span></div>'+
-      '<div class="go">Ansehen &amp; anmelden →</div></a>';
+    return '<a class="tcard" href="?b='+encodeURIComponent(slug)+'&t='+t.key+'"><div class="ticon">'+t.icon+'</div><h3>'+esc(t.label)+'</h3><p>'+esc(t.sub)+'</p><div class="tnext">Nächster Termin: <span>'+fmtFull(next.starts_at)+'</span></div><div class="go">Ansehen &amp; anmelden →</div></a>';
   }).join("");
   $("view").innerHTML='<h2 class="sec">Unsere kostenlosen Live-Workshops</h2><p class="lead">Wähle dein Thema – kompakt, praxisnah und live mit unseren Experten.</p><div class="grid">'+cards+'</div>';
 }
 function renderTopic(t){
-  const dates=t.dates.map(wb=>{
-    const d=wb.starts_at;
-    return '<div class="date" data-w="'+wb.webinar_id+'"><div class="dbox"><div class="d">'+fmtDay(d)+'</div><div class="m">'+fmtMon(d)+'</div></div>'+
-      '<div class="dmeta"><b>'+fmtFull(d)+'</b><span>Online via Microsoft Teams</span></div><div class="radio"></div></div>';
-  }).join("");
+  const dates=t.dates.map(wb=>'<div class="date" data-w="'+wb.webinar_id+'"><div class="dbox"><div class="d">'+fmtDay(wb.starts_at)+'</div><div class="m">'+fmtMon(wb.starts_at)+'</div></div><div class="dmeta"><b>'+fmtFull(wb.starts_at)+'</b><span>Online via Microsoft Teams</span></div><div class="radio"></div></div>').join("");
   const ben=t.benefits.map(b=>'<li>'+esc(b)+'</li>').join("");
+  const pains=t.pains.map(p=>'<li>'+esc(p)+'</li>').join("");
   $("view").innerHTML=
     '<a class="back" href="?b='+encodeURIComponent(slug)+'">← Alle Themen</a>'+
     '<div class="hero"><div class="tag">'+t.icon+' '+esc(t.label)+'</div><h1>'+esc(t.headline)+'</h1><p>'+esc(t.sub)+'</p></div>'+
+    '<div class="badges"><div class="badge free">✓ 100 % kostenlos</div><div class="badge">🕒 ca. 60 Minuten</div><div class="badge">💻 Live online</div><div class="badge">💬 Fragen willkommen</div></div>'+
+    '<div class="problem"><h3>Kommt dir das bekannt vor?</h3><p>'+esc(t.problem)+'</p><ul class="pains">'+pains+'</ul></div>'+
     '<div class="cols">'+
       '<div class="panel"><h3>Das nimmst du mit</h3><ul class="ben">'+ben+'</ul></div>'+
-      '<div class="panel"><h3>Termin wählen &amp; anmelden</h3>'+
-        '<div class="dates">'+dates+'</div>'+
+      '<div class="panel"><h3>Termin wählen &amp; anmelden</h3><div class="dates">'+dates+'</div>'+
         '<div class="frow"><div><label>Vorname</label><input id="vorname" autocomplete="given-name"></div><div><label>Nachname</label><input id="nachname" autocomplete="family-name"></div></div>'+
         '<label>E-Mail</label><input id="email" type="email" autocomplete="email">'+
-        '<label class="consent"><input id="consent" type="checkbox"> <span>Ich bin mit der Verarbeitung meiner Daten zur Webinar-Anmeldung einverstanden (<a href="https://www.mitnorm.com/datenschutz" target="_blank" rel="noopener">Datenschutz</a>).</span></label>'+
-        '<button id="submit">Kostenlos anmelden</button><div id="msg" class="msg"></div>'+
+        '<div class="guests" id="guests"></div>'+
+        '<button type="button" class="addbtn" id="addguest">＋ Freund:in mitbringen</button>'+
+        '<p class="hint">Bring gerne Freunde mit! Wir laden sie direkt mit ein – bitte nur mit deren Einverständnis.</p>'+
+        '<label class="consent"><input id="consent" type="checkbox"> <span>Ich bin mit der Verarbeitung der angegebenen Daten zur Webinar-Anmeldung einverstanden (<a href="https://www.mitnorm.com/datenschutz" target="_blank" rel="noopener">Datenschutz</a>).</span></label>'+
+        '<button class="cta" id="submit">Kostenlos anmelden</button><div id="msg" class="msg"></div>'+
       '</div>'+
     '</div>';
   selectedW = t.dates.length===1 ? t.dates[0].webinar_id : "";
-  document.querySelectorAll(".date").forEach(el=>{
-    if(el.dataset.w===selectedW) el.classList.add("sel");
-    el.onclick=()=>{ document.querySelectorAll(".date").forEach(x=>x.classList.remove("sel")); el.classList.add("sel"); selectedW=el.dataset.w; };
-  });
-  $("submit").onclick=submit;
+  guestCount=0;
+  document.querySelectorAll(".date").forEach(el=>{ if(el.dataset.w===selectedW) el.classList.add("sel"); el.onclick=()=>{ document.querySelectorAll(".date").forEach(x=>x.classList.remove("sel")); el.classList.add("sel"); selectedW=el.dataset.w; }; });
+  $("addguest").onclick=addGuest;
+  $("submit").onclick=()=>submit(t);
 }
-async function submit(){
-  const p={b:slug,w:selectedW,vorname:$("vorname").value.trim(),nachname:$("nachname").value.trim(),email:$("email").value.trim(),consent:$("consent").checked};
-  const m=$("msg");
-  if(!p.w){ m.className="msg err";m.style.display="block";m.textContent="Bitte wähle einen Termin aus.";return; }
-  if(!p.vorname||!p.nachname||!p.email){ m.className="msg err";m.style.display="block";m.textContent="Bitte fülle alle Felder aus.";return; }
-  if(!p.consent){ m.className="msg err";m.style.display="block";m.textContent="Bitte stimme der Datenverarbeitung zu.";return; }
+function addGuest(){
+  if(guestCount>=5){ return; }
+  guestCount++;
+  const id=guestCount;
+  const div=document.createElement("div");
+  div.className="guestrow"; div.dataset.g=id;
+  div.innerHTML='<span class="rm" data-g="'+id+'">entfernen ✕</span><div class="frow"><div><label>Vorname (Freund:in)</label><input class="g-vn"></div><div><label>Nachname</label><input class="g-nn"></div></div><label>E-Mail</label><input class="g-em" type="email">';
+  $("guests").appendChild(div);
+  div.querySelector(".rm").onclick=()=>{ div.remove(); };
+  if(guestCount>=5){ $("addguest").style.display="none"; }
+}
+async function regOne(p){ try{ const {data,error}=await sb.functions.invoke("webinar-register",{body:p}); return !error && data && data.ok!==false; }catch(_){ return false; } }
+async function submit(t){
+  const m=$("msg"); const err=(x)=>{m.className="msg err";m.style.display="block";m.textContent=x;};
+  const main={b:slug,w:selectedW,vorname:$("vorname").value.trim(),nachname:$("nachname").value.trim(),email:$("email").value.trim(),consent:$("consent").checked};
+  if(!main.w) return err("Bitte wähle einen Termin aus.");
+  if(!main.vorname||!main.nachname||!main.email) return err("Bitte fülle deine Felder aus.");
+  if(!main.consent) return err("Bitte stimme der Datenverarbeitung zu.");
+  const guests=[];
+  document.querySelectorAll(".guestrow").forEach(r=>{ const vn=r.querySelector(".g-vn").value.trim(),nn=r.querySelector(".g-nn").value.trim(),em=r.querySelector(".g-em").value.trim(); if(vn&&nn&&em) guests.push({b:slug,w:selectedW,vorname:vn,nachname:nn,email:em,consent:true}); });
   $("submit").disabled=true;$("submit").textContent="Wird angemeldet…";m.style.display="none";
-  try{
-    const {data,error}=await sb.functions.invoke("webinar-register",{body:p});
-    if(error||!data||data.ok===false){ m.className="msg err";m.style.display="block";m.textContent=(data&&data.error)||"Anmeldung fehlgeschlagen. Bitte später erneut versuchen.";$("submit").disabled=false;$("submit").textContent="Kostenlos anmelden";return; }
-    document.querySelector(".cols").innerHTML='<div class="panel" style="grid-column:1/-1;text-align:center;padding:40px;"><div style="font-size:46px;">✅</div><h3 style="font-size:22px;margin:10px 0 6px;">'+(data.already?"Du bist bereits angemeldet":"Anmeldung erfolgreich!")+'</h3><p style="color:var(--muted);margin:0;">Du erhältst die Zugangsdaten in Kürze per E-Mail von Microsoft Teams. Wir freuen uns auf dich!</p></div>';
-  }catch(e){ m.className="msg err";m.style.display="block";m.textContent="Es ist ein Fehler aufgetreten. Bitte später erneut versuchen.";$("submit").disabled=false;$("submit").textContent="Kostenlos anmelden"; }
+  const okMain=await regOne(main);
+  if(!okMain){ err("Anmeldung fehlgeschlagen. Bitte prüfe deine E-Mail-Adresse oder versuche es später erneut."); $("submit").disabled=false;$("submit").textContent="Kostenlos anmelden"; return; }
+  let g=0; for(const gu of guests){ if(await regOne(gu)) g++; }
+  const shareUrl=location.origin+location.pathname+"?b="+encodeURIComponent(slug)+"&t="+t.key;
+  const waText=encodeURIComponent("Schau dir diesen kostenlosen Live-Workshop von mitNORM an: "+t.label+" → "+shareUrl);
+  document.querySelector(".cols").innerHTML=
+    '<div class="panel" style="grid-column:1/-1;text-align:center;padding:36px 24px;">'+
+      '<div style="font-size:46px;">✅</div>'+
+      '<h3 style="font-size:22px;margin:10px 0 6px;">'+(g>0?("Ihr seid angemeldet! ("+(g+1)+" Personen)"):"Anmeldung erfolgreich!")+'</h3>'+
+      '<p style="color:var(--muted);margin:0 auto;max-width:460px;">Ihr erhaltet die Zugangsdaten in Kürze per E-Mail von Microsoft Teams. Wir freuen uns auf euch!</p>'+
+      '<div class="share" style="text-align:left;max-width:460px;margin:18px auto 0;">'+
+        '<h4>👍 Kennst du jemanden, den das interessiert?</h4>'+
+        '<div style="font-size:14px;color:var(--muted);">Teile den Workshop mit Freunden – sie können sich direkt mit anmelden.</div>'+
+        '<div class="sharebtns"><a class="sbtn wa" href="https://wa.me/?text='+waText+'" target="_blank" rel="noopener">Per WhatsApp teilen</a><button class="sbtn" id="copylink">Link kopieren</button></div>'+
+      '</div>'+
+    '</div>';
+  const cb=$("copylink"); if(cb) cb.onclick=()=>{ navigator.clipboard.writeText(shareUrl).then(()=>{ cb.textContent="Link kopiert ✓"; }); };
 }
 window.addEventListener("popstate",()=>{ curTopic=new URLSearchParams(location.search).get("t")||""; render(); });
 init();
