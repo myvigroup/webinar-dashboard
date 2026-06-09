@@ -15,7 +15,11 @@
   .top{background:#fff;border-bottom:1px solid var(--line);}
   .top .in{max-width:980px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:10px;}
   .logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--navy),var(--cyan));}
-  .logo-t{font-family:Outfit,sans-serif;font-weight:800;color:var(--navy);font-size:16px;}
+  .logo-t{font-family:Outfit,sans-serif;font-weight:700;color:var(--muted);font-size:15px;}
+  .mnl-w{font-family:Outfit,sans-serif;font-weight:800;color:var(--navy);letter-spacing:0;display:inline-flex;align-items:center;line-height:1;}
+  .mnl-o{display:inline-block;position:relative;width:.9em;height:.9em;border-radius:50%;background:var(--navy);margin:0 .02em;}
+  .mnl-o::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:.46em;height:.16em;background:#fff;border-radius:1px;}
+  .mnl-o::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:.16em;height:.46em;background:#fff;border-radius:1px;}
   .wrap{max-width:980px;margin:0 auto;padding:22px 20px 60px;}
   .invite{background:#eef7fb;border:1px solid #cdeaf3;border-radius:12px;padding:12px 16px;font-size:14px;margin-bottom:22px;display:flex;align-items:center;gap:10px;}
   .av{width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:0 0 auto;overflow:hidden;}
@@ -104,7 +108,7 @@
 </style>
 </head>
 <body>
-<div class="top"><div class="in"><div class="logo"></div><div class="logo-t">mitNORM · Live-Workshops</div></div></div>
+<div class="top"><div class="in"><span class="mnl-w" style="font-size:21px;">mitN<span class="mnl-o"></span>RM</span><span class="logo-t">· Live-Workshops</span></div></div>
 <div class="wrap">
   <div id="invite" class="invite hidden"></div>
   <div id="view"></div>
