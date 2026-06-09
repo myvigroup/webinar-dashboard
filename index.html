@@ -444,7 +444,10 @@ function renderWebinar(wid) {
     $("l-share").textContent = "Anwesenheitsquote"; $("s-share").textContent = (w.attended!=null && total) ? Math.round(w.attended/total*100)+" %" : "–";
     $("l-rank").textContent = "Storniert"; $("s-rank").textContent = w.canceled || 0;
   }
-  drawChart(rows.map(r=>r.advisor_name), rows.map(r=>Number(r.registrations)), rows.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9"));
+  { const cL=rows.map(r=>r.advisor_name), cD=rows.map(r=>Number(r.registrations)), cC=rows.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9");
+    const assigned=cD.reduce((s,n)=>s+n,0), un=total-assigned;
+    if(un>0){ cL.push("Nicht zugeordnet"); cD.push(un); cC.push("#c8d2dd"); }
+    drawChart(cL,cD,cC); }
   if (isAdmin){ $("mytbl-title").textContent = "Alle Anmeldungen (mit Berater)"; sb.rpc("webinar_admin_registrations",{p_webinar_id:wid}).then(({data})=>fillTable(data||[], true)); }
   else if (presenterWids.has(wid)){ $("mytbl-title").textContent = "Alle Anmeldungen zu deinem Webinar (mit Berater)"; sb.rpc("webinar_referent_registrations",{p_webinar_id:wid}).then(({data})=>fillTable(data||[], true)); }
   else { $("mytbl-title").textContent = "Deine Anmeldungen (Teilnehmer)"; fillTable(mine.filter(r => r.webinar_id === wid), false); }
@@ -472,10 +475,13 @@ function renderAggregate(list){
   $("s-rank").textContent = (mineCount>0 && myRank>0) ? myRank + " / " + rows.length : "–";
   if (isAdmin){
     $("l-mine").textContent = "Anwesend gesamt"; $("s-mine").textContent = attendedSum;
-    $("l-share").textContent = "Anwesenheitsquote"; $("s-share").textContent = total ? Math.round(attendedSum/total*100)+" %" : "–";
+    $("l-share").textContent = "Anwesenheitsquote"; $("s-share").textContent = (attendedSum>0 && total) ? Math.round(attendedSum/total*100)+" %" : "–";
     $("l-rank").textContent = "Storniert"; $("s-rank").textContent = canceled;
   }
-  drawChart(rows.map(r=>r.name), rows.map(r=>r.n), rows.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9"));
+  { const cL=rows.map(r=>r.name), cD=rows.map(r=>r.n), cC=rows.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9");
+    const assigned=cD.reduce((s,n)=>s+n,0), un=total-assigned;
+    if(un>0){ cL.push("Nicht zugeordnet"); cD.push(un); cC.push("#c8d2dd"); }
+    drawChart(cL,cD,cC); }
   if (isAdmin){ $("mytbl-title").textContent = "Alle Anmeldungen — einzelnes Webinar wählen"; fillTable([], true); }
   else { $("mytbl-title").textContent = presenterWids.size ? "Deine Anmeldungen — für die Gesamtübersicht ein Webinar wählen" : "Deine Anmeldungen (Teilnehmer)"; fillTable(mine.filter(r => ids.has(r.webinar_id)), false); }
 }
