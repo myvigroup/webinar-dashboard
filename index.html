@@ -65,6 +65,9 @@
   .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 2px 10px rgba(0,40,90,.04);}
   .panel + .panel{margin-top:14px;}
   .ptitle{font-family:Outfit;font-weight:700;color:var(--navy);font-size:14px;margin-bottom:12px;}
+  .tbl-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+  .tbl-filters label{font-size:12px;color:var(--muted);}
+  .tbl-filters select{font:inherit;font-size:13px;padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);}
   .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
   .stat{background:#f7fafd;border:1px solid var(--line);border-radius:12px;padding:12px 14px;}
   .stat .label{font-size:12px;color:var(--muted);margin-bottom:4px;}
@@ -193,12 +196,13 @@
             <div class="stat"><div class="label" id="l-rank">Dein Rang im Team</div><div class="val" id="s-rank">–</div></div>
           </div>
           <div id="detail-cancel" class="muted" style="margin:-4px 0 10px;font-size:13px;"></div>
-          <div class="panel">
+          <div class="panel" id="chart-panel">
             <div class="ptitle">Anmeldungen pro Berater</div>
             <div style="position:relative;height:240px;"><canvas id="chart"></canvas></div>
           </div>
           <div class="panel">
             <div class="ptitle" id="mytbl-title">Deine Anmeldungen (Teilnehmer)</div>
+            <div id="tbl-filters" class="tbl-filters hidden"></div>
             <div style="overflow-x:auto"><table id="mytable"></table></div>
           </div>
           <div id="admin-section" class="hidden">
@@ -420,11 +424,43 @@ function regRow(r, withAdv){
   const adv = withAdv ? `<td>${esc(r.advisor)||"–"}</td>` : '';
   return `<tr><td>${esc(r.attendee_name)||"–"}${cancel}</td><td>${esc(r.attendee_email)||"–"}</td>${adv}<td>${r.registered_at ? new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}) : "–"}</td><td>${anw}</td><td>${dauer}</td></tr>`;
 }
+let _rows=[], _withAdv=false, _fStatus='alle', _fBerater='alle', _fSort='name';
 function fillTable(rows, withAdv){
-  rows = rows || [];
-  const cols = withAdv ? 6 : 5;
-  const head = `<thead><tr><th>Teilnehmer</th><th>E-Mail</th>${withAdv?'<th>Berater</th>':''}<th>Angemeldet am</th><th>Anwesend</th><th>Dauer</th></tr></thead>`;
-  const body = rows.length ? rows.map(r=>regRow(r,withAdv)).join("") : `<tr><td colspan="${cols}" class="muted">Keine Anmeldungen.</td></tr>`;
+  _rows = rows || []; _withAdv = !!withAdv; _fBerater='alle';
+  buildFilters(); renderRows();
+}
+function buildFilters(){
+  const f = $("tbl-filters");
+  if(!_rows.length){ f.classList.add("hidden"); f.innerHTML=""; return; }
+  f.classList.remove("hidden");
+  let ber = "";
+  if(_withAdv){
+    const names = [...new Set(_rows.map(r=>r.advisor).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+    ber = '<label>Berater:</label><select id="f-berater"><option value="alle">Alle</option>'+names.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('')+'</select>';
+  }
+  f.innerHTML = '<label>Status:</label><select id="f-status"><option value="alle">Alle</option><option value="ja">Teilgenommen</option><option value="nein">Nicht teilgenommen</option><option value="storno">Storniert</option></select>'
+    + ber
+    + '<label>Sortieren:</label><select id="f-sort"><option value="name">Name</option>'+(_withAdv?'<option value="berater">Berater</option>':'')+'<option value="dauer">Dauer</option><option value="zeit">Anmeldung</option></select>';
+  $("f-status").value=_fStatus; $("f-sort").value=_fSort;
+  $("f-status").onchange=e=>{_fStatus=e.target.value;renderRows();};
+  $("f-sort").onchange=e=>{_fSort=e.target.value;renderRows();};
+  const b=$("f-berater"); if(b){ b.value=_fBerater; b.onchange=e=>{_fBerater=e.target.value;renderRows();}; }
+}
+function renderRows(){
+  let rows=_rows.slice();
+  if(_fStatus==='ja') rows=rows.filter(r=>r.attended===true);
+  else if(_fStatus==='nein') rows=rows.filter(r=>r.attended===false && r.status!=='canceled');
+  else if(_fStatus==='storno') rows=rows.filter(r=>r.status==='canceled');
+  if(_withAdv && _fBerater!=='alle') rows=rows.filter(r=>(r.advisor||'')===_fBerater);
+  rows.sort((a,b)=>{
+    if(_fSort==='berater') return (a.advisor||'').localeCompare(b.advisor||'');
+    if(_fSort==='dauer') return Number(b.attended_seconds||0)-Number(a.attended_seconds||0);
+    if(_fSort==='zeit') return new Date(b.registered_at||0)-new Date(a.registered_at||0);
+    return (a.attendee_name||'').localeCompare(b.attendee_name||'');
+  });
+  const cols = _withAdv ? 6 : 5;
+  const head = `<thead><tr><th>Teilnehmer</th><th>E-Mail</th>${_withAdv?'<th>Berater</th>':''}<th>Angemeldet am</th><th>Anwesend</th><th>Dauer</th></tr></thead>`;
+  const body = rows.length ? rows.map(r=>regRow(r,_withAdv)).join("") : `<tr><td colspan="${cols}" class="muted">Keine Treffer.</td></tr>`;
   $("mytable").innerHTML = head + '<tbody>'+body+'</tbody>';
 }
 
@@ -450,7 +486,9 @@ function renderWebinar(wid) {
     $("l-share").textContent = "Anwesenheitsquote"; $("s-share").textContent = (w.attended!=null && total) ? Math.round(w.attended/total*100)+" %" : "–";
     $("l-rank").textContent = "Storniert"; $("s-rank").textContent = w.canceled || 0;
   }
-  { const cL=rows.map(r=>r.advisor_name), cD=rows.map(r=>Number(r.registrations)), cC=rows.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9");
+  const canBd = isAdmin || presenterWids.has(wid);
+  $("chart-panel").style.display = canBd ? "" : "none";
+  if (canBd){ const cL=rows.map(r=>r.advisor_name), cD=rows.map(r=>Number(r.registrations)), cC=rows.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9");
     const assigned=cD.reduce((s,n)=>s+n,0), un=total-assigned;
     if(un>0){ cL.push("Nicht zugeordnet"); cD.push(un); cC.push("#c8d2dd"); }
     drawChart(cL,cD,cC); }
@@ -484,7 +522,8 @@ function renderAggregate(list){
     $("l-share").textContent = "Anwesenheitsquote"; $("s-share").textContent = (attendedSum>0 && total) ? Math.round(attendedSum/total*100)+" %" : "–";
     $("l-rank").textContent = "Storniert"; $("s-rank").textContent = canceled;
   }
-  { const cL=rows.map(r=>r.name), cD=rows.map(r=>r.n), cC=rows.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9");
+  $("chart-panel").style.display = isAdmin ? "" : "none";
+  if (isAdmin){ const cL=rows.map(r=>r.name), cD=rows.map(r=>r.n), cC=rows.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9");
     const assigned=cD.reduce((s,n)=>s+n,0), un=total-assigned;
     if(un>0){ cL.push("Nicht zugeordnet"); cD.push(un); cC.push("#c8d2dd"); }
     drawChart(cL,cD,cC); }
