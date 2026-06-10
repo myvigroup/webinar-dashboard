@@ -68,6 +68,19 @@
   .tbl-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
   .tbl-filters label{font-size:12px;color:var(--muted);}
   .tbl-filters select{font:inherit;font-size:13px;padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);}
+  th.sortable{cursor:pointer;user-select:none;white-space:nowrap;}
+  th.sortable:hover{color:var(--cyan-d);}
+  th.sortable .ar{color:var(--cyan-d);font-size:11px;}
+  #mytable tbody tr.clk{cursor:pointer;}
+  #mytable tbody tr.clk:hover{background:rgba(6,186,221,.07);}
+  #row-modal{position:fixed;inset:0;background:rgba(11,33,56,.45);display:none;align-items:center;justify-content:center;z-index:2000;padding:16px;}
+  #row-modal.open{display:flex;}
+  .rm-card{background:#fff;border-radius:16px;max-width:440px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(0,40,90,.3);}
+  .rm-card h3{font-family:Outfit;color:var(--navy);margin:0 0 14px;font-size:18px;}
+  .rm-row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;}
+  .rm-row .k{color:var(--muted);}
+  .rm-row .v{font-weight:600;text-align:right;color:var(--ink);word-break:break-word;}
+  .rm-close{margin-top:16px;width:100%;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:12px;font:inherit;font-weight:600;cursor:pointer;}
   .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
   .stat{background:#f7fafd;border:1px solid var(--line);border-radius:12px;padding:12px 14px;}
   .stat .label{font-size:12px;color:var(--muted);margin-bottom:4px;}
@@ -220,6 +233,8 @@
     </div>
   </div>
 </div>
+
+<div id="row-modal"><div class="rm-card" id="rm-card"></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -414,7 +429,7 @@ function drawChart(labels,data,colors){
       scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks:{ font:{ family:"Inter", size:12 } } } } } });
 }
 function durStr(s){ s = Number(s||0); if(!s) return ''; const m = Math.round(s/60); return m>=60 ? `${Math.floor(m/60)} Std ${m%60} Min` : `${m} Min`; }
-function regRow(r, withAdv){
+function regRow(r, withAdv, i){
   const cancel = r.status==='canceled' ? ' <span style="color:#b03a3a;font-size:11px;font-weight:600;">storniert</span>' : '';
   let anw = '<span class="muted">–</span>', dauer = '<span class="muted">–</span>';
   if (r.status !== 'canceled') {
@@ -422,9 +437,9 @@ function regRow(r, withAdv){
     else if (r.attended === false) { anw = '<span style="color:#b03a3a;font-weight:600;">nicht dabei</span>'; }
   }
   const adv = withAdv ? `<td>${esc(r.advisor)||"–"}</td>` : '';
-  return `<tr><td>${esc(r.attendee_name)||"–"}${cancel}</td><td>${esc(r.attendee_email)||"–"}</td>${adv}<td>${r.registered_at ? new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}) : "–"}</td><td>${anw}</td><td>${dauer}</td></tr>`;
+  return `<tr class="clk" data-i="${i}"><td>${esc(r.attendee_name)||"–"}${cancel}</td><td>${esc(r.attendee_email)||"–"}</td>${adv}<td>${r.registered_at ? new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}) : "–"}</td><td>${anw}</td><td>${dauer}</td></tr>`;
 }
-let _rows=[], _withAdv=false, _fStatus='alle', _fBerater='alle', _fSort='name';
+let _rows=[], _withAdv=false, _fStatus='alle', _fBerater='alle', _fSort='attendee_name', _fDir=1, _shownRows=[];
 function fillTable(rows, withAdv){
   _rows = rows || []; _withAdv = !!withAdv; _fBerater='alle';
   buildFilters(); renderRows();
@@ -438,31 +453,53 @@ function buildFilters(){
     const names = [...new Set(_rows.map(r=>r.advisor).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
     ber = '<label>Berater:</label><select id="f-berater"><option value="alle">Alle</option>'+names.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('')+'</select>';
   }
-  f.innerHTML = '<label>Status:</label><select id="f-status"><option value="alle">Alle</option><option value="ja">Teilgenommen</option><option value="nein">Nicht teilgenommen</option><option value="storno">Storniert</option></select>'
-    + ber
-    + '<label>Sortieren:</label><select id="f-sort"><option value="name">Name</option>'+(_withAdv?'<option value="berater">Berater</option>':'')+'<option value="dauer">Dauer</option><option value="zeit">Anmeldung</option></select>';
-  $("f-status").value=_fStatus; $("f-sort").value=_fSort;
+  f.innerHTML = '<label>Status:</label><select id="f-status"><option value="alle">Alle</option><option value="ja">Teilgenommen</option><option value="nein">Nicht teilgenommen</option><option value="storno">Storniert</option></select>' + ber + '<span style="font-size:12px;color:var(--muted);">Spalten klicken zum Sortieren ↑↓</span>';
+  $("f-status").value=_fStatus;
   $("f-status").onchange=e=>{_fStatus=e.target.value;renderRows();};
-  $("f-sort").onchange=e=>{_fSort=e.target.value;renderRows();};
   const b=$("f-berater"); if(b){ b.value=_fBerater; b.onchange=e=>{_fBerater=e.target.value;renderRows();}; }
 }
+function _cols(){ return [
+  {k:'attendee_name',l:'Teilnehmer',t:'s'},
+  {k:'attendee_email',l:'E-Mail',t:'s'},
+  ...(_withAdv?[{k:'advisor',l:'Berater',t:'s'}]:[]),
+  {k:'registered_at',l:'Angemeldet',t:'d'},
+  {k:'attended',l:'Anwesend',t:'b'},
+  {k:'attended_seconds',l:'Dauer',t:'n'},
+];}
+function _val(r,k,t){ if(t==='d') return new Date(r[k]||0).getTime(); if(t==='n') return Number(r[k]||0); if(t==='b') return r.attended===true?2:(r.attended===false?1:0); return (r[k]||'').toString().toLowerCase(); }
 function renderRows(){
   let rows=_rows.slice();
   if(_fStatus==='ja') rows=rows.filter(r=>r.attended===true);
   else if(_fStatus==='nein') rows=rows.filter(r=>r.attended===false && r.status!=='canceled');
   else if(_fStatus==='storno') rows=rows.filter(r=>r.status==='canceled');
   if(_withAdv && _fBerater!=='alle') rows=rows.filter(r=>(r.advisor||'')===_fBerater);
-  rows.sort((a,b)=>{
-    if(_fSort==='berater') return (a.advisor||'').localeCompare(b.advisor||'');
-    if(_fSort==='dauer') return Number(b.attended_seconds||0)-Number(a.attended_seconds||0);
-    if(_fSort==='zeit') return new Date(b.registered_at||0)-new Date(a.registered_at||0);
-    return (a.attendee_name||'').localeCompare(b.attendee_name||'');
-  });
-  const cols = _withAdv ? 6 : 5;
-  const head = `<thead><tr><th>Teilnehmer</th><th>E-Mail</th>${_withAdv?'<th>Berater</th>':''}<th>Angemeldet am</th><th>Anwesend</th><th>Dauer</th></tr></thead>`;
-  const body = rows.length ? rows.map(r=>regRow(r,_withAdv)).join("") : `<tr><td colspan="${cols}" class="muted">Keine Treffer.</td></tr>`;
+  const cols=_cols(); const col=cols.find(c=>c.k===_fSort)||cols[0];
+  rows.sort((a,b)=>{ const va=_val(a,col.k,col.t), vb=_val(b,col.k,col.t); if(va<vb) return -_fDir; if(va>vb) return _fDir; return 0; });
+  _shownRows=rows;
+  const head = '<thead><tr>'+cols.map(c=>{ const act=c.k===_fSort; const ar=act?(_fDir===1?' ▲':' ▼'):''; return '<th class="sortable" data-k="'+c.k+'">'+c.l+'<span class="ar">'+ar+'</span></th>'; }).join('')+'</tr></thead>';
+  const body = rows.length ? rows.map((r,i)=>regRow(r,_withAdv,i)).join("") : `<tr><td colspan="${cols.length}" class="muted">Keine Treffer.</td></tr>`;
   $("mytable").innerHTML = head + '<tbody>'+body+'</tbody>';
+  $("mytable").querySelectorAll("th.sortable").forEach(th=>th.onclick=()=>{ const k=th.dataset.k; if(_fSort===k) _fDir=-_fDir; else { _fSort=k; _fDir=1; } renderRows(); });
+  $("mytable").querySelectorAll("tbody tr.clk").forEach(tr=>tr.onclick=()=>openRowModal(_shownRows[Number(tr.dataset.i)]));
 }
+function openRowModal(r){
+  if(!r) return;
+  let anw='–'; if(r.status==='canceled') anw='<span style="color:#b03a3a;">Storniert</span>';
+  else if(r.attended===true) anw='<span style="color:#1a7d4b;font-weight:700;">✓ Teilgenommen</span>';
+  else if(r.attended===false) anw='<span style="color:#b03a3a;">Nicht teilgenommen</span>';
+  const dauer = durStr(r.attended_seconds)||'–';
+  const row=(k,v)=>'<div class="rm-row"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>';
+  $("rm-card").innerHTML='<h3>Teilnehmer-Details</h3>'
+    + row('Teilnehmer', esc(r.attendee_name)||'–')
+    + row('E-Mail', esc(r.attendee_email)||'–')
+    + (_withAdv?row('Berater', esc(r.advisor)||'–'):'')
+    + row('Angemeldet am', r.registered_at?new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}):'–')
+    + row('Status', anw)
+    + row('Anwesenheitsdauer', dauer)
+    + '<button class="rm-close" onclick="closeRowModal()">Schließen</button>';
+  $("row-modal").classList.add("open");
+}
+function closeRowModal(){ $("row-modal").classList.remove("open"); }
 
 function renderWebinar(wid) {
   $("detail").classList.remove("hidden");
@@ -531,6 +568,8 @@ function renderAggregate(list){
   else { $("mytbl-title").textContent = presenterWids.size ? "Deine Anmeldungen — für die Gesamtübersicht ein Webinar wählen" : "Deine Anmeldungen (Teilnehmer)"; fillTable(mine.filter(r => ids.has(r.webinar_id)), false); }
 }
 
+$("row-modal").addEventListener("click", e=>{ if(e.target.id==="row-modal") closeRowModal(); });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeRowModal(); });
 sb.auth.onAuthStateChange(() => init());
 init();
 </script>
