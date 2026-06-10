@@ -65,6 +65,9 @@
   .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 2px 10px rgba(0,40,90,.04);}
   .panel + .panel{margin-top:14px;}
   .ptitle{font-family:Outfit;font-weight:700;color:var(--navy);font-size:14px;margin-bottom:12px;}
+  .detail-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+  .detail-grid.cols2{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;}
+  @media(max-width:1000px){.detail-grid.cols2{grid-template-columns:1fr;}}
   .tbl-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
   .tbl-filters label{font-size:12px;color:var(--muted);}
   .tbl-filters select{font:inherit;font-size:13px;padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);}
@@ -223,19 +226,21 @@
             <div class="ptitle">Anmeldungen pro Berater</div>
             <div style="position:relative;height:240px;"><canvas id="chart"></canvas></div>
           </div>
-          <div class="panel">
-            <div class="ptitle" id="mytbl-title">Deine Anmeldungen (Teilnehmer)</div>
-            <div id="tbl-filters" class="tbl-filters hidden"></div>
-            <div style="overflow-x:auto"><table id="mytable"></table></div>
+          <div class="detail-grid" id="detail-grid">
+            <div class="panel">
+              <div class="ptitle" id="mytbl-title">Deine Anmeldungen (Teilnehmer)</div>
+              <div id="tbl-filters" class="tbl-filters hidden"></div>
+              <div style="overflow-x:auto"><table id="mytable"></table></div>
+            </div>
+            <div class="panel hidden" id="overview-panel">
+              <div class="ptitle">Übersicht aller Webinare · Admin <span style="font-weight:400;font-size:11px;color:var(--muted);">· Doppelklick = groß</span></div>
+              <div style="overflow-x:auto"><table id="admin-overview-tbl"></table></div>
+            </div>
           </div>
           <div id="admin-section" class="hidden">
             <div class="panel">
-              <div class="ptitle">Übersicht aller Webinare · Admin</div>
-              <div style="overflow-x:auto"><table id="admin-overview-tbl"></table></div>
-            </div>
-            <div class="panel">
-              <div class="ptitle">Berater-Ranking gesamt · Admin</div>
-              <table id="admin-rank-tbl"></table>
+              <div class="ptitle">Berater-Ranking gesamt · Admin <span style="font-weight:400;font-size:11px;color:var(--muted);">· Doppelklick = groß</span></div>
+              <div style="overflow-x:auto"><table id="admin-rank-tbl"></table></div>
             </div>
           </div>
         </div>
@@ -354,6 +359,8 @@ async function loadData() {
 
 async function loadAdmin(){
   $("admin-section").classList.remove("hidden");
+  $("overview-panel").classList.remove("hidden");
+  $("detail-grid").classList.add("cols2");
   const [ov, rk] = await Promise.all([ sb.rpc("webinar_admin_overview"), sb.rpc("webinar_admin_ranking") ]);
   renderAdminOverview(ov.data || []);
   renderAdminRanking(rk.data || []);
@@ -367,11 +374,13 @@ function renderAdminOverview(rows){
     return `<tr><td>${fmtD(w.starts_at)}</td><td>${esc(w.title)}</td><td>${w.registered}</td><td>${w.attended??'–'}</td><td>${q}</td><td>${w.canceled||0}</td><td>${dur}</td><td>${w.teilnehmer_mails||0}</td><td>${w.noshow_mails||0}</td></tr>`;
   }).join("") : '<tr><td colspan="9" class="muted">Keine Daten.</td></tr>';
   $("admin-overview-tbl").innerHTML = head + '<tbody>'+body+'</tbody>';
+  $("admin-overview-tbl").ondblclick = ()=> openBigTable("Übersicht aller Webinare", $("admin-overview-tbl").innerHTML);
 }
 function renderAdminRanking(rows){
   const head = '<thead><tr><th>Berater</th><th>Anmeldungen</th><th>Teilgenommen</th></tr></thead>';
   const body = rows.length ? rows.map((r,i)=>`<tr><td>${i+1}. ${esc(r.advisor)}</td><td>${r.anmeldungen}</td><td>${r.teilgenommen}</td></tr>`).join("") : '<tr><td colspan="3" class="muted">Keine Daten.</td></tr>';
   $("admin-rank-tbl").innerHTML = head + '<tbody>'+body+'</tbody>';
+  $("admin-rank-tbl").ondblclick = ()=> openBigTable("Berater-Ranking gesamt", $("admin-rank-tbl").innerHTML);
 }
 
 function renderCalendar() {
@@ -495,13 +504,16 @@ function renderRows(){
   mt.querySelectorAll("tbody tr.clk").forEach(tr=>tr.onclick=()=>{ clearTimeout(_clickTimer); const idx=Number(tr.dataset.i); _clickTimer=setTimeout(()=>openRowModal(_shownRows[idx]),230); });
   mt.ondblclick=()=>{ clearTimeout(_clickTimer); openTableModal(); };
 }
+function openBigTable(title, innerHTML){
+  $("tm-title").textContent = title || "Tabelle";
+  $("tm-table").innerHTML = innerHTML;
+  $("table-modal").classList.add("open");
+}
 function openTableModal(){
-  $("tm-title").textContent = $("mytbl-title").textContent || "Alle Anmeldungen";
   const cols=_cols();
   const head='<thead><tr>'+cols.map(c=>'<th>'+c.l+'</th>').join('')+'</tr></thead>';
   const body=_shownRows.length?_shownRows.map((r,i)=>regRow(r,_withAdv,i)).join(''):`<tr><td colspan="${cols.length}" class="muted">Keine Treffer.</td></tr>`;
-  $("tm-table").innerHTML=head+'<tbody>'+body+'</tbody>';
-  $("table-modal").classList.add("open");
+  openBigTable($("mytbl-title").textContent || "Alle Anmeldungen", head+'<tbody>'+body+'</tbody>');
 }
 function closeTableModal(){ $("table-modal").classList.remove("open"); }
 function openRowModal(r){
