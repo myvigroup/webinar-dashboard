@@ -81,6 +81,16 @@
   .rm-row .k{color:var(--muted);}
   .rm-row .v{font-weight:600;text-align:right;color:var(--ink);word-break:break-word;}
   .rm-close{margin-top:16px;width:100%;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:12px;font:inherit;font-weight:600;cursor:pointer;}
+  #table-modal{position:fixed;inset:0;background:rgba(11,33,56,.5);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px;}
+  #table-modal.open{display:flex;}
+  .tm-card{background:#fff;border-radius:16px;width:min(1100px,96vw);max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,40,90,.3);}
+  .tm-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line);flex:0 0 auto;}
+  #tm-title{font-family:Outfit;font-weight:700;color:var(--navy);font-size:16px;}
+  .tm-head button{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1;padding:0 4px;}
+  .tm-body{overflow:auto;padding:6px 20px 20px;}
+  #tm-table{width:100%;border-collapse:collapse;font-size:14px;}
+  #tm-table th,#tm-table td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  #tm-table th{color:var(--muted);font-weight:600;position:sticky;top:0;background:#fff;}
   .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
   .stat{background:#f7fafd;border:1px solid var(--line);border-radius:12px;padding:12px 14px;}
   .stat .label{font-size:12px;color:var(--muted);margin-bottom:4px;}
@@ -235,6 +245,7 @@
 </div>
 
 <div id="row-modal"><div class="rm-card" id="rm-card"></div></div>
+<div id="table-modal"><div class="tm-card"><div class="tm-head"><span id="tm-title"></span><button onclick="closeTableModal()" title="Schließen">✕</button></div><div class="tm-body"><table id="tm-table"></table></div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -439,7 +450,7 @@ function regRow(r, withAdv, i){
   const adv = withAdv ? `<td>${esc(r.advisor)||"–"}</td>` : '';
   return `<tr class="clk" data-i="${i}"><td>${esc(r.attendee_name)||"–"}${cancel}</td><td>${esc(r.attendee_email)||"–"}</td>${adv}<td>${r.registered_at ? new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}) : "–"}</td><td>${anw}</td><td>${dauer}</td></tr>`;
 }
-let _rows=[], _withAdv=false, _fStatus='alle', _fBerater='alle', _fSort='attendee_name', _fDir=1, _shownRows=[];
+let _rows=[], _withAdv=false, _fStatus='alle', _fBerater='alle', _fSort='attendee_name', _fDir=1, _shownRows=[], _clickTimer=null;
 function fillTable(rows, withAdv){
   _rows = rows || []; _withAdv = !!withAdv; _fBerater='alle';
   buildFilters(); renderRows();
@@ -479,9 +490,20 @@ function renderRows(){
   const head = '<thead><tr>'+cols.map(c=>{ const act=c.k===_fSort; const ar=act?(_fDir===1?' ▲':' ▼'):''; return '<th class="sortable" data-k="'+c.k+'">'+c.l+'<span class="ar">'+ar+'</span></th>'; }).join('')+'</tr></thead>';
   const body = rows.length ? rows.map((r,i)=>regRow(r,_withAdv,i)).join("") : `<tr><td colspan="${cols.length}" class="muted">Keine Treffer.</td></tr>`;
   $("mytable").innerHTML = head + '<tbody>'+body+'</tbody>';
-  $("mytable").querySelectorAll("th.sortable").forEach(th=>th.onclick=()=>{ const k=th.dataset.k; if(_fSort===k) _fDir=-_fDir; else { _fSort=k; _fDir=1; } renderRows(); });
-  $("mytable").querySelectorAll("tbody tr.clk").forEach(tr=>tr.onclick=()=>openRowModal(_shownRows[Number(tr.dataset.i)]));
+  const mt=$("mytable");
+  mt.querySelectorAll("th.sortable").forEach(th=>th.onclick=()=>{ const k=th.dataset.k; if(_fSort===k) _fDir=-_fDir; else { _fSort=k; _fDir=1; } renderRows(); });
+  mt.querySelectorAll("tbody tr.clk").forEach(tr=>tr.onclick=()=>{ clearTimeout(_clickTimer); const idx=Number(tr.dataset.i); _clickTimer=setTimeout(()=>openRowModal(_shownRows[idx]),230); });
+  mt.ondblclick=()=>{ clearTimeout(_clickTimer); openTableModal(); };
 }
+function openTableModal(){
+  $("tm-title").textContent = $("mytbl-title").textContent || "Alle Anmeldungen";
+  const cols=_cols();
+  const head='<thead><tr>'+cols.map(c=>'<th>'+c.l+'</th>').join('')+'</tr></thead>';
+  const body=_shownRows.length?_shownRows.map((r,i)=>regRow(r,_withAdv,i)).join(''):`<tr><td colspan="${cols.length}" class="muted">Keine Treffer.</td></tr>`;
+  $("tm-table").innerHTML=head+'<tbody>'+body+'</tbody>';
+  $("table-modal").classList.add("open");
+}
+function closeTableModal(){ $("table-modal").classList.remove("open"); }
 function openRowModal(r){
   if(!r) return;
   let anw='–'; if(r.status==='canceled') anw='<span style="color:#b03a3a;">Storniert</span>';
@@ -569,7 +591,8 @@ function renderAggregate(list){
 }
 
 $("row-modal").addEventListener("click", e=>{ if(e.target.id==="row-modal") closeRowModal(); });
-document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeRowModal(); });
+$("table-modal").addEventListener("click", e=>{ if(e.target.id==="table-modal") closeTableModal(); });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape"){ closeRowModal(); closeTableModal(); } });
 sb.auth.onAuthStateChange(() => init());
 init();
 </script>
