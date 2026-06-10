@@ -54,7 +54,8 @@
   .happ{font-family:Outfit,sans-serif;font-weight:700;font-size:15px;color:var(--muted);padding-left:12px;margin-left:4px;border-left:1px solid var(--line);}
   .huser{display:flex;align-items:center;gap:10px;}
   .avatar{width:34px;height:34px;border-radius:50%;background:rgba(6,186,221,.15);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;font-family:Outfit;}
-  .wrap{max-width:1140px;margin:0 auto;padding:22px 24px 56px;}
+  .wrap{max-width:1400px;margin:0 auto;padding:22px 24px 56px;}
+  #tables{margin-top:16px;display:flex;flex-direction:column;gap:14px;}
   .toolbar{display:flex;justify-content:flex-end;margin-bottom:14px;}
   .seg{display:inline-flex;background:#e3ebf3;border-radius:12px;padding:4px;gap:4px;}
   .seg button{border:none;background:transparent;color:var(--muted);font-weight:600;padding:9px 18px;border-radius:9px;}
@@ -226,23 +227,25 @@
             <div class="ptitle">Anmeldungen pro Berater</div>
             <div style="position:relative;height:240px;"><canvas id="chart"></canvas></div>
           </div>
-          <div class="detail-grid" id="detail-grid">
-            <div class="panel">
-              <div class="ptitle" id="mytbl-title">Deine Anmeldungen (Teilnehmer)</div>
-              <div id="tbl-filters" class="tbl-filters hidden"></div>
-              <div style="overflow-x:auto"><table id="mytable"></table></div>
-            </div>
-            <div class="panel hidden" id="overview-panel">
-              <div class="ptitle">Übersicht aller Webinare · Admin <span style="font-weight:400;font-size:11px;color:var(--muted);">· Doppelklick = groß</span></div>
-              <div style="overflow-x:auto"><table id="admin-overview-tbl"></table></div>
-            </div>
-          </div>
-          <div id="admin-section" class="hidden">
-            <div class="panel">
-              <div class="ptitle">Berater-Ranking gesamt · Admin <span style="font-weight:400;font-size:11px;color:var(--muted);">· Doppelklick = groß</span></div>
-              <div style="overflow-x:auto"><table id="admin-rank-tbl"></table></div>
-            </div>
-          </div>
+        </div>
+      </div>
+    </div>
+    <div id="tables" class="hidden">
+      <div class="detail-grid" id="detail-grid">
+        <div class="panel">
+          <div class="ptitle" id="mytbl-title">Deine Anmeldungen (Teilnehmer)</div>
+          <div id="tbl-filters" class="tbl-filters hidden"></div>
+          <div style="overflow-x:auto"><table id="mytable"></table></div>
+        </div>
+        <div class="panel hidden" id="overview-panel">
+          <div class="ptitle">Übersicht aller Webinare · Admin <span style="font-weight:400;font-size:11px;color:var(--muted);">· Doppelklick = groß</span></div>
+          <div style="overflow-x:auto"><table id="admin-overview-tbl"></table></div>
+        </div>
+      </div>
+      <div id="admin-section" class="hidden">
+        <div class="panel">
+          <div class="ptitle">Berater-Ranking gesamt · Admin <span style="font-weight:400;font-size:11px;color:var(--muted);">· Doppelklick = groß</span></div>
+          <div style="overflow-x:auto"><table id="admin-rank-tbl"></table></div>
         </div>
       </div>
     </div>
@@ -536,7 +539,7 @@ function openRowModal(r){
 function closeRowModal(){ $("row-modal").classList.remove("open"); }
 
 function renderWebinar(wid) {
-  $("detail").classList.remove("hidden");
+  $("detail").classList.remove("hidden"); $("tables").classList.remove("hidden");
   const w = totals.find(x => x.webinar_id === wid);
   if (w){ const d = w.starts_at ? new Date(w.starts_at) : null;
     $("detail-head").textContent = w.title + (d ? " · " + d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"long",year:"numeric",timeZone:TZ}) + ", " + d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ}) + " Uhr" : ""); }
@@ -570,7 +573,7 @@ function renderWebinar(wid) {
 
 // Summe über mehrere Webinare (z. B. alle anstehenden)
 function renderAggregate(list){
-  $("detail").classList.remove("hidden");
+  $("detail").classList.remove("hidden"); $("tables").classList.remove("hidden");
   $("admin-edit").classList.add("hidden");
   selectedWid = null; markSelection();
   const ids = new Set(list.map(w=>w.webinar_id));
