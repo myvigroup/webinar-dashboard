@@ -66,6 +66,12 @@
   .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 2px 10px rgba(0,40,90,.04);}
   .panel + .panel{margin-top:14px;}
   .ptitle{font-family:Outfit;font-weight:700;color:var(--navy);font-size:14px;margin-bottom:12px;}
+  .panel.collapsible > .ptitle{cursor:pointer;display:flex;align-items:center;gap:7px;user-select:none;}
+  .panel.collapsible > .ptitle::before{content:'▾';color:var(--muted);font-size:11px;transition:transform .15s;}
+  .panel.collapsible.collapsed > .ptitle::before{content:'▸';}
+  .panel.collapsible.collapsed > .ptitle{margin-bottom:0;}
+  .panel.collapsible.collapsed > .panel-body{display:none;}
+  .ptitle .cnt{margin-left:auto;font-weight:600;font-size:12px;color:var(--muted);background:var(--bg);padding:1px 9px;border-radius:20px;}
   .detail-grid{display:grid;grid-template-columns:1fr;gap:14px;}
   .detail-grid.cols2{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;}
   @media(max-width:1000px){.detail-grid.cols2{grid-template-columns:1fr;}}
@@ -232,7 +238,7 @@
     </div>
     <div id="tables" class="hidden">
       <div class="detail-grid" id="detail-grid">
-        <div class="panel">
+        <div class="panel" id="reg-panel">
           <div class="ptitle" id="mytbl-title">Deine Anmeldungen (Teilnehmer)</div>
           <div id="tbl-filters" class="tbl-filters hidden"></div>
           <div style="overflow-x:auto"><table id="mytable"></table></div>
@@ -243,7 +249,7 @@
         </div>
       </div>
       <div id="admin-section" class="hidden">
-        <div class="panel">
+        <div class="panel" id="rank-panel">
           <div class="ptitle">Berater-Ranking gesamt · Admin <span style="font-weight:400;font-size:11px;color:var(--muted);">· Doppelklick = groß</span></div>
           <div style="overflow-x:auto"><table id="admin-rank-tbl"></table></div>
         </div>
@@ -267,6 +273,7 @@ const DOW = ["Mo","Di","Mi","Do","Fr","Sa","So"];
 const MONTHS = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
 let chart, me = "";
 const ADMIN = ["l.jacob@myvi.de"]; let isAdmin = false; let presenterWids = new Set();
+let orgIds = new Set(); let isOrgLead = false;
 let totals = [], counts = [], mine = [], byDate = {}, viewY, viewM, selectedDate = null, selectedWid = null;
 
 $("btn-login").onclick = async () => {
@@ -332,9 +339,12 @@ async function loadData() {
   const [t, c, m] = await Promise.all([ sb.rpc("webinar_totals"), sb.rpc("webinar_advisor_counts"), sb.rpc("webinar_my_registrations") ]);
   totals = t.data || []; counts = c.data || []; mine = m.data || [];
   if (!isAdmin){
-    const rw = await sb.rpc("webinar_referent_webinars");
+    const [rw, og] = await Promise.all([ sb.rpc("webinar_referent_webinars"), sb.rpc("webinar_org_advisor_ids") ]);
     presenterWids = new Set((rw.data || []).map(x => x.webinar_id));
     if (presenterWids.size){ const w0 = $("who"); if(!/Referent/.test(w0.textContent)) w0.textContent += " · Referent"; }
+    orgIds = new Set((og.data || []).map(x => x.advisor_id));
+    isOrgLead = orgIds.size > 0;
+    if (isOrgLead){ const w0 = $("who"); if(!/Organisation/.test(w0.textContent)) w0.textContent += " · Organisation"; }
   }
   byDate = {};
   totals.forEach(w => {
@@ -358,6 +368,15 @@ async function loadData() {
   });
   if (pick) selectDay(dateKey(pick));
   if (isAdmin) loadAdmin();
+  else if (isOrgLead) loadOrg();
+}
+
+async function loadOrg(){
+  $("admin-section").classList.remove("hidden");
+  const t = document.querySelector("#admin-section .ptitle");
+  if (t) t.innerHTML = 'Berater-Ranking deiner Organisation <span style="font-weight:400;font-size:11px;color:var(--muted);">· Doppelklick = groß</span>';
+  const { data } = await sb.rpc("webinar_org_ranking");
+  renderAdminRanking(data || []);
 }
 
 async function loadAdmin(){
@@ -507,6 +526,50 @@ function renderRows(){
   mt.querySelectorAll("tbody tr.clk").forEach(tr=>tr.onclick=()=>{ clearTimeout(_clickTimer); const idx=Number(tr.dataset.i); _clickTimer=setTimeout(()=>openRowModal(_shownRows[idx]),230); });
   mt.ondblclick=()=>{ clearTimeout(_clickTimer); openTableModal(); };
 }
+// Leiter-/Org-Ansicht: Zusammenfassung je Berater, Klick = Teilnehmer dieses Beraters
+let _orgRows=[];
+function _advKey(r){ return (r.advisor && r.advisor!=='–' && r.advisor.trim()) ? r.advisor : '– ohne Berater'; }
+function fillOrgSummary(rows){
+  _orgRows = rows || [];
+  $("tbl-filters").classList.add("hidden"); $("tbl-filters").innerHTML="";
+  const tracked = _orgRows.some(r=>r.attended!==null && r.status!=='canceled');
+  const g={};
+  _orgRows.forEach(r=>{ const a=_advKey(r); if(!g[a]) g[a]={advisor:a,ang:0,teil:0};
+    if(r.status!=='canceled'){ g[a].ang++; if(r.attended===true) g[a].teil++; } });
+  const arr=Object.values(g).filter(x=>x.ang>0).sort((x,y)=> y.ang-x.ang || x.advisor.localeCompare(y.advisor));
+  const note = tracked ? '' : ' <span style="font-weight:400;font-size:11px;color:var(--muted);">· Anwesenheit für dieses Webinar technisch nicht erfasst</span>';
+  const head='<thead><tr><th>Berater</th><th>Angemeldet</th><th>Teilgenommen</th><th>Quote</th><th></th></tr></thead>';
+  const body=arr.length?arr.map((r,i)=>{
+    const teil = tracked ? r.teil : '<span class="muted">n. erf.</span>';
+    const q = tracked ? (r.ang? Math.round(r.teil/r.ang*100)+' %':'–') : '<span class="muted">–</span>';
+    return `<tr class="clk" data-adv="${esc(r.advisor)}"><td>${i+1}. ${esc(r.advisor)}</td><td>${r.ang}</td><td>${teil}</td><td>${q}</td><td style="color:var(--brand);font-size:12px;">Details ›</td></tr>`;
+  }).join(''):'<tr><td colspan="5" class="muted">Keine Anmeldungen.</td></tr>';
+  $("mytable").innerHTML=head+'<tbody>'+body+'</tbody>';
+  const mt=$("mytable");
+  mt.querySelectorAll("tbody tr.clk").forEach(tr=>tr.onclick=()=>openOrgDetail(tr.dataset.adv));
+  mt.ondblclick=null;
+  const t=$("mytbl-title"); if(t && note && !/nicht erfasst/.test(t.innerHTML)) t.innerHTML += note;
+}
+function orgSummaryHint(msg){
+  _orgRows=[]; $("tbl-filters").classList.add("hidden"); $("tbl-filters").innerHTML="";
+  $("mytable").innerHTML='<tbody><tr><td class="muted" style="padding:14px;">'+(msg||'Bitte ein Webinar im Kalender wählen.')+'</td></tr></tbody>';
+  $("mytable").ondblclick=null;
+}
+function openOrgDetail(adv){
+  const list=_orgRows.filter(r=>_advKey(r)===adv);
+  const angem=list.filter(r=>r.status!=='canceled').length;
+  const head='<thead><tr><th>Teilnehmer</th><th>E-Mail</th><th>Angemeldet</th><th>Anwesend</th><th>Dauer</th></tr></thead>';
+  const body=list.length?list.map(r=>{
+    let anw;
+    if(r.status==='canceled') anw='<span style="color:#b03a3a;">storniert</span>';
+    else if(r.attended===true) anw='<span style="color:#1a7d4b;font-weight:600;">✓ anwesend</span>';
+    else if(r.attended===false) anw='<span style="color:#b03a3a;font-weight:600;">nicht dabei</span>';
+    else anw='<span class="muted">nicht erfasst</span>';
+    const d=durStr(r.attended_seconds)||'–';
+    return `<tr><td>${esc(r.attendee_name)||'–'}</td><td>${esc(r.attendee_email)||'–'}</td><td>${r.registered_at?new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}):'–'}</td><td>${anw}</td><td>${d}</td></tr>`;
+  }).join(''):'<tr><td colspan="5" class="muted">Keine Teilnehmer.</td></tr>';
+  openBigTable(adv+' · '+angem+' angemeldet', head+'<tbody>'+body+'</tbody>');
+}
 function openBigTable(title, innerHTML){
   $("tm-title").textContent = title || "Tabelle";
   $("tm-table").innerHTML = innerHTML;
@@ -555,19 +618,28 @@ function renderWebinar(wid) {
   $("s-total").textContent = total;
   $("s-share").textContent = total ? Math.round(mineCount/total*100) + " %" : "–";
   $("s-rank").textContent = (mineCount>0) ? rank + " / " + rows.length : "–";
+  const isPres = presenterWids.has(wid);
+  const orgRows = isOrgLead ? rows.filter(r => orgIds.has(r.advisor_id)) : [];
   if (isAdmin && w){
     $("l-mine").textContent = "Anwesend"; $("s-mine").textContent = (w.attended!=null) ? w.attended : "–";
     $("l-share").textContent = "Anwesenheitsquote"; $("s-share").textContent = (w.attended!=null && total) ? Math.round(w.attended/total*100)+" %" : "–";
     $("l-rank").textContent = "Storniert"; $("s-rank").textContent = w.canceled || 0;
+  } else if (isOrgLead && !isPres){
+    const orgCount = orgRows.reduce((s,r)=> s+Number(r.registrations), 0);
+    $("l-mine").textContent = "Anmeldungen (Org)"; $("s-mine").textContent = orgCount;
+    $("l-share").textContent = "Anteil deiner Org"; $("s-share").textContent = total ? Math.round(orgCount/total*100)+" %" : "–";
+    $("l-rank").textContent = "Aktive Berater (Org)"; $("s-rank").textContent = orgRows.length;
   }
-  const canBd = isAdmin || presenterWids.has(wid);
+  const fullBd = isAdmin || isPres;
+  const canBd = fullBd || (isOrgLead && orgRows.length>0);
   $("chart-panel").style.display = canBd ? "" : "none";
-  if (canBd){ const cL=rows.map(r=>r.advisor_name), cD=rows.map(r=>Number(r.registrations)), cC=rows.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9");
-    const assigned=cD.reduce((s,n)=>s+n,0), un=total-assigned;
-    if(un>0){ cL.push("Nicht zugeordnet"); cD.push(un); cC.push("#c8d2dd"); }
+  if (canBd){ const src = fullBd ? rows : orgRows;
+    const cL=src.map(r=>r.advisor_name), cD=src.map(r=>Number(r.registrations)), cC=src.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9");
+    if (fullBd){ const assigned=cD.reduce((s,n)=>s+n,0), un=total-assigned; if(un>0){ cL.push("Nicht zugeordnet"); cD.push(un); cC.push("#c8d2dd"); } }
     drawChart(cL,cD,cC); }
   if (isAdmin){ $("mytbl-title").textContent = "Alle Anmeldungen (mit Berater)"; sb.rpc("webinar_admin_registrations",{p_webinar_id:wid}).then(({data})=>fillTable(data||[], true)); }
-  else if (presenterWids.has(wid)){ $("mytbl-title").textContent = "Alle Anmeldungen zu deinem Webinar (mit Berater)"; sb.rpc("webinar_referent_registrations",{p_webinar_id:wid}).then(({data})=>fillTable(data||[], true)); }
+  else if (isPres){ $("mytbl-title").textContent = "Alle Anmeldungen zu deinem Webinar (mit Berater)"; sb.rpc("webinar_referent_registrations",{p_webinar_id:wid}).then(({data})=>fillTable(data||[], true)); }
+  else if (isOrgLead){ $("mytbl-title").innerHTML = "Teilnehmer je Berater · deine Organisation <span style=\"font-weight:400;font-size:11px;color:var(--muted);\">· Berater anklicken für Teilnehmer</span>"; sb.rpc("webinar_org_registrations",{p_webinar_id:wid}).then(({data})=>fillOrgSummary(data||[])); }
   else { $("mytbl-title").textContent = "Deine Anmeldungen (Teilnehmer)"; fillTable(mine.filter(r => r.webinar_id === wid), false); }
 }
 
@@ -582,7 +654,7 @@ function renderAggregate(list){
   const attendedSum = list.reduce((s,w)=> s + (w.attended!=null?Number(w.attended):0), 0);
   { const ex=[]; if (list.some(w=>w.attended!=null)) ex.push("Teilnehmer anwesend (gesamt): "+attendedSum); if (canceled>0) ex.push("Davon storniert: "+canceled); $("detail-cancel").textContent = ex.join("   ·   "); }
   const byAdv = {};
-  counts.forEach(c => { if (ids.has(c.webinar_id) && Number(c.registrations)>0){ const k=c.advisor_id||c.advisor_name; if(!byAdv[k]) byAdv[k]={name:c.advisor_name,email:c.email,n:0}; byAdv[k].n += Number(c.registrations); } });
+  counts.forEach(c => { if (ids.has(c.webinar_id) && Number(c.registrations)>0){ const k=c.advisor_id||c.advisor_name; if(!byAdv[k]) byAdv[k]={advisor_id:c.advisor_id,name:c.advisor_name,email:c.email,n:0}; byAdv[k].n += Number(c.registrations); } });
   const rows = Object.values(byAdv).sort((a,b)=> b.n - a.n);
   const mineCount = rows.filter(r=>(r.email||"").toLowerCase()===me).reduce((s,r)=> s+r.n, 0);
   const myRank = rows.findIndex(r=>(r.email||"").toLowerCase()===me) + 1;
@@ -591,23 +663,47 @@ function renderAggregate(list){
   $("s-total").textContent = total;
   $("s-share").textContent = total ? Math.round(mineCount/total*100) + " %" : "–";
   $("s-rank").textContent = (mineCount>0 && myRank>0) ? myRank + " / " + rows.length : "–";
+  const orgRows = isOrgLead ? rows.filter(r => orgIds.has(r.advisor_id)) : [];
   if (isAdmin){
     $("l-mine").textContent = "Anwesend gesamt"; $("s-mine").textContent = attendedSum;
     $("l-share").textContent = "Anwesenheitsquote"; $("s-share").textContent = (attendedSum>0 && total) ? Math.round(attendedSum/total*100)+" %" : "–";
     $("l-rank").textContent = "Storniert"; $("s-rank").textContent = canceled;
+  } else if (isOrgLead){
+    const orgCount = orgRows.reduce((s,r)=> s+r.n, 0);
+    $("l-mine").textContent = "Anmeldungen (Org)"; $("s-mine").textContent = orgCount;
+    $("l-share").textContent = "Anteil deiner Org"; $("s-share").textContent = total ? Math.round(orgCount/total*100)+" %" : "–";
+    $("l-rank").textContent = "Aktive Berater (Org)"; $("s-rank").textContent = orgRows.length;
   }
-  $("chart-panel").style.display = isAdmin ? "" : "none";
-  if (isAdmin){ const cL=rows.map(r=>r.name), cD=rows.map(r=>r.n), cC=rows.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9");
-    const assigned=cD.reduce((s,n)=>s+n,0), un=total-assigned;
-    if(un>0){ cL.push("Nicht zugeordnet"); cD.push(un); cC.push("#c8d2dd"); }
+  const aggBd = isAdmin || (isOrgLead && orgRows.length>0);
+  $("chart-panel").style.display = aggBd ? "" : "none";
+  if (aggBd){ const src = isAdmin ? rows : orgRows;
+    const cL=src.map(r=>r.name), cD=src.map(r=>r.n), cC=src.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9");
+    if (isAdmin){ const assigned=cD.reduce((s,n)=>s+n,0), un=total-assigned; if(un>0){ cL.push("Nicht zugeordnet"); cD.push(un); cC.push("#c8d2dd"); } }
     drawChart(cL,cD,cC); }
   if (isAdmin){ $("mytbl-title").textContent = "Alle Anmeldungen — einzelnes Webinar wählen"; fillTable([], true); }
+  else if (isOrgLead){ $("mytbl-title").textContent = "Teilnehmer je Berater · deine Organisation"; orgSummaryHint("Bitte ein Webinar im Kalender wählen, um die Berater-Auswertung zu sehen."); }
   else { $("mytbl-title").textContent = presenterWids.size ? "Deine Anmeldungen — für die Gesamtübersicht ein Webinar wählen" : "Deine Anmeldungen (Teilnehmer)"; fillTable(mine.filter(r => ids.has(r.webinar_id)), false); }
 }
 
 $("row-modal").addEventListener("click", e=>{ if(e.target.id==="row-modal") closeRowModal(); });
 $("table-modal").addEventListener("click", e=>{ if(e.target.id==="table-modal") closeTableModal(); });
 document.addEventListener("keydown", e=>{ if(e.key==="Escape"){ closeRowModal(); closeTableModal(); } });
+
+// Einklappbare Panels: Titel anklicken zum Auf-/Zuklappen
+function makeCollapsible(panelId, collapsed){
+  const p=$(panelId); if(!p || p.dataset.coll) return;
+  const title=p.querySelector(":scope > .ptitle"); if(!title) return;
+  const body=document.createElement("div"); body.className="panel-body";
+  while(title.nextSibling) body.appendChild(title.nextSibling);
+  p.appendChild(body);
+  p.classList.add("collapsible"); if(collapsed) p.classList.add("collapsed");
+  title.addEventListener("click", ()=> p.classList.toggle("collapsed"));
+  p.dataset.coll="1";
+}
+makeCollapsible("reg-panel", false);
+makeCollapsible("overview-panel", true);
+makeCollapsible("rank-panel", true);
+
 sb.auth.onAuthStateChange(() => init());
 init();
 </script>
