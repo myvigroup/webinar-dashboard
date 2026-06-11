@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{--navy:#004283;--navy-d:#02315f;--cyan:#06BADD;--cyan-d:#0596b3;--ink:#0b2138;--muted:#5b7088;--line:#e4eaf1;--bg:#eef3f8;--card:#fff;}
+  :root{--navy:#004283;--navy-d:#02315f;--cyan:#06BADD;--cyan-d:#0596b3;--brand:#0596b3;--ink:#0b2138;--muted:#5b7088;--line:#e4eaf1;--bg:#eef3f8;--card:#fff;}
   *{box-sizing:border-box;}
   body{margin:0;font-family:Inter,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);}
   h1,h2,h3,.font-display{font-family:Outfit,Inter,sans-serif;}
@@ -72,6 +72,9 @@
   .panel.collapsible.collapsed > .ptitle{margin-bottom:0;}
   .panel.collapsible.collapsed > .panel-body{display:none;}
   .ptitle .cnt{margin-left:auto;font-weight:600;font-size:12px;color:var(--muted);background:var(--bg);padding:1px 9px;border-radius:20px;}
+  tr.more-row td{text-align:center;padding:0;border-bottom:none;}
+  tr.more-row button{width:100%;background:transparent;border:none;color:var(--brand);font:inherit;font-size:12px;font-weight:600;padding:9px;cursor:pointer;border-radius:8px;}
+  tr.more-row button:hover{background:var(--bg);}
   .detail-grid{display:grid;grid-template-columns:1fr;gap:14px;}
   .detail-grid.cols2{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;}
   @media(max-width:1000px){.detail-grid.cols2{grid-template-columns:1fr;}}
@@ -397,12 +400,14 @@ function renderAdminOverview(rows){
   }).join("") : '<tr><td colspan="9" class="muted">Keine Daten.</td></tr>';
   $("admin-overview-tbl").innerHTML = head + '<tbody>'+body+'</tbody>';
   $("admin-overview-tbl").ondblclick = ()=> openBigTable("Übersicht aller Webinare", $("admin-overview-tbl").innerHTML);
+  limitRows($("admin-overview-tbl"),5);
 }
 function renderAdminRanking(rows){
   const head = '<thead><tr><th>Berater</th><th>Anmeldungen</th><th>Teilgenommen</th></tr></thead>';
   const body = rows.length ? rows.map((r,i)=>`<tr><td>${i+1}. ${esc(r.advisor)}</td><td>${r.anmeldungen}</td><td>${r.teilgenommen}</td></tr>`).join("") : '<tr><td colspan="3" class="muted">Keine Daten.</td></tr>';
   $("admin-rank-tbl").innerHTML = head + '<tbody>'+body+'</tbody>';
   $("admin-rank-tbl").ondblclick = ()=> openBigTable("Berater-Ranking gesamt", $("admin-rank-tbl").innerHTML);
+  limitRows($("admin-rank-tbl"),5);
 }
 
 function renderCalendar() {
@@ -525,6 +530,7 @@ function renderRows(){
   mt.querySelectorAll("th.sortable").forEach(th=>th.onclick=()=>{ const k=th.dataset.k; if(_fSort===k) _fDir=-_fDir; else { _fSort=k; _fDir=1; } renderRows(); });
   mt.querySelectorAll("tbody tr.clk").forEach(tr=>tr.onclick=()=>{ clearTimeout(_clickTimer); const idx=Number(tr.dataset.i); _clickTimer=setTimeout(()=>openRowModal(_shownRows[idx]),230); });
   mt.ondblclick=()=>{ clearTimeout(_clickTimer); openTableModal(); };
+  limitRows(mt,5);
 }
 // Leiter-/Org-Ansicht: Zusammenfassung je Berater, Klick = Teilnehmer dieses Beraters
 let _orgRows=[];
@@ -548,6 +554,7 @@ function fillOrgSummary(rows){
   const mt=$("mytable");
   mt.querySelectorAll("tbody tr.clk").forEach(tr=>tr.onclick=()=>openOrgDetail(tr.dataset.adv));
   mt.ondblclick=null;
+  limitRows(mt,5);
   const t=$("mytbl-title"); if(t && note && !/nicht erfasst/.test(t.innerHTML)) t.innerHTML += note;
 }
 function orgSummaryHint(msg){
@@ -569,6 +576,25 @@ function openOrgDetail(adv){
     return `<tr><td>${esc(r.attendee_name)||'–'}</td><td>${esc(r.attendee_email)||'–'}</td><td>${r.registered_at?new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}):'–'}</td><td>${anw}</td><td>${d}</td></tr>`;
   }).join(''):'<tr><td colspan="5" class="muted">Keine Teilnehmer.</td></tr>';
   openBigTable(adv+' · '+angem+' angemeldet', head+'<tbody>'+body+'</tbody>');
+}
+// Zeigt nur die ersten N Zeilen, Rest per "mehr anzeigen" ausklappbar
+function limitRows(tableEl, limit){
+  limit = limit || 5;
+  if(!tableEl) return;
+  const tb = tableEl.querySelector("tbody"); if(!tb) return;
+  const rows = Array.from(tb.querySelectorAll("tr")).filter(r=>!r.classList.contains("more-row"));
+  if(rows.length <= limit) return;
+  const cols = (tableEl.querySelector("thead tr") && tableEl.querySelector("thead tr").children.length) || (rows[0] && rows[0].children.length) || 1;
+  const hidden = rows.slice(limit);
+  hidden.forEach(r=> r.style.display="none");
+  const tr=document.createElement("tr"); tr.className="more-row";
+  const td=document.createElement("td"); td.colSpan=cols;
+  const btn=document.createElement("button");
+  let open=false;
+  const lbl=()=> open ? "Weniger anzeigen" : ("▾ "+hidden.length+" weitere anzeigen");
+  btn.textContent=lbl();
+  btn.onclick=(e)=>{ e.stopPropagation(); open=!open; hidden.forEach(r=> r.style.display=open?"":"none"); btn.textContent=lbl(); };
+  td.appendChild(btn); tr.appendChild(td); tb.appendChild(tr);
 }
 function openBigTable(title, innerHTML){
   $("tm-title").textContent = title || "Tabelle";
@@ -701,8 +727,8 @@ function makeCollapsible(panelId, collapsed){
   p.dataset.coll="1";
 }
 makeCollapsible("reg-panel", false);
-makeCollapsible("overview-panel", true);
-makeCollapsible("rank-panel", true);
+makeCollapsible("overview-panel", false);
+makeCollapsible("rank-panel", false);
 
 sb.auth.onAuthStateChange(() => init());
 init();
