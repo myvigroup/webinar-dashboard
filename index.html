@@ -101,6 +101,30 @@
   #tm-title{font-family:Outfit;font-weight:700;color:var(--navy);font-size:16px;}
   .tm-head button{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1;padding:0 4px;}
   .tm-body{overflow:auto;padding:6px 20px 20px;}
+  /* Webinar-Detail-Popup */
+  #webinar-modal{position:fixed;inset:0;background:rgba(11,33,56,.5);display:none;align-items:center;justify-content:center;z-index:2100;padding:20px;}
+  #webinar-modal.open{display:flex;}
+  .wm-card{background:#fff;border-radius:16px;width:min(1000px,96vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,40,90,.3);}
+  .wm-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line);flex:0 0 auto;}
+  .wm-title{font-family:Outfit;font-weight:700;color:var(--navy);font-size:17px;line-height:1.25;}
+  .wm-sub{font-size:12px;margin-top:3px;}
+  .wm-x{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1;padding:0 4px;}
+  .wm-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px 22px 4px;flex:0 0 auto;}
+  .wm-kpi{background:#f7fafd;border:1px solid var(--line);border-radius:12px;padding:12px 14px;}
+  .wm-kpi .l{font-size:12px;color:var(--muted);margin-bottom:3px;}
+  .wm-kpi .v{font-size:22px;font-weight:700;color:var(--navy);font-family:Outfit;}
+  .wm-filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 22px;flex:0 0 auto;}
+  .wm-filters label{font-size:12px;color:var(--muted);}
+  .wm-filters select,.wm-filters input{font:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;}
+  .wm-filters input{min-width:180px;}
+  .wm-body2{overflow:auto;padding:0 22px 22px;}
+  .wm-tbl{width:100%;border-collapse:collapse;font-size:14px;}
+  .wm-tbl th,.wm-tbl td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  .wm-tbl th{color:var(--muted);font-weight:600;position:sticky;top:0;background:#fff;}
+  tr.wm-row{cursor:pointer;}
+  tr.wm-row:hover{background:var(--accent-soft,#e6f1fb);}
+  .wm-back{background:#f1f5fa;border:1px solid var(--line);border-radius:9px;padding:7px 13px;font:inherit;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;margin:4px 0 12px;}
+  .wm-deth{font-family:Outfit;font-weight:700;color:var(--navy);font-size:15px;margin-bottom:10px;}
   #tm-table{width:100%;border-collapse:collapse;font-size:14px;}
   #tm-table th,#tm-table td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;}
   #tm-table th{color:var(--muted);font-weight:600;position:sticky;top:0;background:#fff;}
@@ -260,6 +284,13 @@
     </div>
   </div>
 </div>
+
+<div id="webinar-modal"><div class="wm-card">
+  <div class="wm-head"><div><div id="wm-title" class="wm-title"></div><div id="wm-sub" class="wm-sub muted"></div></div><button class="wm-x" onclick="wmClose()" title="Schließen">✕</button></div>
+  <div id="wm-kpis" class="wm-kpis"></div>
+  <div id="wm-filters" class="wm-filters"></div>
+  <div id="wm-body" class="wm-body2"></div>
+</div></div>
 
 <div id="row-modal"><div class="rm-card" id="rm-card"></div></div>
 <div id="table-modal"><div class="tm-card"><div class="tm-head"><span id="tm-title"></span><button onclick="closeTableModal()" title="Schließen">✕</button></div><div class="tm-body"><table id="tm-table"></table></div></div></div>
@@ -439,7 +470,7 @@ function webinarItem(w, withDate){
   b.className = "witem" + (w.webinar_id===selectedWid ? " sel" : "");
   b.dataset.wid = w.webinar_id;
   b.innerHTML = '<div class="top"><span class="date">'+dateStr+'</span><span class="ttl">'+esc(w.title)+'</span></div><div class="meta">'+meta+'</div>';
-  b.addEventListener("click",(ev)=>{ if(ev.target.tagName==="A") return; selectWebinar(w.webinar_id); });
+  b.addEventListener("click",(ev)=>{ if(ev.target.tagName==="A") return; selectWebinar(w.webinar_id); if(wmEligible(w.webinar_id)) openWebinarModal(w.webinar_id); });
   return b;
 }
 
@@ -608,6 +639,85 @@ function openTableModal(){
   openBigTable($("mytbl-title").textContent || "Alle Anmeldungen", head+'<tbody>'+body+'</tbody>');
 }
 function closeTableModal(){ $("table-modal").classList.remove("open"); }
+
+// ===== Webinar-Detail-Popup: Berater-KPIs + Drill-down zu Kunden =====
+let _wm = {wid:null, rows:[], view:'list', adv:null, fStatus:'alle', fBerater:'alle', q:''};
+function wmEligible(wid){ return isAdmin || presenterWids.has(wid) || isOrgLead; }
+async function openWebinarModal(wid){
+  _wm = {wid, rows:[], view:'list', adv:null, fStatus:'alle', fBerater:'alle', q:''};
+  const w = totals.find(x=>x.webinar_id===wid);
+  $("wm-title").textContent = w ? w.title : "Webinar";
+  $("wm-sub").textContent = (w && w.starts_at) ? (new Date(w.starts_at).toLocaleDateString("de-DE",{weekday:'long',day:'2-digit',month:'long',year:'numeric',timeZone:TZ})+', '+new Date(w.starts_at).toLocaleTimeString("de-DE",{hour:'2-digit',minute:'2-digit',timeZone:TZ})+' Uhr') : "";
+  $("wm-kpis").innerHTML=''; $("wm-filters").innerHTML='';
+  $("wm-body").innerHTML = '<div class="muted" style="padding:20px;">Lädt…</div>';
+  $("webinar-modal").classList.add("open");
+  const rpc = isAdmin ? "webinar_admin_registrations" : (presenterWids.has(wid) ? "webinar_referent_registrations" : "webinar_org_registrations");
+  const { data } = await sb.rpc(rpc, { p_webinar_id: wid });
+  if(_wm.wid!==wid) return;
+  _wm.rows = data || [];
+  wmRender();
+}
+function wmClose(){ $("webinar-modal").classList.remove("open"); }
+function _wmStatusSearch(rows){
+  if(_wm.fStatus==='ja') rows=rows.filter(r=>r.attended===true);
+  else if(_wm.fStatus==='nein') rows=rows.filter(r=>r.attended===false && r.status!=='canceled');
+  else if(_wm.fStatus==='storno') rows=rows.filter(r=>r.status==='canceled');
+  if(_wm.q){ const q=_wm.q.toLowerCase(); rows=rows.filter(r=>(((r.attendee_name||'')+' '+(r.attendee_email||'')).toLowerCase().includes(q))); }
+  return rows;
+}
+function wmKpi(l,v){ return '<div class="wm-kpi"><div class="l">'+l+'</div><div class="v">'+v+'</div></div>'; }
+function wmRender(){
+  const all=_wm.rows;
+  const ang = all.filter(r=>r.status!=='canceled').length;
+  const tracked = all.some(r=>r.attended!==null && r.status!=='canceled');
+  const anw = all.filter(r=>r.attended===true).length;
+  const storno = all.filter(r=>r.status==='canceled').length;
+  $("wm-kpis").innerHTML = wmKpi('Angemeldet',ang)+wmKpi('Teilgenommen', tracked? anw : '<span class="muted">n. erf.</span>')+wmKpi('Quote', (tracked&&ang)? Math.round(anw/ang*100)+' %':'–')+wmKpi('Storniert',storno);
+  const names=[...new Set(all.map(_advKey))].sort((a,b)=>a.localeCompare(b));
+  const berSel = _wm.view==='list' ? ('<label>Berater:</label><select id="wm-fb"><option value="alle">Alle</option>'+names.map(n=>'<option value="'+esc(n)+'"'+(_wm.fBerater===n?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select>') : '';
+  $("wm-filters").innerHTML = '<label>Status:</label><select id="wm-fs">'
+    +['alle:Alle','ja:Teilgenommen','nein:Nicht teilgenommen','storno:Storniert'].map(o=>{const[v,l]=o.split(':');return '<option value="'+v+'"'+(_wm.fStatus===v?' selected':'')+'>'+l+'</option>';}).join('')
+    +'</select>'+berSel+'<input id="wm-q" type="search" placeholder="Name oder E-Mail suchen…" value="'+esc(_wm.q)+'">';
+  $("wm-fs").onchange=e=>{_wm.fStatus=e.target.value; wmRenderBody();};
+  if($("wm-fb")) $("wm-fb").onchange=e=>{_wm.fBerater=e.target.value; wmRenderBody();};
+  $("wm-q").oninput=e=>{_wm.q=e.target.value; wmRenderBody();};
+  wmRenderBody();
+}
+function wmRenderBody(){ if(_wm.view==='detail') wmRenderDetail(); else wmRenderList(); }
+function wmRenderList(){
+  let rows=_wmStatusSearch(_wm.rows.slice());
+  if(_wm.fBerater!=='alle') rows=rows.filter(r=>_advKey(r)===_wm.fBerater);
+  const tracked=_wm.rows.some(r=>r.attended!==null && r.status!=='canceled');
+  const g={};
+  rows.forEach(r=>{const a=_advKey(r); if(!g[a])g[a]={a,ang:0,teil:0}; if(r.status!=='canceled'){g[a].ang++; if(r.attended===true)g[a].teil++;}});
+  const arr=Object.values(g).filter(x=>x.ang>0).sort((x,y)=>y.ang-x.ang||x.a.localeCompare(y.a));
+  let html='<table class="wm-tbl"><thead><tr><th>Berater</th><th>Angemeldet</th><th>Teilgenommen</th><th>Quote</th><th></th></tr></thead><tbody>';
+  html+= arr.length ? arr.map((r,i)=>'<tr class="wm-row" data-adv="'+esc(r.a)+'"><td>'+(i+1)+'. '+esc(r.a)+'</td><td>'+r.ang+'</td><td>'+(tracked?r.teil:'<span class="muted">n. erf.</span>')+'</td><td>'+((tracked&&r.ang)?Math.round(r.teil/r.ang*100)+' %':'<span class="muted">–</span>')+'</td><td style="color:var(--brand);font-size:12px;">Kunden ›</td></tr>').join('') : '<tr><td colspan="5" class="muted">Keine Treffer.</td></tr>';
+  html+='</tbody></table>';
+  $("wm-body").innerHTML=html;
+  $("wm-body").querySelectorAll(".wm-row").forEach(tr=>tr.onclick=()=>{ _wm.adv=tr.dataset.adv; _wm.view='detail'; wmRender(); });
+}
+function wmRenderDetail(){
+  const adv=_wm.adv;
+  const base=_wm.rows.filter(r=>_advKey(r)===adv);
+  const rows=_wmStatusSearch(base.slice());
+  const ang=base.filter(r=>r.status!=='canceled').length;
+  const anw=base.filter(r=>r.attended===true).length;
+  let html='<button class="wm-back" onclick="wmBack()">← Zurück zu Beratern</button>';
+  html+='<div class="wm-deth">'+esc(adv)+' · '+ang+' eingeladen · '+anw+' gekommen</div>';
+  html+='<table class="wm-tbl"><thead><tr><th>Kunde</th><th>E-Mail</th><th>Angemeldet</th><th>Gekommen</th><th>Dauer</th></tr></thead><tbody>';
+  html+= rows.length ? rows.map(r=>{
+    let anwc; if(r.status==='canceled') anwc='<span style="color:#b03a3a;">storniert</span>';
+    else if(r.attended===true) anwc='<span style="color:#1a7d4b;font-weight:600;">✓ ja</span>';
+    else if(r.attended===false) anwc='<span style="color:#b03a3a;font-weight:600;">nein</span>';
+    else anwc='<span class="muted">n. erf.</span>';
+    return '<tr><td>'+(esc(r.attendee_name)||'–')+'</td><td>'+(esc(r.attendee_email)||'–')+'</td><td>'+(r.registered_at?new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}):'–')+'</td><td>'+anwc+'</td><td>'+(durStr(r.attended_seconds)||'–')+'</td></tr>';
+  }).join('') : '<tr><td colspan="5" class="muted">Keine Treffer.</td></tr>';
+  html+='</tbody></table>';
+  $("wm-body").innerHTML=html;
+}
+function wmBack(){ _wm.view='list'; _wm.adv=null; wmRender(); }
+
 function openRowModal(r){
   if(!r) return;
   let anw='–'; if(r.status==='canceled') anw='<span style="color:#b03a3a;">Storniert</span>';
@@ -713,7 +823,8 @@ function renderAggregate(list){
 
 $("row-modal").addEventListener("click", e=>{ if(e.target.id==="row-modal") closeRowModal(); });
 $("table-modal").addEventListener("click", e=>{ if(e.target.id==="table-modal") closeTableModal(); });
-document.addEventListener("keydown", e=>{ if(e.key==="Escape"){ closeRowModal(); closeTableModal(); } });
+$("webinar-modal").addEventListener("click", e=>{ if(e.target.id==="webinar-modal") wmClose(); });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape"){ closeRowModal(); closeTableModal(); wmClose(); } });
 
 // Einklappbare Panels: Titel anklicken zum Auf-/Zuklappen
 function makeCollapsible(panelId, collapsed){
