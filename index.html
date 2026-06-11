@@ -663,8 +663,8 @@ function renderWebinar(wid) {
     const cL=src.map(r=>r.advisor_name), cD=src.map(r=>Number(r.registrations)), cC=src.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9");
     if (fullBd){ const assigned=cD.reduce((s,n)=>s+n,0), un=total-assigned; if(un>0){ cL.push("Nicht zugeordnet"); cD.push(un); cC.push("#c8d2dd"); } }
     drawChart(cL,cD,cC); }
-  if (isAdmin){ $("mytbl-title").textContent = "Alle Anmeldungen (mit Berater)"; sb.rpc("webinar_admin_registrations",{p_webinar_id:wid}).then(({data})=>fillTable(data||[], true)); }
-  else if (isPres){ $("mytbl-title").textContent = "Alle Anmeldungen zu deinem Webinar (mit Berater)"; sb.rpc("webinar_referent_registrations",{p_webinar_id:wid}).then(({data})=>fillTable(data||[], true)); }
+  if (isAdmin){ $("mytbl-title").innerHTML = "Teilnehmer je Berater <span style=\"font-weight:400;font-size:11px;color:var(--muted);\">· Berater anklicken für Teilnehmer</span>"; sb.rpc("webinar_admin_registrations",{p_webinar_id:wid}).then(({data})=>fillOrgSummary(data||[])); }
+  else if (isPres){ $("mytbl-title").innerHTML = "Teilnehmer je Berater · dein Webinar <span style=\"font-weight:400;font-size:11px;color:var(--muted);\">· Berater anklicken für Teilnehmer</span>"; sb.rpc("webinar_referent_registrations",{p_webinar_id:wid}).then(({data})=>fillOrgSummary(data||[])); }
   else if (isOrgLead){ $("mytbl-title").innerHTML = "Teilnehmer je Berater · deine Organisation <span style=\"font-weight:400;font-size:11px;color:var(--muted);\">· Berater anklicken für Teilnehmer</span>"; sb.rpc("webinar_org_registrations",{p_webinar_id:wid}).then(({data})=>fillOrgSummary(data||[])); }
   else { $("mytbl-title").textContent = "Deine Anmeldungen (Teilnehmer)"; fillTable(mine.filter(r => r.webinar_id === wid), false); }
 }
@@ -706,7 +706,7 @@ function renderAggregate(list){
     const cL=src.map(r=>r.name), cD=src.map(r=>r.n), cC=src.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9");
     if (isAdmin){ const assigned=cD.reduce((s,n)=>s+n,0), un=total-assigned; if(un>0){ cL.push("Nicht zugeordnet"); cD.push(un); cC.push("#c8d2dd"); } }
     drawChart(cL,cD,cC); }
-  if (isAdmin){ $("mytbl-title").textContent = "Alle Anmeldungen — einzelnes Webinar wählen"; fillTable([], true); }
+  if (isAdmin){ $("mytbl-title").textContent = "Teilnehmer je Berater"; orgSummaryHint("Bitte ein Webinar im Kalender wählen, um die Berater-Auswertung zu sehen."); }
   else if (isOrgLead){ $("mytbl-title").textContent = "Teilnehmer je Berater · deine Organisation"; orgSummaryHint("Bitte ein Webinar im Kalender wählen, um die Berater-Auswertung zu sehen."); }
   else { $("mytbl-title").textContent = presenterWids.size ? "Deine Anmeldungen — für die Gesamtübersicht ein Webinar wählen" : "Deine Anmeldungen (Teilnehmer)"; fillTable(mine.filter(r => ids.has(r.webinar_id)), false); }
 }
