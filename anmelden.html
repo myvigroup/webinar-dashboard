@@ -83,6 +83,13 @@
   .step p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.5;}
   .steps-h{font-family:Outfit,sans-serif;font-size:15px;font-weight:700;color:var(--navy);margin:18px 0 8px;}
   @media(max-width:680px){.steps{grid-template-columns:1fr;}}
+  .faq details{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:10px;box-shadow:0 4px 16px rgba(0,40,80,.04);overflow:hidden;}
+  .faq summary{list-style:none;cursor:pointer;padding:15px 18px;font-weight:700;color:var(--navy);font-family:Outfit,sans-serif;font-size:15px;display:flex;justify-content:space-between;align-items:center;gap:14px;}
+  .faq summary::-webkit-details-marker{display:none;}
+  .faq summary::after{content:'+';font-size:22px;color:var(--cyan);font-weight:700;line-height:1;flex:0 0 auto;}
+  .faq details[open] summary::after{content:'–';}
+  .faq details[open] summary{border-bottom:1px solid var(--line);}
+  .faq .a{padding:14px 18px;color:var(--muted);font-size:14.5px;line-height:1.6;}
   .problem{background:#fff;border:1px solid var(--line);border-left:4px solid var(--cyan);border-radius:14px;padding:20px 22px;margin-bottom:18px;box-shadow:0 4px 16px rgba(0,40,80,.04);}
   .problem h3{font-family:Outfit,sans-serif;color:var(--navy);font-size:19px;margin:0 0 8px;font-weight:700;}
   .problem p{margin:0 0 12px;color:var(--text);}
@@ -250,6 +257,21 @@ function render(){
   const sel=curTopic && list.find(t=>t.key===curTopic);
   if(sel) renderTopic(sel); else renderOverview(list);
 }
+function faqHtml(){
+  const qs=[
+    ["Ist die Teilnahme wirklich kostenlos?","Ja, die Live-Workshops sind 100 % kostenlos und völlig unverbindlich."],
+    ["Wie nehme ich teil?","Komplett online über Microsoft Teams. Nach der Anmeldung bekommst du deinen persönlichen Teilnahme-Link per E-Mail – ein Klick genügt, keine Installation nötig."],
+    ["Brauche ich Vorwissen?","Nein. Wir erklären alles verständlich und praxisnah – egal ob du gerade erst anfängst oder schon Erfahrung hast."],
+    ["Wie lange dauert ein Workshop?","Rund 60 Minuten – inklusive Zeit für deine Fragen."],
+    ["Kann ich Fragen stellen?","Ja, sehr gerne! Du kannst während des Live-Workshops jederzeit deine Fragen stellen."],
+    ["Werde ich zu etwas gedrängt?","Nein. Es geht um Wissen und Orientierung. Wenn du danach ein persönliches Gespräch möchtest, kannst du das gerne vereinbaren – musst du aber nicht."],
+    ["Was, wenn ich den Termin nicht schaffe?","Kein Problem – melde dich einfach für einen der nächsten Termine an."],
+    ["Kann ich jemanden mitbringen?","Ja! Im Anmeldeformular kannst du Freund:innen direkt mit einladen."]
+  ];
+  return '<div class="steps-h" style="margin-top:26px;">Häufige Fragen</div><div class="faq">'
+    + qs.map(q=>'<details><summary>'+esc(q[0])+'</summary><div class="a">'+esc(q[1])+'</div></details>').join('')
+    + '</div>';
+}
 function stepsHtml(){
   return '<div class="steps-h">So einfach läuft’s ab</div><div class="steps">'
     +'<div class="step"><div class="sn">1</div><h4>Termin wählen &amp; anmelden</h4><p>Dauert keine Minute – kostenlos und unverbindlich.</p></div>'
@@ -285,7 +307,7 @@ function renderOverview(list){
     +'</div>'
     +'<div class="nf-r"><div class="nf-cd" id="nf-cd" data-target="'+esc(fd.starts_at)+'"></div>'
     +'<a class="nf-cta" href="?b='+encodeURIComponent(slug)+'&t='+ft.key+'">Jetzt anmelden →</a></div></div>';
-  $("view").innerHTML='<h2 class="sec">Unsere kostenlosen Live-Workshops</h2><p class="lead">Wähle dein Thema – kompakt, praxisnah und live mit unseren Experten.</p>'+feat+'<div class="grid">'+cards+'</div>'+stepsHtml();
+  $("view").innerHTML='<h2 class="sec">Unsere kostenlosen Live-Workshops</h2><p class="lead">Wähle dein Thema – kompakt, praxisnah und live mit unseren Experten.</p>'+feat+'<div class="grid">'+cards+'</div>'+stepsHtml()+faqHtml();
   startCountdown();
 }
 let _cdTimer=null;
@@ -335,7 +357,8 @@ function renderTopic(t){
         '<label class="consent"><input id="consent" type="checkbox"> <span>Ich bin mit der Verarbeitung der angegebenen Daten zur Webinar-Anmeldung einverstanden (<a href="https://www.mitnorm.com/datenschutz" target="_blank" rel="noopener">Datenschutz</a>).</span></label>'+
         '<button class="cta" id="submit">Kostenlos anmelden</button><div id="msg" class="msg"></div>'+
       '</div>'+
-    '</div>';
+    '</div>'+
+    faqHtml();
   selectedW = t.dates.length===1 ? t.dates[0].webinar_id : "";
   guestCount=0;
   document.querySelectorAll(".date").forEach(el=>{ if(el.dataset.w===selectedW) el.classList.add("sel"); el.onclick=()=>{ document.querySelectorAll(".date").forEach(x=>x.classList.remove("sel")); el.classList.add("sel"); selectedW=el.dataset.w; }; });
