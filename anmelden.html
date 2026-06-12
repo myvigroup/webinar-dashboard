@@ -76,6 +76,13 @@
   .badge{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--navy);display:flex;align-items:center;gap:7px;}
   .badge svg{width:16px;height:16px;}
   .badge.free{background:#eafaf0;border-color:#bfe6cc;color:#1a7d4b;}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:6px 0 20px;}
+  .step{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 4px 16px rgba(0,40,80,.04);}
+  .step .sn{width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;font-weight:800;font-family:Outfit,sans-serif;display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:10px;}
+  .step h4{margin:0 0 4px;font-family:Outfit,sans-serif;color:var(--navy);font-size:15px;font-weight:700;}
+  .step p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.5;}
+  .steps-h{font-family:Outfit,sans-serif;font-size:15px;font-weight:700;color:var(--navy);margin:18px 0 8px;}
+  @media(max-width:680px){.steps{grid-template-columns:1fr;}}
   .problem{background:#fff;border:1px solid var(--line);border-left:4px solid var(--cyan);border-radius:14px;padding:20px 22px;margin-bottom:18px;box-shadow:0 4px 16px rgba(0,40,80,.04);}
   .problem h3{font-family:Outfit,sans-serif;color:var(--navy);font-size:19px;margin:0 0 8px;font-weight:700;}
   .problem p{margin:0 0 12px;color:var(--text);}
@@ -243,6 +250,13 @@ function render(){
   const sel=curTopic && list.find(t=>t.key===curTopic);
   if(sel) renderTopic(sel); else renderOverview(list);
 }
+function stepsHtml(){
+  return '<div class="steps-h">So einfach läuft’s ab</div><div class="steps">'
+    +'<div class="step"><div class="sn">1</div><h4>Termin wählen &amp; anmelden</h4><p>Dauert keine Minute – kostenlos und unverbindlich.</p></div>'
+    +'<div class="step"><div class="sn">2</div><h4>Zugang per E-Mail</h4><p>Du bekommst deinen persönlichen Teilnahme-Link direkt zugeschickt.</p></div>'
+    +'<div class="step"><div class="sn">3</div><h4>Live dabei sein</h4><p>Rund 60 Minuten praxisnah – mit Raum für deine Fragen.</p></div>'
+    +'</div>';
+}
 function renderOverview(list){
   if(!list.length){ $("view").innerHTML='<h2 class="sec">Aktuell keine Termine</h2><p class="lead">Schau bald wieder vorbei – neue Live-Workshops sind in Planung.</p>'; return; }
   const cards=list.map(t=>{
@@ -271,7 +285,7 @@ function renderOverview(list){
     +'</div>'
     +'<div class="nf-r"><div class="nf-cd" id="nf-cd" data-target="'+esc(fd.starts_at)+'"></div>'
     +'<a class="nf-cta" href="?b='+encodeURIComponent(slug)+'&t='+ft.key+'">Jetzt anmelden →</a></div></div>';
-  $("view").innerHTML='<h2 class="sec">Unsere kostenlosen Live-Workshops</h2><p class="lead">Wähle dein Thema – kompakt, praxisnah und live mit unseren Experten.</p>'+feat+'<div class="grid">'+cards+'</div>';
+  $("view").innerHTML='<h2 class="sec">Unsere kostenlosen Live-Workshops</h2><p class="lead">Wähle dein Thema – kompakt, praxisnah und live mit unseren Experten.</p>'+feat+'<div class="grid">'+cards+'</div>'+stepsHtml();
   startCountdown();
 }
 let _cdTimer=null;
@@ -307,6 +321,7 @@ function renderTopic(t){
     '<a class="back" href="?b='+encodeURIComponent(slug)+'">'+ic("arrow")+' Alle Themen</a>'+
     '<div class="hero"><div class="tag">'+ic(t.icon)+' '+esc(t.label)+'</div><h1>'+esc(t.headline)+'</h1><p>'+esc(t.sub)+'</p></div>'+
     '<div class="badges"><div class="badge free">'+ic("check")+' 100 % kostenlos</div><div class="badge">'+ic("clock")+' ca. 60 Minuten</div><div class="badge">'+ic("monitor")+' Live online</div><div class="badge">'+ic("chat")+' Fragen willkommen</div></div>'+
+    stepsHtml()+
     '<div class="problem"><h3>Kommt dir das bekannt vor?</h3><p>'+esc(t.problem)+'</p><ul class="pains">'+pains+'</ul></div>'+
     refHtml+
     '<div class="cols">'+
