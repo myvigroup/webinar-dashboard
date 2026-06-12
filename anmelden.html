@@ -56,6 +56,13 @@
   .nf-meta svg{width:16px;height:16px;color:var(--cyan);}
   .nf-cta{flex:0 0 auto;background:#fff;color:var(--navy);font-weight:700;border-radius:12px;padding:14px 24px;text-decoration:none;font-size:15px;display:inline-flex;align-items:center;gap:8px;white-space:nowrap;transition:.15s;box-shadow:0 6px 18px rgba(0,0,0,.12);}
   .nf-cta:hover{background:var(--cyan);color:#fff;}
+  .nf-cd{display:flex;gap:8px;margin-top:16px;}
+  .nf-cd .cd{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:8px 0;text-align:center;min-width:56px;}
+  .nf-cd .cd .n{display:block;font-family:Outfit,sans-serif;font-size:23px;font-weight:800;line-height:1;color:#fff;font-variant-numeric:tabular-nums;}
+  .nf-cd .cd .u{display:block;font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:#cfe0f0;margin-top:5px;}
+  .nf-cd .live{display:inline-flex;align-items:center;gap:8px;background:var(--cyan);color:#fff;font-weight:800;padding:9px 15px;border-radius:10px;font-size:14px;}
+  .nf-cd .live .pulse{width:9px;height:9px;border-radius:50%;background:#fff;animation:nfpulse 1.2s infinite;}
+  @keyframes nfpulse{0%,100%{opacity:1;}50%{opacity:.25;}}
   @media(max-width:640px){.nextfeat{flex-direction:column;align-items:flex-start;}.nf-cta{width:100%;justify-content:center;}}
   .hero{background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:18px;padding:32px;color:#fff;margin-bottom:18px;}
   .hero .tag{color:var(--cyan);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:7px;}
@@ -258,8 +265,25 @@ function renderOverview(list){
     +'<h3>'+esc(fd.title||ft.label)+'</h3>'
     +'<div class="nf-meta"><span class="it">'+calSvg+'<b>'+fmtFull(fd.starts_at)+'</b></span>'
     +(fp?'<span class="it">'+personSvg+'mit <b>'+esc(fp.name)+'</b></span>':'')+'</div>'
+    +'<div class="nf-cd" id="nf-cd" data-target="'+esc(fd.starts_at)+'"></div>'
     +'</div><a class="nf-cta" href="?b='+encodeURIComponent(slug)+'&t='+ft.key+'">Jetzt anmelden →</a></div>';
   $("view").innerHTML='<h2 class="sec">Unsere kostenlosen Live-Workshops</h2><p class="lead">Wähle dein Thema – kompakt, praxisnah und live mit unseren Experten.</p>'+feat+'<div class="grid">'+cards+'</div>';
+  startCountdown();
+}
+let _cdTimer=null;
+function startCountdown(){
+  if(_cdTimer){ clearInterval(_cdTimer); _cdTimer=null; }
+  const el=document.getElementById("nf-cd"); if(!el) return;
+  const target=new Date(el.dataset.target).getTime();
+  const box=(n,u)=>'<div class="cd"><span class="n">'+String(n).padStart(2,"0")+'</span><span class="u">'+u+'</span></div>';
+  function tick(){
+    const node=document.getElementById("nf-cd"); if(!node){ clearInterval(_cdTimer); _cdTimer=null; return; }
+    let diff=target-Date.now();
+    if(diff<=0){ node.innerHTML='<span class="live"><span class="pulse"></span>Jetzt live!</span>'; return; }
+    const s=Math.floor(diff/1000), d=Math.floor(s/86400), h=Math.floor(s%86400/3600), m=Math.floor(s%3600/60), sec=s%60;
+    node.innerHTML=(d>0?box(d,d===1?"Tag":"Tage"):"")+box(h,"Std")+box(m,"Min")+box(sec,"Sek");
+  }
+  tick(); _cdTimer=setInterval(tick,1000);
 }
 function renderTopic(t){
   const dates=t.dates.map(wb=>'<div class="date" data-w="'+wb.webinar_id+'"><div class="dbox"><div class="d">'+fmtDay(wb.starts_at)+'</div><div class="m">'+fmtMon(wb.starts_at)+'</div></div><div class="dmeta"><b>'+fmtFull(wb.starts_at)+'</b><span>Online via Microsoft Teams</span></div><div class="radio"></div></div>').join("");
