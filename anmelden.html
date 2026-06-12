@@ -72,6 +72,13 @@
   .hero .tag svg{width:16px;height:16px;}
   .hero h1{font-family:Outfit,sans-serif;font-size:30px;line-height:1.15;margin:8px 0 10px;font-weight:800;}
   .hero p{margin:0;color:#cfe0f0;font-size:16px;max-width:640px;}
+  .hero-cta{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:20px;}
+  .hero-date{display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:11px;padding:10px 14px;font-size:14px;color:#fff;}
+  .hero-date svg{width:16px;height:16px;color:var(--cyan);flex:0 0 auto;}
+  .hero-date .lbl{color:#cfe0f0;}
+  .hero-date b{font-weight:700;}
+  .hero-btn{background:#fff;color:var(--navy);font-weight:700;border-radius:11px;padding:11px 20px;font-size:14px;display:inline-flex;align-items:center;gap:7px;cursor:pointer;transition:background .15s,color .15s;}
+  .hero-btn:hover{background:var(--cyan);color:#fff;}
   .badges{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 18px;}
   .badge{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--navy);display:flex;align-items:center;gap:7px;}
   .badge svg{width:16px;height:16px;}
@@ -156,6 +163,7 @@
   <div id="invite" class="invite hidden"></div>
   <div id="view"></div>
   <div class="foot">mitNORM GmbH · Bei Fragen: service@mitnorm.com · <a href="https://www.mitnorm.com/datenschutz" target="_blank" rel="noopener">Datenschutz</a></div>
+  <div class="foot" style="margin-top:6px;font-size:12px;opacity:.85;">Aus Gründen der besseren Lesbarkeit verzichten wir auf gendergerechte Formulierungen. Sämtliche Personenbezeichnungen gelten für alle Geschlechter.</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -266,7 +274,7 @@ function faqHtml(){
     ["Kann ich Fragen stellen?","Ja, sehr gerne! Du kannst während des Live-Workshops jederzeit deine Fragen stellen."],
     ["Werde ich zu etwas gedrängt?","Nein. Es geht um Wissen und Orientierung. Wenn du danach ein persönliches Gespräch möchtest, kannst du das gerne vereinbaren – musst du aber nicht."],
     ["Was, wenn ich den Termin nicht schaffe?","Kein Problem – melde dich einfach für einen der nächsten Termine an."],
-    ["Kann ich jemanden mitbringen?","Ja! Im Anmeldeformular kannst du Freund:innen direkt mit einladen."]
+    ["Kann ich jemanden mitbringen?","Ja! Im Anmeldeformular kannst du Freunde direkt mit einladen."]
   ];
   return '<div class="steps-h" style="margin-top:26px;">Häufige Fragen</div><div class="faq">'
     + qs.map(q=>'<details><summary>'+esc(q[0])+'</summary><div class="a">'+esc(q[1])+'</div></details>').join('')
@@ -326,6 +334,7 @@ function startCountdown(){
   tick(); _cdTimer=setInterval(tick,1000);
 }
 function renderTopic(t){
+  const heroCal='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
   const dates=t.dates.map(wb=>'<div class="date" data-w="'+wb.webinar_id+'"><div class="dbox"><div class="d">'+fmtDay(wb.starts_at)+'</div><div class="m">'+fmtMon(wb.starts_at)+'</div></div><div class="dmeta"><b>'+fmtFull(wb.starts_at)+'</b><span>Online via Microsoft Teams</span></div><div class="radio"></div></div>').join("");
   const ben=t.benefits.map(b=>'<li>'+ic("check")+esc(b)+'</li>').join("");
   const pains=t.pains.map(p=>'<li>'+ic("minus")+esc(p)+'</li>').join("");
@@ -341,18 +350,21 @@ function renderTopic(t){
   }
   $("view").innerHTML=
     '<a class="back" href="?b='+encodeURIComponent(slug)+'">'+ic("arrow")+' Alle Themen</a>'+
-    '<div class="hero"><div class="tag">'+ic(t.icon)+' '+esc(t.label)+'</div><h1>'+esc(t.headline)+'</h1><p>'+esc(t.sub)+'</p></div>'+
+    '<div class="hero"><div class="tag">'+ic(t.icon)+' '+esc(t.label)+'</div><h1>'+esc(t.headline)+'</h1><p>'+esc(t.sub)+'</p>'+
+      '<div class="hero-cta"><div class="hero-date">'+heroCal+'<span class="lbl">Nächster Termin:</span> <b>'+fmtFull(t.dates[0].starts_at)+'</b>'+(t.dates.length>1?' <span class="lbl">+'+(t.dates.length-1)+' weitere</span>':'')+'</div>'+
+      '<span class="hero-btn" id="hero-anmelden">Termin wählen &amp; anmelden →</span></div>'+
+    '</div>'+
     '<div class="badges"><div class="badge free">'+ic("check")+' 100 % kostenlos</div><div class="badge">'+ic("clock")+' ca. 60 Minuten</div><div class="badge">'+ic("monitor")+' Live online</div><div class="badge">'+ic("chat")+' Fragen willkommen</div></div>'+
     stepsHtml()+
     '<div class="problem"><h3>Kommt dir das bekannt vor?</h3><p>'+esc(t.problem)+'</p><ul class="pains">'+pains+'</ul></div>'+
     refHtml+
     '<div class="cols">'+
       '<div class="panel"><h3>Das nimmst du mit</h3><ul class="ben">'+ben+'</ul></div>'+
-      '<div class="panel"><h3>Termin wählen &amp; anmelden</h3><div class="dates">'+dates+'</div>'+
+      '<div class="panel" id="anmelden"><h3>Termin wählen &amp; anmelden</h3><div class="dates">'+dates+'</div>'+
         '<div class="frow"><div><label>Vorname</label><input id="vorname" autocomplete="given-name"></div><div><label>Nachname</label><input id="nachname" autocomplete="family-name"></div></div>'+
         '<label>E-Mail</label><input id="email" type="email" autocomplete="email">'+
         '<div class="guests" id="guests"></div>'+
-        '<button type="button" class="addbtn" id="addguest">'+ic("plus")+' Freund:in mitbringen</button>'+
+        '<button type="button" class="addbtn" id="addguest">'+ic("plus")+' Freunde mitbringen</button>'+
         '<p class="hint">Bring gerne Freunde mit! Wir laden sie direkt mit ein – bitte nur mit deren Einverständnis.</p>'+
         '<label class="consent"><input id="consent" type="checkbox"> <span>Ich bin mit der Verarbeitung der angegebenen Daten zur Webinar-Anmeldung einverstanden (<a href="https://www.mitnorm.com/datenschutz" target="_blank" rel="noopener">Datenschutz</a>).</span></label>'+
         '<button class="cta" id="submit">Kostenlos anmelden</button><div id="msg" class="msg"></div>'+
@@ -364,13 +376,15 @@ function renderTopic(t){
   document.querySelectorAll(".date").forEach(el=>{ if(el.dataset.w===selectedW) el.classList.add("sel"); el.onclick=()=>{ document.querySelectorAll(".date").forEach(x=>x.classList.remove("sel")); el.classList.add("sel"); selectedW=el.dataset.w; }; });
   $("addguest").onclick=addGuest;
   $("submit").onclick=()=>submit(t);
+  const ha=document.getElementById("hero-anmelden");
+  if(ha) ha.onclick=()=>{ const el=document.getElementById("anmelden"); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}); };
 }
 function addGuest(){
   if(guestCount>=5) return;
   guestCount++;
   const div=document.createElement("div");
   div.className="guestrow";
-  div.innerHTML='<span class="rm">entfernen ✕</span><div class="frow"><div><label>Vorname (Freund:in)</label><input class="g-vn"></div><div><label>Nachname</label><input class="g-nn"></div></div><label>E-Mail</label><input class="g-em" type="email">';
+  div.innerHTML='<span class="rm">entfernen ✕</span><div class="frow"><div><label>Vorname (Freund)</label><input class="g-vn"></div><div><label>Nachname</label><input class="g-nn"></div></div><label>E-Mail</label><input class="g-em" type="email">';
   $("guests").appendChild(div);
   div.querySelector(".rm").onclick=()=>div.remove();
   if(guestCount>=5) $("addguest").style.display="none";
