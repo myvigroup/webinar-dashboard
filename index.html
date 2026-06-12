@@ -137,6 +137,14 @@
   .affil-btn:hover{filter:brightness(1.08);}
   .affil-btn.ghosty{background:#fff;color:var(--navy);}
   .affil-btn.ghosty:hover{background:#eef6fb;filter:none;}
+  .cms-tabs{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-bottom:16px;}
+  .cms-tabs button{border:none;background:#fff;color:var(--navy);font:inherit;font-size:13px;font-weight:600;padding:8px 16px;cursor:pointer;}
+  .cms-tabs button.on{background:var(--navy);color:#fff;}
+  .cms-form{display:flex;flex-direction:column;gap:4px;max-width:680px;}
+  .cms-form label{font-size:12px;color:var(--muted);font-weight:600;margin-top:10px;}
+  .cms-form input,.cms-form textarea{font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;width:100%;}
+  .cms-form textarea{resize:vertical;line-height:1.5;}
+  .cms-photo{width:64px;height:64px;border-radius:50%;object-fit:cover;border:1px solid var(--line);}
   #tm-table{width:100%;border-collapse:collapse;font-size:14px;}
   #tm-table th,#tm-table td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;}
   #tm-table th{color:var(--muted);font-weight:600;position:sticky;top:0;background:#fff;}
@@ -306,6 +314,32 @@
         <div class="panel" id="rank-panel">
           <div class="ptitle">Berater-Ranking gesamt · Admin <span style="font-weight:400;font-size:11px;color:var(--muted);">· Doppelklick = groß</span></div>
           <div style="overflow-x:auto"><table id="admin-rank-tbl"></table></div>
+        </div>
+      </div>
+      <div class="panel hidden" id="cms-panel" style="margin-top:14px;">
+        <div class="ptitle">Inhalte verwalten · Admin <span style="font-weight:400;font-size:11px;color:var(--muted);">· Texte &amp; Referenten der Landingpage</span></div>
+        <div class="cms-tabs"><button id="cms-t-topics" class="on">Themen-Texte</button><button id="cms-t-ref">Referenten</button></div>
+        <div id="cms-topics">
+          <div class="affil-row" style="margin-bottom:8px;"><label for="cms-topic-sel">Thema:</label><select id="cms-topic-sel"></select></div>
+          <div class="cms-form">
+            <label>Label (Kurzname)</label><input id="cms-label">
+            <label>Überschrift</label><input id="cms-headline">
+            <label>Untertitel</label><textarea id="cms-sub" rows="2"></textarea>
+            <label>Problem-Text („Kommt dir das bekannt vor?")</label><textarea id="cms-problem" rows="2"></textarea>
+            <label>Schmerzpunkte – eine pro Zeile</label><textarea id="cms-pains" rows="3"></textarea>
+            <label>„Das nimmst du mit" – eine pro Zeile</label><textarea id="cms-benefits" rows="4"></textarea>
+            <button class="affil-btn" id="cms-save-topic">Speichern</button> <span id="cms-topic-msg" class="muted" style="font-size:12px;"></span>
+          </div>
+        </div>
+        <div id="cms-ref" class="hidden">
+          <div class="affil-row" style="margin-bottom:8px;"><label for="cms-ref-sel">Referent:</label><select id="cms-ref-sel"></select></div>
+          <div class="cms-form">
+            <label>Titel / Rolle</label><input id="cms-ref-title" placeholder="z. B. mitNORM · Experte für Baufinanzierung">
+            <label>Kurz-Bio</label><textarea id="cms-ref-bio" rows="3"></textarea>
+            <label>Foto</label>
+            <div class="affil-row"><img id="cms-ref-preview" class="cms-photo" alt="" style="display:none;"><input type="file" id="cms-ref-file" accept="image/*"></div>
+            <button class="affil-btn" id="cms-save-ref">Speichern</button> <span id="cms-ref-msg" class="muted" style="font-size:12px;"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -491,6 +525,59 @@ async function loadAdmin(){
   const [ov, rk] = await Promise.all([ sb.rpc("webinar_admin_overview"), sb.rpc("webinar_admin_ranking") ]);
   renderAdminOverview(ov.data || []);
   renderAdminRanking(rk.data || []);
+  loadCms();
+}
+
+let _cmsTopics=[], _cmsRefOv={}, _cmsPhotoUrl=null;
+async function loadCms(){
+  $("cms-panel").classList.remove("hidden");
+  $("cms-t-topics").onclick=()=>cmsTab(true);
+  $("cms-t-ref").onclick=()=>cmsTab(false);
+  $("cms-save-topic").onclick=cmsSaveTopic;
+  $("cms-save-ref").onclick=cmsSaveRef;
+  $("cms-ref-file").onchange=cmsUploadPhoto;
+  const [tp, names, ovs] = await Promise.all([ sb.rpc("webinar_landing_topics"), sb.rpc("webinar_admin_referent_names"), sb.rpc("webinar_referent_overrides") ]);
+  _cmsTopics = tp.data || [];
+  const sel=$("cms-topic-sel");
+  sel.innerHTML=_cmsTopics.map(t=>'<option value="'+t.key+'">'+esc(t.label)+'</option>').join("");
+  sel.onchange=()=>cmsLoadTopic(sel.value);
+  if(_cmsTopics.length) cmsLoadTopic(_cmsTopics[0].key);
+  _cmsRefOv={}; (ovs.data||[]).forEach(o=>{ _cmsRefOv[o.name_key]=o; });
+  const nm=(names.data||[]).map(x=>x.name);
+  const rs=$("cms-ref-sel");
+  rs.innerHTML=nm.length?nm.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join(""):'<option value="">Keine Referenten gefunden</option>';
+  rs.onchange=()=>cmsLoadRef(rs.value);
+  if(nm.length) cmsLoadRef(nm[0]);
+}
+function cmsTab(topics){ $("cms-topics").classList.toggle("hidden",!topics); $("cms-ref").classList.toggle("hidden",topics); $("cms-t-topics").classList.toggle("on",topics); $("cms-t-ref").classList.toggle("on",!topics); }
+function cmsLoadTopic(key){ const t=_cmsTopics.find(x=>x.key===key); if(!t) return; $("cms-label").value=t.label||""; $("cms-headline").value=t.headline||""; $("cms-sub").value=t.sub||""; $("cms-problem").value=t.problem||""; $("cms-pains").value=(t.pains||[]).join("\n"); $("cms-benefits").value=(t.benefits||[]).join("\n"); $("cms-topic-msg").textContent=""; }
+async function cmsSaveTopic(){
+  const key=$("cms-topic-sel").value; const t=_cmsTopics.find(x=>x.key===key); if(!t) return;
+  const pains=$("cms-pains").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  const benefits=$("cms-benefits").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  $("cms-topic-msg").textContent="Speichert…";
+  const { error }=await sb.rpc("webinar_admin_save_topic",{p_key:key,p_label:$("cms-label").value,p_icon:t.icon||null,p_headline:$("cms-headline").value,p_sub:$("cms-sub").value,p_problem:$("cms-problem").value,p_pains:pains,p_benefits:benefits});
+  if(!error){ t.label=$("cms-label").value; t.headline=$("cms-headline").value; t.sub=$("cms-sub").value; t.problem=$("cms-problem").value; t.pains=pains; t.benefits=benefits; }
+  $("cms-topic-msg").textContent=error?("Fehler: "+error.message):"✓ Gespeichert – live auf der Seite.";
+}
+function cmsLoadRef(name){ const ov=_cmsRefOv[(name||"").toLowerCase()]||{}; $("cms-ref-title").value=ov.title||""; $("cms-ref-bio").value=ov.bio||""; _cmsPhotoUrl=ov.photo_url||null; const img=$("cms-ref-preview"); if(_cmsPhotoUrl){ img.src=_cmsPhotoUrl; img.style.display="block"; } else { img.style.display="none"; img.removeAttribute("src"); } $("cms-ref-msg").textContent=""; $("cms-ref-file").value=""; }
+async function cmsUploadPhoto(e){
+  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  $("cms-ref-msg").textContent="Lädt hoch…";
+  const ext=((f.name.split(".").pop())||"jpg").toLowerCase();
+  const path=Date.now()+"-"+Math.random().toString(36).slice(2,8)+"."+ext;
+  const { error }=await sb.storage.from("referenten").upload(path,f,{upsert:true,contentType:f.type});
+  if(error){ $("cms-ref-msg").textContent="Upload-Fehler: "+error.message; return; }
+  const { data }=sb.storage.from("referenten").getPublicUrl(path);
+  _cmsPhotoUrl=data.publicUrl; const img=$("cms-ref-preview"); img.src=_cmsPhotoUrl; img.style.display="block";
+  $("cms-ref-msg").textContent="✓ Foto hochgeladen – bitte noch „Speichern“.";
+}
+async function cmsSaveRef(){
+  const name=$("cms-ref-sel").value; if(!name){ $("cms-ref-msg").textContent="Kein Referent gewählt."; return; }
+  $("cms-ref-msg").textContent="Speichert…";
+  const { error }=await sb.rpc("webinar_admin_save_referent",{p_name:name,p_photo_url:_cmsPhotoUrl||"",p_title:$("cms-ref-title").value,p_bio:$("cms-ref-bio").value});
+  if(!error){ _cmsRefOv[name.toLowerCase()]={name_key:name.toLowerCase(),display_name:name,photo_url:_cmsPhotoUrl,title:$("cms-ref-title").value,bio:$("cms-ref-bio").value}; }
+  $("cms-ref-msg").textContent=error?("Fehler: "+error.message):"✓ Gespeichert – live auf der Seite.";
 }
 function fmtD(s){ return s ? new Date(s).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"2-digit",timeZone:TZ}) : "–"; }
 function renderAdminOverview(rows){

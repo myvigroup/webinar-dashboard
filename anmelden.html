@@ -243,10 +243,22 @@ function fmtDay(d){return new Date(d).toLocaleDateString("de-DE",{day:"2-digit",
 function fmtMon(d){return new Date(d).toLocaleDateString("de-DE",{month:"short",timeZone:TZ}).replace(".","");}
 function fmtFull(d){const x=new Date(d);return x.toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long",timeZone:TZ})+", "+x.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ})+" Uhr";}
 
+let refMap={};
 async function init(){
   if(!slug){ $("view").innerHTML='<div class="msg err" style="display:block">Dieser Link ist unvollständig. Bitte nutze den persönlichen Link deines Beraters.</div>'; return; }
-  const [{data:adv},{data:w}]=await Promise.all([sb.rpc("webinar_advisor_by_slug",{p_slug:slug}),sb.rpc("webinar_public_upcoming")]);
+  const [{data:adv},{data:w},{data:tp},{data:ro}]=await Promise.all([
+    sb.rpc("webinar_advisor_by_slug",{p_slug:slug}),
+    sb.rpc("webinar_public_upcoming"),
+    sb.rpc("webinar_landing_topics"),
+    sb.rpc("webinar_referent_overrides")
+  ]);
   advisor=adv&&adv[0]; webs=w||[];
+  (tp||[]).forEach(d=>{ const t=TOPICS.find(x=>x.key===d.key); if(!t) return;
+    ["label","icon","headline","sub","problem"].forEach(f=>{ if(d[f]) t[f]=d[f]; });
+    if(Array.isArray(d.pains)&&d.pains.length) t.pains=d.pains;
+    if(Array.isArray(d.benefits)&&d.benefits.length) t.benefits=d.benefits;
+  });
+  refMap={}; (ro||[]).forEach(r=>{ if(r.name_key) refMap[r.name_key]=r; });
   if(advisor){ $("invite").classList.remove("hidden"); $("invite").innerHTML=avatar(advisor.name,null,"av")+'<div>Du wurdest von <b>'+esc(advisor.name)+'</b> zu unseren kostenlosen Live-Workshops eingeladen.</div>'; }
   render();
 }
@@ -257,7 +269,7 @@ function topicsWithDates(){
 }
 function presentersOf(dates){
   const seen={}, out=[];
-  dates.forEach(d=>{ const p=(d.presenter||"").trim(); if(p && !seen[p]){ seen[p]=1; out.push({name:p,avatar:d.presenter_avatar}); } });
+  dates.forEach(d=>{ const p=(d.presenter||"").trim(); if(p && !seen[p]){ seen[p]=1; const ov=refMap[p.toLowerCase()]||{}; out.push({name:p,avatar:ov.photo_url||d.presenter_avatar,title:ov.title||null,bio:ov.bio||null}); } });
   return out;
 }
 function render(){
@@ -341,11 +353,12 @@ function renderTopic(t){
   const ps=presentersOf(t.dates);
   let refHtml="";
   if(ps.length){
-    const rows=ps.map(p=>'<div class="refrow">'+avatar(p.name,p.avatar,"refav")+'<div><div class="refname">'+esc(p.name)+'</div><div class="refrole">mitNORM · Experte für '+esc(t.label)+'</div></div></div>').join("");
+    const rows=ps.map(p=>'<div class="refrow">'+avatar(p.name,p.avatar,"refav")+'<div><div class="refname">'+esc(p.name)+'</div><div class="refrole">'+esc(p.title||('mitNORM · Experte für '+t.label))+'</div></div></div>').join("");
     const names=ps.map(p=>p.name).join(" & ");
-    const bio=ps.length===1
+    const bioOv = ps.length===1 && ps[0].bio ? ps[0].bio : null;
+    const bio= bioOv ? esc(bioOv) : (ps.length===1
       ? esc(names)+' ist Teil des mitNORM-Expertenteams und führt dich im Live-Workshop praxisnah durch das Thema – verständlich, ehrlich und mit Raum für deine Fragen.'
-      : 'Unsere mitNORM-Experten '+esc(names)+' führen dich praxisnah durch den Live-Workshop – verständlich, ehrlich und mit Raum für deine Fragen.';
+      : 'Unsere mitNORM-Experten '+esc(names)+' führen dich praxisnah durch den Live-Workshop – verständlich, ehrlich und mit Raum für deine Fragen.');
     refHtml='<div class="ref"><h3>'+(ps.length>1?'Deine Referenten':'Dein Referent')+'</h3>'+rows+'<p class="refbio">'+bio+'</p></div>';
   }
   $("view").innerHTML=
