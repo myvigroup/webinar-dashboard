@@ -129,6 +129,14 @@
   .wm-seg button{border:none;background:#fff;color:var(--navy);font:inherit;font-size:13px;font-weight:600;padding:7px 13px;cursor:pointer;}
   .wm-seg button.on{background:var(--navy);color:#fff;}
   select.wm-assign{font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--line);border-radius:7px;background:#fff;max-width:170px;}
+  .affil-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .affil-row label{font-size:13px;color:var(--muted);font-weight:600;}
+  .affil-row select{font:inherit;font-size:13px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;}
+  .affil-row input{flex:1;min-width:240px;font:inherit;font-size:13px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#f3f7fb;color:var(--ink);}
+  .affil-btn{font:inherit;font-size:13px;font-weight:700;padding:9px 16px;border-radius:9px;border:1.5px solid var(--navy);background:var(--navy);color:#fff;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:.15s;}
+  .affil-btn:hover{filter:brightness(1.08);}
+  .affil-btn.ghosty{background:#fff;color:var(--navy);}
+  .affil-btn.ghosty:hover{background:#eef6fb;filter:none;}
   #tm-table{width:100%;border-collapse:collapse;font-size:14px;}
   #tm-table th,#tm-table td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;}
   #tm-table th{color:var(--muted);font-weight:600;position:sticky;top:0;background:#fff;}
@@ -223,6 +231,17 @@
   <div class="wrap">
     <div class="toolbar">
       <div class="seg"><button id="tab-cal" class="on">Kalender</button><button id="tab-list">Nächste Webinare</button></div>
+    </div>
+    <div class="panel hidden" id="affil-panel" style="margin-bottom:14px;">
+      <div class="ptitle">Dein Einladungs-Link <span style="font-weight:400;font-size:11px;color:var(--muted);">· teile ihn mit deinen Kunden – Anmeldungen werden dir zugeordnet</span></div>
+      <div class="affil-row">
+        <label for="affil-topic">Ziel:</label>
+        <select id="affil-topic"></select>
+        <input id="affil-link" readonly onclick="this.select()">
+        <button id="affil-copy" class="affil-btn">Link kopieren</button>
+        <a id="affil-open" class="affil-btn ghosty" target="_blank" rel="noopener">Vorschau ↗</a>
+      </div>
+      <div id="affil-hint" class="muted" style="font-size:12px;margin-top:8px;"></div>
     </div>
     <div class="layout">
       <div class="col-left">
@@ -412,6 +431,7 @@ async function loadData() {
   if (isAdmin) loadAdmin();
   else if (isOrgLead) loadOrg();
   if (isAdmin || isOrgLead) loadReviewStats();
+  loadAffil();
 }
 
 async function loadReviewStats(){
@@ -428,6 +448,32 @@ async function loadReviewStats(){
       + card("Gestern dazugekommen", s.gestern)
       + '</div><div class="muted" style="font-size:12px;margin-top:8px;">Stand: '+(s.updated_at? new Date(s.updated_at).toLocaleString("de-DE",{timeZone:TZ}) : "–")+' · Quelle: ProvenExpert (mitNORM GmbH). Die meisten Bewertungen sind anonym – „eindeutig zugeordnet" zählt nur per E-Mail bestätigte.</div>';
   }catch(_){ }
+}
+
+const AFFIL_TOPICS=[
+  {k:"",l:"Alle Themen (Übersicht)"},
+  {k:"immobilie",l:"Immobilie als Kapitalanlage"},
+  {k:"ruhestand",l:"Ruhestandsplanung"},
+  {k:"baufi",l:"Baufinanzierung"},
+  {k:"riester",l:"Riester & Altersvorsorge"},
+  {k:"steuern",l:"Steuern sparen"},
+  {k:"geldanlage",l:"Geldanlage"}
+];
+let _affilSlug=null;
+async function loadAffil(){
+  try{
+    const { data } = await sb.rpc("webinar_my_slug");
+    const r=(data&&data[0])||null;
+    if(!r||!r.slug) return;
+    _affilSlug=r.slug;
+    $("affil-panel").classList.remove("hidden");
+    const sel=$("affil-topic");
+    sel.innerHTML=AFFIL_TOPICS.map(t=>'<option value="'+t.k+'">'+t.l+'</option>').join("");
+    const upd=()=>{ const t=sel.value; const url=APP_URL+"anmelden.html?b="+encodeURIComponent(_affilSlug)+(t?"&t="+t:""); $("affil-link").value=url; $("affil-open").href=url; };
+    sel.onchange=upd; upd();
+    $("affil-copy").onclick=async()=>{ try{ await navigator.clipboard.writeText($("affil-link").value); }catch(_){ $("affil-link").select(); try{document.execCommand("copy");}catch(e){} } const b=$("affil-copy"); const o=b.textContent; b.textContent="✓ Kopiert"; setTimeout(()=>{b.textContent=o;},1500); };
+    $("affil-hint").textContent="Tipp: Wähle ein Thema, um direkt dorthin zu verlinken – oder „Alle Themen“ für die Übersicht. Anmeldungen über deinen Link werden automatisch dir zugeordnet.";
+  }catch(_){}
 }
 
 async function loadOrg(){
