@@ -14,6 +14,9 @@
   svg{display:inline-block;vertical-align:middle;}
   .top{background:#fff;border-bottom:1px solid var(--line);}
   .top .in{max-width:980px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:10px;}
+  .berater-login{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:7px 13px;transition:.15s;}
+  .berater-login:hover{color:var(--navy);border-color:#cdeaf3;background:#f3f8fc;}
+  .berater-login svg{width:15px;height:15px;}
   .logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--navy),var(--cyan));}
   .logo-t{font-family:Outfit,sans-serif;font-weight:700;color:var(--muted);font-size:15px;}
   .mnl-w{font-family:Outfit,sans-serif;font-weight:800;color:var(--navy);letter-spacing:0;display:inline-flex;align-items:center;line-height:1;}
@@ -158,7 +161,7 @@
 </style>
 </head>
 <body>
-<div class="top"><div class="in"><img src="/logo.png" alt="mitNORM" style="height:28px;width:auto;display:block;"><span class="logo-t">· Live-Workshops</span></div></div>
+<div class="top"><div class="in"><img src="/logo.png" alt="mitNORM" style="height:28px;width:auto;display:block;"><span class="logo-t">· Live-Workshops</span><a class="berater-login" href="/" title="Nur für mitNORM-Berater"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Berater-Login</a></div></div>
 <div class="wrap">
   <div id="invite" class="invite hidden"></div>
   <div id="view"></div>
