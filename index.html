@@ -125,6 +125,10 @@
   tr.wm-row:hover{background:var(--accent-soft,#e6f1fb);}
   .wm-back{background:#f1f5fa;border:1px solid var(--line);border-radius:9px;padding:7px 13px;font:inherit;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;margin:4px 0 12px;}
   .wm-deth{font-family:Outfit;font-weight:700;color:var(--navy);font-size:15px;margin-bottom:10px;}
+  .wm-seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-right:6px;}
+  .wm-seg button{border:none;background:#fff;color:var(--navy);font:inherit;font-size:13px;font-weight:600;padding:7px 13px;cursor:pointer;}
+  .wm-seg button.on{background:var(--navy);color:#fff;}
+  select.wm-assign{font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--line);border-radius:7px;background:#fff;max-width:170px;}
   #tm-table{width:100%;border-collapse:collapse;font-size:14px;}
   #tm-table th,#tm-table td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;}
   #tm-table th{color:var(--muted);font-weight:600;position:sticky;top:0;background:#fff;}
@@ -264,6 +268,10 @@
       </div>
     </div>
     <div id="tables" class="hidden">
+      <div class="panel hidden" id="pe-panel" style="margin-bottom:14px;">
+        <div class="ptitle">ProvenExpert-Bewertungen über Webinar-Mails</div>
+        <div id="pe-body" class="muted">Lädt…</div>
+      </div>
       <div class="detail-grid" id="detail-grid">
         <div class="panel" id="reg-panel">
           <div class="ptitle" id="mytbl-title">Deine Anmeldungen (Teilnehmer)</div>
@@ -403,6 +411,23 @@ async function loadData() {
   if (pick) selectDay(dateKey(pick));
   if (isAdmin) loadAdmin();
   else if (isOrgLead) loadOrg();
+  if (isAdmin || isOrgLead) loadReviewStats();
+}
+
+async function loadReviewStats(){
+  try{
+    const { data } = await sb.rpc("webinar_pe_stats");
+    const s = (data && data[0]) || null;
+    $("pe-panel").classList.remove("hidden");
+    if(!s){ $("pe-body").textContent = "Noch keine Daten."; return; }
+    const since = s.campaign_start ? new Date(s.campaign_start).toLocaleDateString("de-DE",{day:"2-digit",month:"long",year:"numeric"}) : "–";
+    const card=(l,v)=>'<div class="stat"><div class="label">'+l+'</div><div class="val">'+v+'</div></div>';
+    $("pe-body").innerHTML = '<div class="cards" style="margin:0;">'
+      + card("Neue Bewertungen seit "+since, s.neu_seit_start)
+      + card("Davon eindeutig zugeordnet", s.zugeordnet)
+      + card("Gestern dazugekommen", s.gestern)
+      + '</div><div class="muted" style="font-size:12px;margin-top:8px;">Stand: '+(s.updated_at? new Date(s.updated_at).toLocaleString("de-DE",{timeZone:TZ}) : "–")+' · Quelle: ProvenExpert (mitNORM GmbH). Die meisten Bewertungen sind anonym – „eindeutig zugeordnet" zählt nur per E-Mail bestätigte.</div>';
+  }catch(_){ }
 }
 
 async function loadOrg(){
@@ -642,9 +667,11 @@ function closeTableModal(){ $("table-modal").classList.remove("open"); }
 
 // ===== Webinar-Detail-Popup: Berater-KPIs + Drill-down zu Kunden =====
 let _wm = {wid:null, rows:[], view:'list', adv:null, fStatus:'alle', fBerater:'alle', q:''};
+let _advisors = [];
 function wmEligible(wid){ return isAdmin || presenterWids.has(wid) || isOrgLead; }
 async function openWebinarModal(wid){
   _wm = {wid, rows:[], view:'list', adv:null, fStatus:'alle', fBerater:'alle', q:''};
+  if(isAdmin && !_advisors.length){ try{ const {data}=await sb.rpc("webinar_advisors_list"); _advisors=data||[]; }catch(_){} }
   const w = totals.find(x=>x.webinar_id===wid);
   $("wm-title").textContent = w ? w.title : "Webinar";
   $("wm-sub").textContent = (w && w.starts_at) ? (new Date(w.starts_at).toLocaleDateString("de-DE",{weekday:'long',day:'2-digit',month:'long',year:'numeric',timeZone:TZ})+', '+new Date(w.starts_at).toLocaleTimeString("de-DE",{hour:'2-digit',minute:'2-digit',timeZone:TZ})+' Uhr') : "";
@@ -674,16 +701,50 @@ function wmRender(){
   const storno = all.filter(r=>r.status==='canceled').length;
   $("wm-kpis").innerHTML = wmKpi('Angemeldet',ang)+wmKpi('Teilgenommen', tracked? anw : '<span class="muted">n. erf.</span>')+wmKpi('Quote', (tracked&&ang)? Math.round(anw/ang*100)+' %':'–')+wmKpi('Storniert',storno);
   const names=[...new Set(all.map(_advKey))].sort((a,b)=>a.localeCompare(b));
-  const berSel = _wm.view==='list' ? ('<label>Berater:</label><select id="wm-fb"><option value="alle">Alle</option>'+names.map(n=>'<option value="'+esc(n)+'"'+(_wm.fBerater===n?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select>') : '';
-  $("wm-filters").innerHTML = '<label>Status:</label><select id="wm-fs">'
+  const showBer = _wm.view==='list' || _wm.view==='all';
+  const berSel = showBer ? ('<label>Berater:</label><select id="wm-fb"><option value="alle">Alle</option>'+names.map(n=>'<option value="'+esc(n)+'"'+(_wm.fBerater===n?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select>') : '';
+  const segActive = _wm.view==='all' ? 'all' : 'list';
+  const seg = '<span class="wm-seg"><button data-v="list" class="'+(segActive==='list'?'on':'')+'">Je Berater</button><button data-v="all" class="'+(segActive==='all'?'on':'')+'">Alle Teilnehmer</button></span>';
+  $("wm-filters").innerHTML = seg + '<label>Status:</label><select id="wm-fs">'
     +['alle:Alle','ja:Teilgenommen','nein:Nicht teilgenommen','storno:Storniert'].map(o=>{const[v,l]=o.split(':');return '<option value="'+v+'"'+(_wm.fStatus===v?' selected':'')+'>'+l+'</option>';}).join('')
     +'</select>'+berSel+'<input id="wm-q" type="search" placeholder="Name oder E-Mail suchen…" value="'+esc(_wm.q)+'">';
+  $("wm-filters").querySelectorAll('.wm-seg button').forEach(b=>b.onclick=()=>{ _wm.view=b.dataset.v; _wm.adv=null; wmRender(); });
   $("wm-fs").onchange=e=>{_wm.fStatus=e.target.value; wmRenderBody();};
   if($("wm-fb")) $("wm-fb").onchange=e=>{_wm.fBerater=e.target.value; wmRenderBody();};
   $("wm-q").oninput=e=>{_wm.q=e.target.value; wmRenderBody();};
   wmRenderBody();
 }
-function wmRenderBody(){ if(_wm.view==='detail') wmRenderDetail(); else wmRenderList(); }
+function wmRenderBody(){ if(_wm.view==='detail') wmRenderDetail(); else if(_wm.view==='all') wmRenderAll(); else wmRenderList(); }
+function _anwCell(r){
+  if(r.status==='canceled') return '<span style="color:#b03a3a;">storniert</span>';
+  if(r.attended===true) return '<span style="color:#1a7d4b;font-weight:600;">✓ ja</span>';
+  if(r.attended===false) return '<span style="color:#b03a3a;font-weight:600;">nein</span>';
+  return '<span class="muted">n. erf.</span>';
+}
+function wmRenderAll(){
+  let rows=_wmStatusSearch(_wm.rows.slice());
+  if(_wm.fBerater!=='alle') rows=rows.filter(r=>_advKey(r)===_wm.fBerater);
+  rows.sort((a,b)=> (a.attendee_name||'').localeCompare(b.attendee_name||''));
+  const canAssign = isAdmin && _advisors.length;
+  let html='<table class="wm-tbl"><thead><tr><th>Kunde</th><th>E-Mail</th><th>Berater</th><th>Angemeldet</th><th>Gekommen</th><th>Dauer</th></tr></thead><tbody>';
+  html+= rows.length ? rows.map((r,i)=>{
+    let ber;
+    if(canAssign){
+      const cur=r.advisor_id||'';
+      ber='<select class="wm-assign" data-reg="'+esc(r.reg_id||'')+'"><option value="">— ohne —</option>'+_advisors.map(a=>'<option value="'+a.id+'"'+(a.id===cur?' selected':'')+'>'+esc(a.name)+'</option>').join('')+'</select>';
+    } else { ber=esc(r.advisor)||'–'; }
+    return '<tr><td>'+(esc(r.attendee_name)||'–')+'</td><td>'+(esc(r.attendee_email)||'–')+'</td><td>'+ber+'</td><td>'+(r.registered_at?new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}):'–')+'</td><td>'+_anwCell(r)+'</td><td>'+(durStr(r.attended_seconds)||'–')+'</td></tr>';
+  }).join('') : '<tr><td colspan="6" class="muted">Keine Treffer.</td></tr>';
+  html+='</tbody></table>';
+  $("wm-body").innerHTML=html;
+  $("wm-body").querySelectorAll('.wm-assign').forEach(sel=>sel.onchange=async()=>{
+    const regId=sel.dataset.reg, advId=sel.value||null;
+    sel.disabled=true;
+    const { error } = await sb.rpc("webinar_admin_set_advisor",{p_reg_id:regId, p_advisor_id:advId});
+    sel.disabled=false;
+    if(!error){ const row=_wm.rows.find(x=>x.reg_id===regId); if(row){ row.advisor_id=advId; const a=_advisors.find(x=>x.id===advId); row.advisor=a?a.name:'–'; } }
+  });
+}
 function wmRenderList(){
   let rows=_wmStatusSearch(_wm.rows.slice());
   if(_wm.fBerater!=='alle') rows=rows.filter(r=>_advKey(r)===_wm.fBerater);
