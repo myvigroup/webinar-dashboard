@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Webinar-Anmeldungen · mitNORM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#004283;--navy-d:#02315f;--cyan:#06BADD;--cyan-d:#0596b3;--brand:#0596b3;--ink:#0b2138;--muted:#5b7088;--line:#e4eaf1;--bg:#eef3f8;--card:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:Inter,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);}
+  h1,h2,h3,.font-display{font-family:Outfit,Inter,sans-serif;}
+  .muted{color:var(--muted);}
+  a{color:var(--cyan-d);text-decoration:none;font-weight:600;}
+  a:hover{text-decoration:underline;}
+  button{font:inherit;cursor:pointer;border-radius:10px;}
+  .ms-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:var(--ink);border:1px solid var(--line);padding:13px 22px;font-weight:600;font-size:15px;box-shadow:0 4px 14px rgba(0,40,90,.08);}
+  .ms-btn:hover{box-shadow:0 6px 20px rgba(0,40,90,.14);}
+  .ghost{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;padding:8px 14px;font-weight:500;}
+  .ghost.dark{border-color:var(--line);color:var(--navy);}
+  .hidden{display:none!important;}
+
+  /* Login */
+  .login{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;}
+  .login-left{background:linear-gradient(0deg,rgba(6,186,221,.04),rgba(6,186,221,.04)),linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:100% 100%,28px 28px,28px 28px;background-color:#f3f7fb;padding:8vh 6vw;display:flex;flex-direction:column;justify-content:center;}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:48px;}
+  .brand .mark{width:46px;height:46px;border-radius:13px;background:linear-gradient(140deg,var(--cyan),var(--navy));display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(0,66,131,.25);}
+  .brand .name{font-family:Outfit;font-weight:800;font-size:22px;color:var(--navy);letter-spacing:-.5px;}
+  .login-left h1{font-size:46px;line-height:1.05;font-weight:800;margin:0 0 18px;color:var(--navy-d);letter-spacing:-1px;}
+  .login-left p{font-size:17px;color:var(--muted);max-width:420px;margin:0 0 32px;}
+  .feat{display:flex;align-items:center;gap:12px;margin:14px 0;font-weight:500;color:var(--navy-d);}
+  .feat .ck{width:24px;height:24px;border-radius:7px;background:rgba(6,186,221,.14);color:var(--cyan-d);display:flex;align-items:center;justify-content:center;font-weight:700;}
+  .login-right{background:radial-gradient(120% 120% at 80% 0%,#0a4f93 0%,var(--navy) 45%,var(--navy-d) 100%);color:#fff;padding:8vh 6vw;display:flex;flex-direction:column;justify-content:center;}
+  .login-right .label{font-family:Outfit;font-weight:700;font-size:12px;letter-spacing:2px;color:var(--cyan);margin-bottom:14px;}
+  .login-right h2{font-size:38px;font-weight:800;margin:0 0 12px;letter-spacing:-.5px;}
+  .login-right .sub{color:#bcd2e8;font-size:16px;max-width:420px;margin:0 0 28px;}
+  .login-right .hint{color:#8fb0d0;font-size:13px;margin-top:18px;max-width:430px;line-height:1.6;}
+  .login-right .foot{color:#5e80a3;font-size:12px;margin-top:40px;}
+  .err{background:rgba(255,90,90,.12);border:1px solid rgba(255,120,120,.4);color:#ffd2d2;padding:12px 14px;border-radius:10px;font-size:14px;margin-bottom:18px;}
+
+  /* App */
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:var(--card);border-bottom:1px solid var(--line);flex-wrap:wrap;gap:12px;}
+  .hbrand{display:flex;align-items:center;gap:11px;}
+  .hbrand .mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(140deg,var(--cyan),var(--navy));}
+  .hbrand .t{font-family:Outfit;font-weight:800;font-size:17px;color:var(--navy);letter-spacing:-.3px;}
+  .hbrand .s{font-size:12px;color:var(--muted);}
+  .mnl-w{font-family:Outfit,sans-serif;font-weight:800;color:var(--navy);letter-spacing:0;display:inline-flex;align-items:center;line-height:1;}
+  .mnl-o{display:inline-block;position:relative;width:.9em;height:.9em;border-radius:50%;background:var(--navy);margin:0 .02em;}
+  .mnl-o::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:.46em;height:.16em;background:#fff;border-radius:1px;}
+  .mnl-o::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:.16em;height:.46em;background:#fff;border-radius:1px;}
+  .mnl-tag{display:block;font-family:Inter,sans-serif;font-weight:600;font-size:8.5px;letter-spacing:2.5px;color:var(--muted);margin-top:4px;}
+  .happ{font-family:Outfit,sans-serif;font-weight:700;font-size:15px;color:var(--muted);padding-left:12px;margin-left:4px;border-left:1px solid var(--line);}
+  .huser{display:flex;align-items:center;gap:10px;}
+  .avatar{width:34px;height:34px;border-radius:50%;background:rgba(6,186,221,.15);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;font-family:Outfit;}
+  .wrap{max-width:1400px;margin:0 auto;padding:22px 24px 56px;}
+  #tables{margin-top:16px;display:flex;flex-direction:column;gap:14px;}
+  .toolbar{display:flex;justify-content:flex-end;margin-bottom:14px;}
+  .seg{display:inline-flex;background:#e3ebf3;border-radius:12px;padding:4px;gap:4px;}
+  .seg button{border:none;background:transparent;color:var(--muted);font-weight:600;padding:9px 18px;border-radius:9px;}
+  .seg button.on{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(0,40,90,.12);}
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start;}
+  #detail{margin-top:16px;}
+  #detail-head{font-family:Outfit;font-weight:700;color:var(--navy);font-size:16px;margin-bottom:12px;line-height:1.3;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 2px 10px rgba(0,40,90,.04);}
+  .panel + .panel{margin-top:14px;}
+  .ptitle{font-family:Outfit;font-weight:700;color:var(--navy);font-size:14px;margin-bottom:12px;}
+  .panel.collapsible > .ptitle{cursor:pointer;display:flex;align-items:center;gap:7px;user-select:none;}
+  .panel.collapsible > .ptitle::before{content:'▾';color:var(--muted);font-size:11px;transition:transform .15s;}
+  .panel.collapsible.collapsed > .ptitle::before{content:'▸';}
+  .panel.collapsible.collapsed > .ptitle{margin-bottom:0;}
+  .panel.collapsible.collapsed > .panel-body{display:none;}
+  .ptitle .cnt{margin-left:auto;font-weight:600;font-size:12px;color:var(--muted);background:var(--bg);padding:1px 9px;border-radius:20px;}
+  tr.more-row td{text-align:center;padding:0;border-bottom:none;}
+  tr.more-row button{width:100%;background:transparent;border:none;color:var(--brand);font:inherit;font-size:12px;font-weight:600;padding:9px;cursor:pointer;border-radius:8px;}
+  tr.more-row button:hover{background:var(--bg);}
+  .detail-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+  .detail-grid.cols2{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;}
+  @media(max-width:1000px){.detail-grid.cols2{grid-template-columns:1fr;}}
+  .tbl-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+  .tbl-filters label{font-size:12px;color:var(--muted);}
+  .tbl-filters select{font:inherit;font-size:13px;padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);}
+  th.sortable{cursor:pointer;user-select:none;white-space:nowrap;}
+  th.sortable:hover{color:var(--cyan-d);}
+  th.sortable .ar{color:var(--cyan-d);font-size:11px;}
+  #mytable tbody tr.clk{cursor:pointer;}
+  #mytable tbody tr.clk:hover{background:rgba(6,186,221,.07);}
+  #row-modal{position:fixed;inset:0;background:rgba(11,33,56,.45);display:none;align-items:center;justify-content:center;z-index:2000;padding:16px;}
+  #row-modal.open{display:flex;}
+  .rm-card{background:#fff;border-radius:16px;max-width:440px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(0,40,90,.3);}
+  .rm-card h3{font-family:Outfit;color:var(--navy);margin:0 0 14px;font-size:18px;}
+  .rm-row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;}
+  .rm-row .k{color:var(--muted);}
+  .rm-row .v{font-weight:600;text-align:right;color:var(--ink);word-break:break-word;}
+  .rm-close{margin-top:16px;width:100%;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:12px;font:inherit;font-weight:600;cursor:pointer;}
+  #table-modal{position:fixed;inset:0;background:rgba(11,33,56,.5);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px;}
+  #table-modal.open{display:flex;}
+  .tm-card{background:#fff;border-radius:16px;width:min(1100px,96vw);max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,40,90,.3);}
+  .tm-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line);flex:0 0 auto;}
+  #tm-title{font-family:Outfit;font-weight:700;color:var(--navy);font-size:16px;}
+  .tm-head button{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1;padding:0 4px;}
+  .tm-body{overflow:auto;padding:6px 20px 20px;}
+  /* Webinar-Detail-Popup */
+  #webinar-modal{position:fixed;inset:0;background:rgba(11,33,56,.5);display:none;align-items:center;justify-content:center;z-index:2100;padding:20px;}
+  #webinar-modal.open{display:flex;}
+  .wm-card{background:#fff;border-radius:16px;width:min(1000px,96vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,40,90,.3);}
+  .wm-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line);flex:0 0 auto;}
+  .wm-title{font-family:Outfit;font-weight:700;color:var(--navy);font-size:17px;line-height:1.25;}
+  .wm-sub{font-size:12px;margin-top:3px;}
+  .wm-x{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1;padding:0 4px;}
+  .wm-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px 22px 4px;flex:0 0 auto;}
+  .wm-kpi{background:#f7fafd;border:1px solid var(--line);border-radius:12px;padding:12px 14px;}
+  .wm-kpi .l{font-size:12px;color:var(--muted);margin-bottom:3px;}
+  .wm-kpi .v{font-size:22px;font-weight:700;color:var(--navy);font-family:Outfit;}
+  .wm-filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 22px;flex:0 0 auto;}
+  .wm-filters label{font-size:12px;color:var(--muted);}
+  .wm-filters select,.wm-filters input{font:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;}
+  .wm-filters input{min-width:180px;}
+  .wm-body2{overflow:auto;padding:0 22px 22px;}
+  .wm-tbl{width:100%;border-collapse:collapse;font-size:14px;}
+  .wm-tbl th,.wm-tbl td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  .wm-tbl th{color:var(--muted);font-weight:600;position:sticky;top:0;background:#fff;}
+  tr.wm-row{cursor:pointer;}
+  tr.wm-row:hover{background:var(--accent-soft,#e6f1fb);}
+  .wm-back{background:#f1f5fa;border:1px solid var(--line);border-radius:9px;padding:7px 13px;font:inherit;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;margin:4px 0 12px;}
+  .wm-deth{font-family:Outfit;font-weight:700;color:var(--navy);font-size:15px;margin-bottom:10px;}
+  .wm-seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-right:6px;}
+  .wm-seg button{border:none;background:#fff;color:var(--navy);font:inherit;font-size:13px;font-weight:600;padding:7px 13px;cursor:pointer;}
+  .wm-seg button.on{background:var(--navy);color:#fff;}
+  select.wm-assign{font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--line);border-radius:7px;background:#fff;max-width:170px;}
+  .affil-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .affil-row label{font-size:13px;color:var(--muted);font-weight:600;}
+  .affil-row select{font:inherit;font-size:13px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;}
+  .affil-row input{flex:1;min-width:240px;font:inherit;font-size:13px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#f3f7fb;color:var(--ink);}
+  .affil-btn{font:inherit;font-size:13px;font-weight:700;padding:9px 16px;border-radius:9px;border:1.5px solid var(--navy);background:var(--navy);color:#fff;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:.15s;}
+  .affil-btn:hover{filter:brightness(1.08);}
+  .affil-btn.ghosty{background:#fff;color:var(--navy);}
+  .affil-btn.ghosty:hover{background:#eef6fb;filter:none;}
+  .cms-tabs{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-bottom:16px;}
+  .cms-tabs button{border:none;background:#fff;color:var(--navy);font:inherit;font-size:13px;font-weight:600;padding:8px 16px;cursor:pointer;}
+  .cms-tabs button.on{background:var(--navy);color:#fff;}
+  .cms-form{display:flex;flex-direction:column;gap:4px;max-width:680px;}
+  .cms-form label{font-size:12px;color:var(--muted);font-weight:600;margin-top:10px;}
+  .cms-form input,.cms-form textarea{font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;width:100%;}
+  .cms-form textarea{resize:vertical;line-height:1.5;}
+  .cms-photo{width:64px;height:64px;border-radius:50%;object-fit:cover;border:1px solid var(--line);}
+  #tm-table{width:100%;border-collapse:collapse;font-size:14px;}
+  #tm-table th,#tm-table td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  #tm-table th{color:var(--muted);font-weight:600;position:sticky;top:0;background:#fff;}
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  .stat{background:#f7fafd;border:1px solid var(--line);border-radius:12px;padding:12px 14px;}
+  .stat .label{font-size:12px;color:var(--muted);margin-bottom:4px;}
+  .stat .val{font-family:Outfit;font-size:22px;font-weight:800;color:var(--navy);}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line);}
+  th{color:var(--muted);font-weight:600;font-size:11px;letter-spacing:.3px;text-transform:uppercase;}
+  /* Kalender */
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .cal-title{font-family:Outfit;font-size:18px;font-weight:700;color:var(--navy);text-transform:capitalize;}
+  .cal-nav{display:flex;gap:8px;}
+  .cal-nav button{width:34px;height:34px;border:1px solid var(--line);background:#fff;color:var(--navy);font-size:17px;}
+  .cal-nav button:hover{border-color:var(--cyan);color:var(--cyan-d);}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .cal-dow{font-size:11px;color:var(--muted);text-align:center;padding:3px 0;font-weight:600;}
+  .cal-cell{min-height:58px;border:1px solid var(--line);border-radius:9px;padding:6px;font-size:12px;background:#fff;}
+  .cal-cell.empty{background:transparent;border:none;}
+  .cal-cell.has{cursor:pointer;transition:.12s;}
+  .cal-cell.has:hover{border-color:var(--cyan);background:rgba(6,186,221,.05);}
+  .cal-cell.sel{border:2px solid var(--cyan);background:rgba(6,186,221,.10);}
+  .cal-cell.today{border-color:var(--navy);}
+  .cal-cell.today .cal-daynum{color:var(--navy);font-weight:800;}
+  .cal-daynum{color:var(--muted);font-weight:600;}
+  .cal-badge{margin-top:4px;display:inline-block;background:var(--navy);color:#fff;font-size:9px;font-weight:600;border-radius:5px;padding:1px 6px;white-space:nowrap;letter-spacing:.1px;}
+  /* Webinar-Items */
+  .wlist{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+  .witem{text-align:left;width:100%;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;display:block;}
+  .witem:hover{border-color:var(--cyan);}
+  .witem.sel{border:1.5px solid var(--cyan);background:rgba(6,186,221,.07);}
+  .witem .top{display:flex;align-items:center;gap:10px;margin-bottom:5px;}
+  .witem .date{background:rgba(0,66,131,.08);color:var(--navy);font-weight:700;font-size:12px;border-radius:8px;padding:3px 9px;font-family:Outfit;white-space:nowrap;}
+  .witem .ttl{font-weight:600;color:var(--ink);}
+  .witem .meta{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:3px;}
+  .witem .cnt{color:var(--cyan-d);font-weight:700;}
+  @media(max-width:1000px){.layout{grid-template-columns:1fr;}}
+  @media(max-width:820px){.login{grid-template-columns:1fr;}.login-left{display:none;}.login-right{min-height:100vh;justify-content:center;}}
+  @media(max-width:600px){
+    .wrap{padding:14px 12px 48px;}
+    header{padding:12px 14px;}
+    .hbrand .t{font-size:15px;} .hbrand .s{font-size:11px;}
+    .toolbar{justify-content:stretch;} .seg{width:100%;display:flex;} .seg button{flex:1;padding:10px 6px;}
+    .panel{padding:12px;border-radius:12px;}
+    .cal-title{font-size:16px;}
+    .cal-grid{gap:4px;}
+    .cal-dow{font-size:10px;padding:2px 0;}
+    .cal-cell{min-height:46px;padding:4px;border-radius:7px;}
+    .cal-daynum{font-size:12px;}
+    .cal-nav button{width:30px;height:30px;font-size:15px;}
+    .cal-badge{font-size:9px;padding:1px 5px;}
+    .cal-badge .blbl{display:none;}
+    .tlbl{display:none;}
+    .cards{gap:8px;}
+    .stat{padding:11px;} .stat .val{font-size:20px;}
+    #detail-head{font-size:15px;}
+    .witem{padding:11px 12px;} .witem .ttl{font-size:14px;}
+    .login-right{padding:7vh 7vw;} .login-right h2{font-size:30px;}
+  }
+</style>
+</head>
+<body>
+<div id="login" class="login">
+  <div class="login-left">
+    <div class="brand"><img src="/logo.png" alt="mitNORM · Finanzplanung DIN 77230" style="height:62px;width:auto;display:block;"></div>
+    <h1>Webinar-<br>Anmeldungen.</h1>
+    <p>Sieh auf einen Blick, wie viele Teilnehmer du für jedes Webinar gewonnen hast – und wie das Team insgesamt performt.</p>
+    <div class="feat"><span class="ck">✓</span> Anmeldungen pro Webinar & gesamt</div>
+    <div class="feat"><span class="ck">✓</span> Dein Anteil und Rang im Team</div>
+    <div class="feat"><span class="ck">✓</span> Kalender & Liste der nächsten Webinare</div>
+  </div>
+  <div class="login-right">
+    <div class="label">WEBINAR-DASHBOARD · BERATER-LOGIN</div>
+    <h2>Willkommen</h2>
+    <div class="sub">Melde dich mit deinem mitNORM-Microsoft-Konto an, um deine Anmeldezahlen zu sehen.</div>
+    <p id="login-err" class="err" style="display:none;"></p>
+    <button class="ms-btn" id="btn-login" style="align-self:flex-start;">
+      <svg width="18" height="18" viewBox="0 0 23 23" aria-hidden="true"><rect width="10" height="10" x="1" y="1" fill="#F25022"/><rect width="10" height="10" x="12" y="1" fill="#7FBA00"/><rect width="10" height="10" x="1" y="12" fill="#00A4EF"/><rect width="10" height="10" x="12" y="12" fill="#FFB900"/></svg>
+      Mit Microsoft anmelden
+    </button>
+    <div class="hint">Melde dich mit deinem mitNORM-Microsoft-Konto (@mitnorm.com oder @myvi.de) an. Dein Konto muss als Berater hinterlegt sein.</div>
+    <div class="foot">mitNORM · Interne Anwendung</div>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <header>
+    <div class="hbrand"><img src="/logo.png" alt="mitNORM" style="height:32px;width:auto;display:block;"><span class="happ">Webinar-Anmeldungen</span></div>
+    <div class="huser"><div class="avatar" id="avatar">–</div><span class="muted" id="who"></span><button class="ghost dark" id="btn-logout">Abmelden</button></div>
+  </header>
+  <div class="wrap">
+    <div class="toolbar">
+      <div class="seg"><button id="tab-cal" class="on">Kalender</button><button id="tab-list">Nächste Webinare</button></div>
+    </div>
+    <div class="panel hidden" id="affil-panel" style="margin-bottom:14px;">
+      <div class="ptitle">Dein Einladungs-Link <span style="font-weight:400;font-size:11px;color:var(--muted);">· teile ihn mit deinen Kunden – Anmeldungen werden dir zugeordnet</span></div>
+      <div class="affil-row">
+        <label for="affil-topic">Ziel:</label>
+        <select id="affil-topic"></select>
+        <input id="affil-link" readonly onclick="this.select()">
+        <button id="affil-copy" class="affil-btn">Link kopieren</button>
+        <a id="affil-open" class="affil-btn ghosty" target="_blank" rel="noopener">Vorschau ↗</a>
+      </div>
+      <div id="affil-hint" class="muted" style="font-size:12px;margin-top:8px;"></div>
+    </div>
+    <div class="layout">
+      <div class="col-left">
+        <div class="panel" id="cal-panel">
+          <div class="cal-head"><div class="cal-title" id="cal-title">—</div><div class="cal-nav"><button id="cal-prev">‹</button><button id="cal-next">›</button></div></div>
+          <div class="cal-grid" id="cal-grid"></div>
+        </div>
+        <div class="panel hidden" id="list-panel">
+          <div class="ptitle">Nächste Webinare</div>
+          <div class="wlist" id="up-list"></div>
+        </div>
+      </div>
+      <div class="col-right">
+        <div class="panel" id="day-panel">
+          <div class="muted" id="day-title">Wähle einen Tag mit Webinaren im Kalender.</div>
+          <div class="wlist" id="day-list"></div>
+        </div>
+        <div id="detail" class="hidden">
+          <div id="detail-head"></div>
+          <div id="admin-edit" class="panel hidden" style="margin:8px 0 12px;">
+            <div class="ptitle">Admin · Webinar bearbeiten</div>
+            <label style="display:block;font-size:13px;color:var(--muted);margin:6px 0 2px;">Buchungs-/Anmeldelink</label>
+            <input id="ae-link" type="url" placeholder="https://…" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;">
+            <label style="display:block;font-size:13px;color:var(--muted);margin:8px 0 2px;">Referent(en)</label>
+            <input id="ae-pres" type="text" placeholder="z. B. Karsten Hintsch" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;margin:10px 0;"><input id="ae-all" type="checkbox"> Für alle Termine mit diesem Titel übernehmen</label>
+            <button id="ae-save" style="background:var(--navy);color:#fff;border:none;padding:9px 18px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;">Speichern</button>
+            <button id="ae-del" style="background:#fff;color:#b03a3a;border:1px solid #b03a3a;padding:9px 16px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;margin-left:8px;">Webinar entfernen</button>
+            <span id="ae-status" class="muted" style="margin-left:10px;font-size:13px;"></span>
+          </div>
+          <div class="cards" style="margin-bottom:14px;">
+            <div class="stat"><div class="label" id="l-mine">Deine Anmeldungen</div><div class="val" id="s-mine">–</div></div>
+            <div class="stat"><div class="label">Anmeldungen gesamt</div><div class="val" id="s-total">–</div></div>
+            <div class="stat"><div class="label" id="l-share">Dein Anteil</div><div class="val" id="s-share">–</div></div>
+            <div class="stat"><div class="label" id="l-rank">Dein Rang im Team</div><div class="val" id="s-rank">–</div></div>
+          </div>
+          <div id="detail-cancel" class="muted" style="margin:-4px 0 10px;font-size:13px;"></div>
+          <div class="panel" id="chart-panel">
+            <div class="ptitle">Anmeldungen pro Berater</div>
+            <div style="position:relative;height:240px;"><canvas id="chart"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="tables" class="hidden">
+      <div class="panel hidden" id="pe-panel" style="margin-bottom:14px;">
+        <div class="ptitle">ProvenExpert-Bewertungen über Webinar-Mails</div>
+        <div id="pe-body" class="muted">Lädt…</div>
+      </div>
+      <div class="detail-grid" id="detail-grid">
+        <div class="panel" id="reg-panel">
+          <div class="ptitle" id="mytbl-title">Deine Anmeldungen (Teilnehmer)</div>
+          <div id="tbl-filters" class="tbl-filters hidden"></div>
+          <div style="overflow-x:auto"><table id="mytable"></table></div>
+        </div>
+        <div class="panel hidden" id="overview-panel">
+          <div class="ptitle">Übersicht aller Webinare · Admin <span style="font-weight:400;font-size:11px;color:var(--muted);">· Doppelklick = groß</span></div>
+          <div style="overflow-x:auto"><table id="admin-overview-tbl"></table></div>
+        </div>
+      </div>
+      <div id="admin-section" class="hidden">
+        <div class="panel" id="rank-panel">
+          <div class="ptitle">Berater-Ranking gesamt · Admin <span style="font-weight:400;font-size:11px;color:var(--muted);">· Doppelklick = groß</span></div>
+          <div style="overflow-x:auto"><table id="admin-rank-tbl"></table></div>
+        </div>
+      </div>
+      <div class="panel hidden" id="cms-panel" style="margin-top:14px;">
+        <div class="ptitle">Inhalte verwalten · Admin <span style="font-weight:400;font-size:11px;color:var(--muted);">· Texte &amp; Referenten der Landingpage</span></div>
+        <div class="cms-tabs"><button id="cms-t-topics" class="on">Themen-Texte</button><button id="cms-t-ref">Referenten</button></div>
+        <div id="cms-topics">
+          <div class="affil-row" style="margin-bottom:8px;"><label for="cms-topic-sel">Thema:</label><select id="cms-topic-sel"></select></div>
+          <div class="cms-form">
+            <label>Label (Kurzname)</label><input id="cms-label">
+            <label>Überschrift</label><input id="cms-headline">
+            <label>Untertitel</label><textarea id="cms-sub" rows="2"></textarea>
+            <label>Problem-Text („Kommt dir das bekannt vor?")</label><textarea id="cms-problem" rows="2"></textarea>
+            <label>Schmerzpunkte – eine pro Zeile</label><textarea id="cms-pains" rows="3"></textarea>
+            <label>„Das nimmst du mit" – eine pro Zeile</label><textarea id="cms-benefits" rows="4"></textarea>
+            <button class="affil-btn" id="cms-save-topic">Speichern</button> <span id="cms-topic-msg" class="muted" style="font-size:12px;"></span>
+          </div>
+        </div>
+        <div id="cms-ref" class="hidden">
+          <div class="affil-row" style="margin-bottom:8px;"><label for="cms-ref-sel">Referent:</label><select id="cms-ref-sel"></select></div>
+          <div class="cms-form">
+            <label>Titel / Rolle</label><input id="cms-ref-title" placeholder="z. B. mitNORM · Experte für Baufinanzierung">
+            <label>Kurz-Bio</label><textarea id="cms-ref-bio" rows="3"></textarea>
+            <label>Foto</label>
+            <div class="affil-row"><img id="cms-ref-preview" class="cms-photo" alt="" style="display:none;"><input type="file" id="cms-ref-file" accept="image/*"></div>
+            <button class="affil-btn" id="cms-save-ref">Speichern</button> <span id="cms-ref-msg" class="muted" style="font-size:12px;"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="webinar-modal"><div class="wm-card">
+  <div class="wm-head"><div><div id="wm-title" class="wm-title"></div><div id="wm-sub" class="wm-sub muted"></div></div><button class="wm-x" onclick="wmClose()" title="Schließen">✕</button></div>
+  <div id="wm-kpis" class="wm-kpis"></div>
+  <div id="wm-filters" class="wm-filters"></div>
+  <div id="wm-body" class="wm-body2"></div>
+</div></div>
+
+<div id="row-modal"><div class="rm-card" id="rm-card"></div></div>
+<div id="table-modal"><div class="tm-card"><div class="tm-head"><span id="tm-title"></span><button onclick="closeTableModal()" title="Schließen">✕</button></div><div class="tm-body"><table id="tm-table"></table></div></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const SUPABASE_URL = "https://umgbtymowqavnmsbgceh.supabase.co";
+const SUPABASE_KEY = "sb_publishable_uwCtealR7TogA86X68-RZg_3FQ1RPT0";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const APP_URL = "https://webinare.mitnorm.de/"; // Basis für Affiliate-Links (Kundenübersicht)
+const LOGIN_URL = "https://webinare.mitnorm.de/login"; // Rücksprung nach Microsoft-Login (Dashboard)
+const $ = (id) => document.getElementById(id);
+const DOW = ["Mo","Di","Mi","Do","Fr","Sa","So"];
+const MONTHS = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+let chart, me = "";
+const ADMIN = ["l.jacob@myvi.de"]; let isAdmin = false; let presenterWids = new Set();
+let orgIds = new Set(); let isOrgLead = false;
+let totals = [], counts = [], mine = [], byDate = {}, viewY, viewM, selectedDate = null, selectedWid = null;
+
+$("btn-login").onclick = async () => {
+  const { error } = await sb.auth.signInWithOAuth({ provider: "azure", options: { scopes: "openid email profile", redirectTo: LOGIN_URL } });
+  if (error){ const e=$("login-err"); e.style.display="block"; e.textContent = error.message; }
+};
+$("btn-logout").onclick = async () => { await sb.auth.signOut(); location.reload(); };
+$("ae-save").onclick = saveMeta;
+$("ae-del").onclick = async () => {
+  if(!selectedWid) return;
+  if(!confirm("Dieses Webinar aus dem Dashboard entfernen? Es bleibt in Teams bestehen und kann später wieder eingeblendet werden.")) return;
+  $("ae-status").textContent = "Entferne…";
+  const { error } = await sb.rpc("webinar_admin_set_hidden", { p_webinar_id: selectedWid, p_hidden: true });
+  if (error){ $("ae-status").textContent = "Fehler: " + error.message; return; }
+  selectedWid = null;
+  await loadData();
+};
+async function saveMeta(){
+  if(!selectedWid){ return; }
+  $("ae-status").textContent = "Speichere…";
+  const { error } = await sb.rpc("webinar_admin_set_meta", { p_webinar_id: selectedWid, p_web_url: $("ae-link").value, p_presenters: $("ae-pres").value, p_apply_all: $("ae-all").checked });
+  if (error){ $("ae-status").textContent = "Fehler: " + error.message; return; }
+  $("ae-status").textContent = "Gespeichert ✓";
+  const keep = selectedWid;
+  await loadData();
+  selectWebinar(keep);
+}
+$("tab-cal").onclick = () => switchView("cal");
+$("tab-list").onclick = () => switchView("list");
+$("cal-prev").onclick = () => { viewM--; if(viewM<0){viewM=11;viewY--;} renderCalendar(); };
+$("cal-next").onclick = () => { viewM++; if(viewM>11){viewM=0;viewY++;} renderCalendar(); };
+
+// Zeiten werden als gespeicherte Wandzeit angezeigt (timeZone UTC), daher Datumsteile in UTC.
+function dateKey(d){ return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0")+"-"+String(d.getUTCDate()).padStart(2,"0"); }
+const TZ = "UTC";
+function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+function presLine(w){ return w.presenters ? '<span><b style="color:var(--navy)">Referent:</b> '+esc(w.presenters)+'</span>' : ''; }
+function linkLine(w){ return w.web_url ? '<a href="'+esc(w.web_url)+'" target="_blank" rel="noopener">Zum Webinar ↗</a>' : ''; }
+
+function switchView(v){
+  const cal = v==="cal";
+  $("tab-cal").classList.toggle("on",cal); $("tab-list").classList.toggle("on",!cal);
+  $("cal-panel").classList.toggle("hidden",!cal);
+  $("list-panel").classList.toggle("hidden",cal);
+  $("day-panel").classList.toggle("hidden",!cal);
+  if(!cal) renderList();
+  else if(selectedDate) selectDay(selectedDate);
+}
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { $("login").style.display="grid"; $("app").classList.add("hidden"); return; }
+  $("login").style.display="none"; $("app").classList.remove("hidden");
+  me = (session.user.email || "").toLowerCase();
+  isAdmin = ADMIN.includes(me);
+  const name = session.user.user_metadata?.full_name || session.user.email || "";
+  $("who").textContent = isAdmin ? name + " · Admin" : name;
+  $("avatar").textContent = name.split(" ").map(s => s[0]).slice(0,2).join("").toUpperCase();
+  await loadData();
+}
+
+async function loadData() {
+  const [t, c, m] = await Promise.all([ sb.rpc("webinar_totals"), sb.rpc("webinar_advisor_counts"), sb.rpc("webinar_my_registrations") ]);
+  totals = t.data || []; counts = c.data || []; mine = m.data || [];
+  if (!isAdmin){
+    const [rw, og] = await Promise.all([ sb.rpc("webinar_referent_webinars"), sb.rpc("webinar_org_advisor_ids") ]);
+    presenterWids = new Set((rw.data || []).map(x => x.webinar_id));
+    if (presenterWids.size){ const w0 = $("who"); if(!/Referent/.test(w0.textContent)) w0.textContent += " · Referent"; }
+    orgIds = new Set((og.data || []).map(x => x.advisor_id));
+    isOrgLead = orgIds.size > 0;
+    if (isOrgLead){ const w0 = $("who"); if(!/Organisation/.test(w0.textContent)) w0.textContent += " · Organisation"; }
+  }
+  byDate = {};
+  totals.forEach(w => {
+    if (!w.starts_at) return;
+    const d = new Date(w.starts_at), k = dateKey(d);
+    (byDate[k] = byDate[k] || []).push(w);
+  });
+  // Kalender immer im aktuellen Monat starten
+  const today = new Date();
+  viewY = today.getUTCFullYear(); viewM = today.getUTCMonth();
+  renderCalendar();
+  // Webinar im aktuellen Monat auswählen, das heute am nächsten liegt
+  let pick = null, best = Infinity, now = today.getTime();
+  totals.forEach(w => {
+    if (!w.starts_at) return;
+    const d = new Date(w.starts_at);
+    if (d.getUTCFullYear() === viewY && d.getUTCMonth() === viewM) {
+      const diff = Math.abs(d.getTime() - now);
+      if (diff < best) { best = diff; pick = d; }
+    }
+  });
+  if (pick) selectDay(dateKey(pick));
+  if (isAdmin) loadAdmin();
+  else if (isOrgLead) loadOrg();
+  if (isAdmin || isOrgLead) loadReviewStats();
+  loadAffil();
+}
+
+async function loadReviewStats(){
+  try{
+    const { data } = await sb.rpc("webinar_pe_stats");
+    const s = (data && data[0]) || null;
+    $("pe-panel").classList.remove("hidden");
+    if(!s){ $("pe-body").textContent = "Noch keine Daten."; return; }
+    const since = s.campaign_start ? new Date(s.campaign_start).toLocaleDateString("de-DE",{day:"2-digit",month:"long",year:"numeric"}) : "–";
+    const card=(l,v)=>'<div class="stat"><div class="label">'+l+'</div><div class="val">'+v+'</div></div>';
+    $("pe-body").innerHTML = '<div class="cards" style="margin:0;">'
+      + card("Neue Bewertungen seit "+since, s.neu_seit_start)
+      + card("Davon eindeutig zugeordnet", s.zugeordnet)
+      + card("Gestern dazugekommen", s.gestern)
+      + '</div><div class="muted" style="font-size:12px;margin-top:8px;">Stand: '+(s.updated_at? new Date(s.updated_at).toLocaleString("de-DE",{timeZone:TZ}) : "–")+' · Quelle: ProvenExpert (mitNORM GmbH). Die meisten Bewertungen sind anonym – „eindeutig zugeordnet" zählt nur per E-Mail bestätigte.</div>';
+  }catch(_){ }
+}
+
+const AFFIL_TOPICS=[
+  {k:"",l:"Alle Themen (Übersicht)"},
+  {k:"immobilie",l:"Immobilie als Kapitalanlage"},
+  {k:"ruhestand",l:"Ruhestandsplanung"},
+  {k:"baufi",l:"Baufinanzierung"},
+  {k:"riester",l:"Riester & Altersvorsorge"},
+  {k:"steuern",l:"Steuern sparen"},
+  {k:"geldanlage",l:"Geldanlage"}
+];
+let _affilSlug=null;
+async function loadAffil(){
+  try{
+    const { data } = await sb.rpc("webinar_my_slug");
+    const r=(data&&data[0])||null;
+    if(!r||!r.slug) return;
+    _affilSlug=r.slug;
+    $("affil-panel").classList.remove("hidden");
+    const sel=$("affil-topic");
+    sel.innerHTML=AFFIL_TOPICS.map(t=>'<option value="'+t.k+'">'+t.l+'</option>').join("");
+    const upd=()=>{ const t=sel.value; const url=APP_URL+"?b="+encodeURIComponent(_affilSlug)+(t?"&t="+t:""); $("affil-link").value=url; $("affil-open").href=url; };
+    sel.onchange=upd; upd();
+    $("affil-copy").onclick=async()=>{ try{ await navigator.clipboard.writeText($("affil-link").value); }catch(_){ $("affil-link").select(); try{document.execCommand("copy");}catch(e){} } const b=$("affil-copy"); const o=b.textContent; b.textContent="✓ Kopiert"; setTimeout(()=>{b.textContent=o;},1500); };
+    $("affil-hint").textContent="Tipp: Wähle ein Thema, um direkt dorthin zu verlinken – oder „Alle Themen“ für die Übersicht. Anmeldungen über deinen Link werden automatisch dir zugeordnet.";
+  }catch(_){}
+}
+
+async function loadOrg(){
+  $("admin-section").classList.remove("hidden");
+  const t = document.querySelector("#admin-section .ptitle");
+  if (t) t.innerHTML = 'Berater-Ranking deiner Organisation <span style="font-weight:400;font-size:11px;color:var(--muted);">· Doppelklick = groß</span>';
+  const { data } = await sb.rpc("webinar_org_ranking");
+  renderAdminRanking(data || []);
+}
+
+async function loadAdmin(){
+  $("admin-section").classList.remove("hidden");
+  $("overview-panel").classList.remove("hidden");
+  $("detail-grid").classList.add("cols2");
+  const [ov, rk] = await Promise.all([ sb.rpc("webinar_admin_overview"), sb.rpc("webinar_admin_ranking") ]);
+  renderAdminOverview(ov.data || []);
+  renderAdminRanking(rk.data || []);
+  loadCms();
+}
+
+let _cmsTopics=[], _cmsRefOv={}, _cmsPhotoUrl=null;
+async function loadCms(){
+  $("cms-panel").classList.remove("hidden");
+  $("cms-t-topics").onclick=()=>cmsTab(true);
+  $("cms-t-ref").onclick=()=>cmsTab(false);
+  $("cms-save-topic").onclick=cmsSaveTopic;
+  $("cms-save-ref").onclick=cmsSaveRef;
+  $("cms-ref-file").onchange=cmsUploadPhoto;
+  const [tp, names, ovs] = await Promise.all([ sb.rpc("webinar_landing_topics"), sb.rpc("webinar_admin_referent_names"), sb.rpc("webinar_referent_overrides") ]);
+  _cmsTopics = tp.data || [];
+  const sel=$("cms-topic-sel");
+  sel.innerHTML=_cmsTopics.map(t=>'<option value="'+t.key+'">'+esc(t.label)+'</option>').join("");
+  sel.onchange=()=>cmsLoadTopic(sel.value);
+  if(_cmsTopics.length) cmsLoadTopic(_cmsTopics[0].key);
+  _cmsRefOv={}; (ovs.data||[]).forEach(o=>{ _cmsRefOv[o.name_key]=o; });
+  const nm=(names.data||[]).map(x=>x.name);
+  const rs=$("cms-ref-sel");
+  rs.innerHTML=nm.length?nm.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join(""):'<option value="">Keine Referenten gefunden</option>';
+  rs.onchange=()=>cmsLoadRef(rs.value);
+  if(nm.length) cmsLoadRef(nm[0]);
+}
+function cmsTab(topics){ $("cms-topics").classList.toggle("hidden",!topics); $("cms-ref").classList.toggle("hidden",topics); $("cms-t-topics").classList.toggle("on",topics); $("cms-t-ref").classList.toggle("on",!topics); }
+function cmsLoadTopic(key){ const t=_cmsTopics.find(x=>x.key===key); if(!t) return; $("cms-label").value=t.label||""; $("cms-headline").value=t.headline||""; $("cms-sub").value=t.sub||""; $("cms-problem").value=t.problem||""; $("cms-pains").value=(t.pains||[]).join("\n"); $("cms-benefits").value=(t.benefits||[]).join("\n"); $("cms-topic-msg").textContent=""; }
+async function cmsSaveTopic(){
+  const key=$("cms-topic-sel").value; const t=_cmsTopics.find(x=>x.key===key); if(!t) return;
+  const pains=$("cms-pains").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  const benefits=$("cms-benefits").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  $("cms-topic-msg").textContent="Speichert…";
+  const { error }=await sb.rpc("webinar_admin_save_topic",{p_key:key,p_label:$("cms-label").value,p_icon:t.icon||null,p_headline:$("cms-headline").value,p_sub:$("cms-sub").value,p_problem:$("cms-problem").value,p_pains:pains,p_benefits:benefits});
+  if(!error){ t.label=$("cms-label").value; t.headline=$("cms-headline").value; t.sub=$("cms-sub").value; t.problem=$("cms-problem").value; t.pains=pains; t.benefits=benefits; }
+  $("cms-topic-msg").textContent=error?("Fehler: "+error.message):"✓ Gespeichert – live auf der Seite.";
+}
+function cmsLoadRef(name){ const ov=_cmsRefOv[(name||"").toLowerCase()]||{}; $("cms-ref-title").value=ov.title||""; $("cms-ref-bio").value=ov.bio||""; _cmsPhotoUrl=ov.photo_url||null; const img=$("cms-ref-preview"); if(_cmsPhotoUrl){ img.src=_cmsPhotoUrl; img.style.display="block"; } else { img.style.display="none"; img.removeAttribute("src"); } $("cms-ref-msg").textContent=""; $("cms-ref-file").value=""; }
+async function cmsUploadPhoto(e){
+  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  $("cms-ref-msg").textContent="Lädt hoch…";
+  const ext=((f.name.split(".").pop())||"jpg").toLowerCase();
+  const path=Date.now()+"-"+Math.random().toString(36).slice(2,8)+"."+ext;
+  const { error }=await sb.storage.from("referenten").upload(path,f,{upsert:true,contentType:f.type});
+  if(error){ $("cms-ref-msg").textContent="Upload-Fehler: "+error.message; return; }
+  const { data }=sb.storage.from("referenten").getPublicUrl(path);
+  _cmsPhotoUrl=data.publicUrl; const img=$("cms-ref-preview"); img.src=_cmsPhotoUrl; img.style.display="block";
+  $("cms-ref-msg").textContent="✓ Foto hochgeladen – bitte noch „Speichern“.";
+}
+async function cmsSaveRef(){
+  const name=$("cms-ref-sel").value; if(!name){ $("cms-ref-msg").textContent="Kein Referent gewählt."; return; }
+  $("cms-ref-msg").textContent="Speichert…";
+  const { error }=await sb.rpc("webinar_admin_save_referent",{p_name:name,p_photo_url:_cmsPhotoUrl||"",p_title:$("cms-ref-title").value,p_bio:$("cms-ref-bio").value});
+  if(!error){ _cmsRefOv[name.toLowerCase()]={name_key:name.toLowerCase(),display_name:name,photo_url:_cmsPhotoUrl,title:$("cms-ref-title").value,bio:$("cms-ref-bio").value}; }
+  $("cms-ref-msg").textContent=error?("Fehler: "+error.message):"✓ Gespeichert – live auf der Seite.";
+}
+function fmtD(s){ return s ? new Date(s).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"2-digit",timeZone:TZ}) : "–"; }
+function renderAdminOverview(rows){
+  const head = '<thead><tr><th>Datum</th><th>Webinar</th><th>Angem.</th><th>Anwesend</th><th>Quote</th><th>Storno</th><th>Ø Dauer</th><th>TN-Mails</th><th>NoShow</th></tr></thead>';
+  const body = rows.length ? rows.map(w=>{
+    const q = (w.attended!=null && Number(w.registered)>0) ? Math.round(w.attended/w.registered*100)+' %' : '–';
+    const dur = w.avg_seconds ? Math.round(w.avg_seconds/60)+' Min' : '–';
+    return `<tr><td>${fmtD(w.starts_at)}</td><td>${esc(w.title)}</td><td>${w.registered}</td><td>${w.attended??'–'}</td><td>${q}</td><td>${w.canceled||0}</td><td>${dur}</td><td>${w.teilnehmer_mails||0}</td><td>${w.noshow_mails||0}</td></tr>`;
+  }).join("") : '<tr><td colspan="9" class="muted">Keine Daten.</td></tr>';
+  $("admin-overview-tbl").innerHTML = head + '<tbody>'+body+'</tbody>';
+  $("admin-overview-tbl").ondblclick = ()=> openBigTable("Übersicht aller Webinare", $("admin-overview-tbl").innerHTML);
+  limitRows($("admin-overview-tbl"),5);
+}
+function renderAdminRanking(rows){
+  const head = '<thead><tr><th>Berater</th><th>Anmeldungen</th><th>Teilgenommen</th></tr></thead>';
+  const body = rows.length ? rows.map((r,i)=>`<tr><td>${i+1}. ${esc(r.advisor)}</td><td>${r.anmeldungen}</td><td>${r.teilgenommen}</td></tr>`).join("") : '<tr><td colspan="3" class="muted">Keine Daten.</td></tr>';
+  $("admin-rank-tbl").innerHTML = head + '<tbody>'+body+'</tbody>';
+  $("admin-rank-tbl").ondblclick = ()=> openBigTable("Berater-Ranking gesamt", $("admin-rank-tbl").innerHTML);
+  limitRows($("admin-rank-tbl"),5);
+}
+
+function renderCalendar() {
+  $("cal-title").textContent = MONTHS[viewM] + " " + viewY;
+  const todayKey = dateKey(new Date());
+  const grid = $("cal-grid"); grid.innerHTML = "";
+  DOW.forEach(d => { const e=document.createElement("div"); e.className="cal-dow"; e.textContent=d; grid.appendChild(e); });
+  const first = new Date(viewY, viewM, 1); let lead = (first.getDay() + 6) % 7;
+  for (let i=0;i<lead;i++){ const e=document.createElement("div"); e.className="cal-cell empty"; grid.appendChild(e); }
+  const days = new Date(viewY, viewM+1, 0).getDate();
+  for (let day=1; day<=days; day++){
+    const k = viewY+"-"+String(viewM+1).padStart(2,"0")+"-"+String(day).padStart(2,"0");
+    const list = byDate[k];
+    const e = document.createElement("div");
+    e.className = "cal-cell" + (list ? " has" : "") + (k===selectedDate ? " sel" : "") + (k===todayKey ? " today" : "");
+    e.innerHTML = '<span class="cal-daynum">'+day+(k===todayKey?'<span class="tlbl"> · heute</span>':'')+'</span>';
+    if (list){ e.innerHTML += '<br><span class="cal-badge">'+list.length+'<span class="blbl"> '+(list.length>1?'Webinare':'Webinar')+'</span></span>'; e.onclick = () => selectDay(k); }
+    grid.appendChild(e);
+  }
+}
+
+function webinarItem(w, withDate){
+  const d = new Date(w.starts_at);
+  const dateStr = withDate ? d.toLocaleDateString("de-DE",{day:"2-digit",month:"short",timeZone:TZ}) : d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ});
+  const cancelStr = Number(w.canceled)>0 ? '<span style="color:#b03a3a;">'+w.canceled+' storniert</span>' : '';
+  const attStr = (w.attended!=null) ? '<span style="color:#0596b3;font-weight:700;">'+w.attended+' anwesend</span>' : '';
+  const meta = [presLine(w), '<span class="cnt">'+w.total_registrations+' Anmeldungen</span>', attStr, cancelStr, linkLine(w)].filter(Boolean).join("");
+  const b = document.createElement("div");
+  b.className = "witem" + (w.webinar_id===selectedWid ? " sel" : "");
+  b.dataset.wid = w.webinar_id;
+  b.innerHTML = '<div class="top"><span class="date">'+dateStr+'</span><span class="ttl">'+esc(w.title)+'</span></div><div class="meta">'+meta+'</div>';
+  b.addEventListener("click",(ev)=>{ if(ev.target.tagName==="A") return; selectWebinar(w.webinar_id); if(wmEligible(w.webinar_id)) openWebinarModal(w.webinar_id); });
+  return b;
+}
+
+function markSelection(){ document.querySelectorAll(".witem").forEach(c=>c.classList.toggle("sel", c.dataset.wid===selectedWid)); }
+
+function selectDay(k){
+  selectedDate = k; renderCalendar();
+  const list = (byDate[k]||[]).slice().sort((a,b)=> new Date(a.starts_at)-new Date(b.starts_at));
+  const dl = $("day-list"); dl.innerHTML = "";
+  const d = new Date(k+"T00:00:00");
+  $("day-title").textContent = "Webinare am " + d.toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  list.forEach(w => dl.appendChild(webinarItem(w,false)));
+  if (list.length){ selectWebinar(list[0].webinar_id); }
+}
+
+function renderList(){
+  const now = Date.now();
+  const up = totals.filter(w=>w.starts_at && new Date(w.starts_at).getTime() >= now - 36e5*12).sort((a,b)=> new Date(a.starts_at)-new Date(b.starts_at));
+  const ordered = up; // nur kommende Webinare; vergangene bleiben im Kalender + Admin-Übersicht
+  const el = $("up-list"); el.innerHTML = "";
+  if(!ordered.length){ el.innerHTML='<div class="muted">Keine kommenden Webinare.</div>'; }
+  else ordered.forEach(w => el.appendChild(webinarItem(w,true)));
+  // Standardansicht: Summe über alle anstehenden Webinare
+  renderAggregate(up);
+}
+
+function selectWebinar(wid){ selectedWid = wid; markSelection(); renderWebinar(wid); }
+
+function drawChart(labels,data,colors){
+  if (chart) chart.destroy();
+  chart = new Chart($("chart"), { type: "bar",
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 5 }] },
+    options: { indexAxis: "y", responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks:{ font:{ family:"Inter", size:12 } } } } } });
+}
+function durStr(s){ s = Number(s||0); if(!s) return ''; const m = Math.round(s/60); return m>=60 ? `${Math.floor(m/60)} Std ${m%60} Min` : `${m} Min`; }
+function regRow(r, withAdv, i){
+  const cancel = r.status==='canceled' ? ' <span style="color:#b03a3a;font-size:11px;font-weight:600;">storniert</span>' : '';
+  let anw = '<span class="muted">–</span>', dauer = '<span class="muted">–</span>';
+  if (r.status !== 'canceled') {
+    if (r.attended === true) { anw = '<span style="color:#1a7d4b;font-weight:600;">✓ anwesend</span>'; const d = durStr(r.attended_seconds); if (d) dauer = d; }
+    else if (r.attended === false) { anw = '<span style="color:#b03a3a;font-weight:600;">nicht dabei</span>'; }
+  }
+  const adv = withAdv ? `<td>${esc(r.advisor)||"–"}</td>` : '';
+  return `<tr class="clk" data-i="${i}"><td>${esc(r.attendee_name)||"–"}${cancel}</td><td>${esc(r.attendee_email)||"–"}</td>${adv}<td>${r.registered_at ? new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}) : "–"}</td><td>${anw}</td><td>${dauer}</td></tr>`;
+}
+let _rows=[], _withAdv=false, _fStatus='alle', _fBerater='alle', _fSort='attendee_name', _fDir=1, _shownRows=[], _clickTimer=null;
+function fillTable(rows, withAdv){
+  _rows = rows || []; _withAdv = !!withAdv; _fBerater='alle';
+  buildFilters(); renderRows();
+}
+function buildFilters(){
+  const f = $("tbl-filters");
+  if(!_rows.length){ f.classList.add("hidden"); f.innerHTML=""; return; }
+  f.classList.remove("hidden");
+  let ber = "";
+  if(_withAdv){
+    const names = [...new Set(_rows.map(r=>r.advisor).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+    ber = '<label>Berater:</label><select id="f-berater"><option value="alle">Alle</option>'+names.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('')+'</select>';
+  }
+  f.innerHTML = '<label>Status:</label><select id="f-status"><option value="alle">Alle</option><option value="ja">Teilgenommen</option><option value="nein">Nicht teilgenommen</option><option value="storno">Storniert</option></select>' + ber + '<span style="font-size:12px;color:var(--muted);">Spalten klicken zum Sortieren ↑↓</span>';
+  $("f-status").value=_fStatus;
+  $("f-status").onchange=e=>{_fStatus=e.target.value;renderRows();};
+  const b=$("f-berater"); if(b){ b.value=_fBerater; b.onchange=e=>{_fBerater=e.target.value;renderRows();}; }
+}
+function _cols(){ return [
+  {k:'attendee_name',l:'Teilnehmer',t:'s'},
+  {k:'attendee_email',l:'E-Mail',t:'s'},
+  ...(_withAdv?[{k:'advisor',l:'Berater',t:'s'}]:[]),
+  {k:'registered_at',l:'Angemeldet',t:'d'},
+  {k:'attended',l:'Anwesend',t:'b'},
+  {k:'attended_seconds',l:'Dauer',t:'n'},
+];}
+function _val(r,k,t){ if(t==='d') return new Date(r[k]||0).getTime(); if(t==='n') return Number(r[k]||0); if(t==='b') return r.attended===true?2:(r.attended===false?1:0); return (r[k]||'').toString().toLowerCase(); }
+function renderRows(){
+  let rows=_rows.slice();
+  if(_fStatus==='ja') rows=rows.filter(r=>r.attended===true);
+  else if(_fStatus==='nein') rows=rows.filter(r=>r.attended===false && r.status!=='canceled');
+  else if(_fStatus==='storno') rows=rows.filter(r=>r.status==='canceled');
+  if(_withAdv && _fBerater!=='alle') rows=rows.filter(r=>(r.advisor||'')===_fBerater);
+  const cols=_cols(); const col=cols.find(c=>c.k===_fSort)||cols[0];
+  rows.sort((a,b)=>{ const va=_val(a,col.k,col.t), vb=_val(b,col.k,col.t); if(va<vb) return -_fDir; if(va>vb) return _fDir; return 0; });
+  _shownRows=rows;
+  const head = '<thead><tr>'+cols.map(c=>{ const act=c.k===_fSort; const ar=act?(_fDir===1?' ▲':' ▼'):''; return '<th class="sortable" data-k="'+c.k+'">'+c.l+'<span class="ar">'+ar+'</span></th>'; }).join('')+'</tr></thead>';
+  const body = rows.length ? rows.map((r,i)=>regRow(r,_withAdv,i)).join("") : `<tr><td colspan="${cols.length}" class="muted">Keine Treffer.</td></tr>`;
+  $("mytable").innerHTML = head + '<tbody>'+body+'</tbody>';
+  const mt=$("mytable");
+  mt.querySelectorAll("th.sortable").forEach(th=>th.onclick=()=>{ const k=th.dataset.k; if(_fSort===k) _fDir=-_fDir; else { _fSort=k; _fDir=1; } renderRows(); });
+  mt.querySelectorAll("tbody tr.clk").forEach(tr=>tr.onclick=()=>{ clearTimeout(_clickTimer); const idx=Number(tr.dataset.i); _clickTimer=setTimeout(()=>openRowModal(_shownRows[idx]),230); });
+  mt.ondblclick=()=>{ clearTimeout(_clickTimer); openTableModal(); };
+  limitRows(mt,5);
+}
+// Leiter-/Org-Ansicht: Zusammenfassung je Berater, Klick = Teilnehmer dieses Beraters
+let _orgRows=[];
+function _advKey(r){ return (r.advisor && r.advisor!=='–' && r.advisor.trim()) ? r.advisor : '– ohne Berater'; }
+function fillOrgSummary(rows){
+  _orgRows = rows || [];
+  $("tbl-filters").classList.add("hidden"); $("tbl-filters").innerHTML="";
+  const tracked = _orgRows.some(r=>r.attended!==null && r.status!=='canceled');
+  const g={};
+  _orgRows.forEach(r=>{ const a=_advKey(r); if(!g[a]) g[a]={advisor:a,ang:0,teil:0};
+    if(r.status!=='canceled'){ g[a].ang++; if(r.attended===true) g[a].teil++; } });
+  const arr=Object.values(g).filter(x=>x.ang>0).sort((x,y)=> y.ang-x.ang || x.advisor.localeCompare(y.advisor));
+  const note = tracked ? '' : ' <span style="font-weight:400;font-size:11px;color:var(--muted);">· Anwesenheit für dieses Webinar technisch nicht erfasst</span>';
+  const head='<thead><tr><th>Berater</th><th>Angemeldet</th><th>Teilgenommen</th><th>Quote</th><th></th></tr></thead>';
+  const body=arr.length?arr.map((r,i)=>{
+    const teil = tracked ? r.teil : '<span class="muted">n. erf.</span>';
+    const q = tracked ? (r.ang? Math.round(r.teil/r.ang*100)+' %':'–') : '<span class="muted">–</span>';
+    return `<tr class="clk" data-adv="${esc(r.advisor)}"><td>${i+1}. ${esc(r.advisor)}</td><td>${r.ang}</td><td>${teil}</td><td>${q}</td><td style="color:var(--brand);font-size:12px;">Details ›</td></tr>`;
+  }).join(''):'<tr><td colspan="5" class="muted">Keine Anmeldungen.</td></tr>';
+  $("mytable").innerHTML=head+'<tbody>'+body+'</tbody>';
+  const mt=$("mytable");
+  mt.querySelectorAll("tbody tr.clk").forEach(tr=>tr.onclick=()=>openOrgDetail(tr.dataset.adv));
+  mt.ondblclick=null;
+  limitRows(mt,5);
+  const t=$("mytbl-title"); if(t && note && !/nicht erfasst/.test(t.innerHTML)) t.innerHTML += note;
+}
+function orgSummaryHint(msg){
+  _orgRows=[]; $("tbl-filters").classList.add("hidden"); $("tbl-filters").innerHTML="";
+  $("mytable").innerHTML='<tbody><tr><td class="muted" style="padding:14px;">'+(msg||'Bitte ein Webinar im Kalender wählen.')+'</td></tr></tbody>';
+  $("mytable").ondblclick=null;
+}
+function openOrgDetail(adv){
+  const list=_orgRows.filter(r=>_advKey(r)===adv);
+  const angem=list.filter(r=>r.status!=='canceled').length;
+  const head='<thead><tr><th>Teilnehmer</th><th>E-Mail</th><th>Angemeldet</th><th>Anwesend</th><th>Dauer</th></tr></thead>';
+  const body=list.length?list.map(r=>{
+    let anw;
+    if(r.status==='canceled') anw='<span style="color:#b03a3a;">storniert</span>';
+    else if(r.attended===true) anw='<span style="color:#1a7d4b;font-weight:600;">✓ anwesend</span>';
+    else if(r.attended===false) anw='<span style="color:#b03a3a;font-weight:600;">nicht dabei</span>';
+    else anw='<span class="muted">nicht erfasst</span>';
+    const d=durStr(r.attended_seconds)||'–';
+    return `<tr><td>${esc(r.attendee_name)||'–'}</td><td>${esc(r.attendee_email)||'–'}</td><td>${r.registered_at?new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}):'–'}</td><td>${anw}</td><td>${d}</td></tr>`;
+  }).join(''):'<tr><td colspan="5" class="muted">Keine Teilnehmer.</td></tr>';
+  openBigTable(adv+' · '+angem+' angemeldet', head+'<tbody>'+body+'</tbody>');
+}
+// Zeigt nur die ersten N Zeilen, Rest per "mehr anzeigen" ausklappbar
+function limitRows(tableEl, limit){
+  limit = limit || 5;
+  if(!tableEl) return;
+  const tb = tableEl.querySelector("tbody"); if(!tb) return;
+  const rows = Array.from(tb.querySelectorAll("tr")).filter(r=>!r.classList.contains("more-row"));
+  if(rows.length <= limit) return;
+  const cols = (tableEl.querySelector("thead tr") && tableEl.querySelector("thead tr").children.length) || (rows[0] && rows[0].children.length) || 1;
+  const hidden = rows.slice(limit);
+  hidden.forEach(r=> r.style.display="none");
+  const tr=document.createElement("tr"); tr.className="more-row";
+  const td=document.createElement("td"); td.colSpan=cols;
+  const btn=document.createElement("button");
+  let open=false;
+  const lbl=()=> open ? "Weniger anzeigen" : ("▾ "+hidden.length+" weitere anzeigen");
+  btn.textContent=lbl();
+  btn.onclick=(e)=>{ e.stopPropagation(); open=!open; hidden.forEach(r=> r.style.display=open?"":"none"); btn.textContent=lbl(); };
+  td.appendChild(btn); tr.appendChild(td); tb.appendChild(tr);
+}
+function openBigTable(title, innerHTML){
+  $("tm-title").textContent = title || "Tabelle";
+  $("tm-table").innerHTML = innerHTML;
+  $("table-modal").classList.add("open");
+}
+function openTableModal(){
+  const cols=_cols();
+  const head='<thead><tr>'+cols.map(c=>'<th>'+c.l+'</th>').join('')+'</tr></thead>';
+  const body=_shownRows.length?_shownRows.map((r,i)=>regRow(r,_withAdv,i)).join(''):`<tr><td colspan="${cols.length}" class="muted">Keine Treffer.</td></tr>`;
+  openBigTable($("mytbl-title").textContent || "Alle Anmeldungen", head+'<tbody>'+body+'</tbody>');
+}
+function closeTableModal(){ $("table-modal").classList.remove("open"); }
+
+// ===== Webinar-Detail-Popup: Berater-KPIs + Drill-down zu Kunden =====
+let _wm = {wid:null, rows:[], view:'list', adv:null, fStatus:'alle', fBerater:'alle', q:''};
+let _advisors = [];
+function wmEligible(wid){ return isAdmin || presenterWids.has(wid) || isOrgLead; }
+async function openWebinarModal(wid){
+  _wm = {wid, rows:[], view:'list', adv:null, fStatus:'alle', fBerater:'alle', q:''};
+  if(isAdmin && !_advisors.length){ try{ const {data}=await sb.rpc("webinar_advisors_list"); _advisors=data||[]; }catch(_){} }
+  const w = totals.find(x=>x.webinar_id===wid);
+  $("wm-title").textContent = w ? w.title : "Webinar";
+  $("wm-sub").textContent = (w && w.starts_at) ? (new Date(w.starts_at).toLocaleDateString("de-DE",{weekday:'long',day:'2-digit',month:'long',year:'numeric',timeZone:TZ})+', '+new Date(w.starts_at).toLocaleTimeString("de-DE",{hour:'2-digit',minute:'2-digit',timeZone:TZ})+' Uhr') : "";
+  $("wm-kpis").innerHTML=''; $("wm-filters").innerHTML='';
+  $("wm-body").innerHTML = '<div class="muted" style="padding:20px;">Lädt…</div>';
+  $("webinar-modal").classList.add("open");
+  const rpc = isAdmin ? "webinar_admin_registrations" : (presenterWids.has(wid) ? "webinar_referent_registrations" : "webinar_org_registrations");
+  const { data } = await sb.rpc(rpc, { p_webinar_id: wid });
+  if(_wm.wid!==wid) return;
+  _wm.rows = data || [];
+  wmRender();
+}
+function wmClose(){ $("webinar-modal").classList.remove("open"); }
+function _wmStatusSearch(rows){
+  if(_wm.fStatus==='ja') rows=rows.filter(r=>r.attended===true);
+  else if(_wm.fStatus==='nein') rows=rows.filter(r=>r.attended===false && r.status!=='canceled');
+  else if(_wm.fStatus==='storno') rows=rows.filter(r=>r.status==='canceled');
+  if(_wm.q){ const q=_wm.q.toLowerCase(); rows=rows.filter(r=>(((r.attendee_name||'')+' '+(r.attendee_email||'')).toLowerCase().includes(q))); }
+  return rows;
+}
+function wmKpi(l,v){ return '<div class="wm-kpi"><div class="l">'+l+'</div><div class="v">'+v+'</div></div>'; }
+function wmRender(){
+  const all=_wm.rows;
+  const ang = all.filter(r=>r.status!=='canceled').length;
+  const tracked = all.some(r=>r.attended!==null && r.status!=='canceled');
+  const anw = all.filter(r=>r.attended===true).length;
+  const storno = all.filter(r=>r.status==='canceled').length;
+  $("wm-kpis").innerHTML = wmKpi('Angemeldet',ang)+wmKpi('Teilgenommen', tracked? anw : '<span class="muted">n. erf.</span>')+wmKpi('Quote', (tracked&&ang)? Math.round(anw/ang*100)+' %':'–')+wmKpi('Storniert',storno);
+  const names=[...new Set(all.map(_advKey))].sort((a,b)=>a.localeCompare(b));
+  const showBer = _wm.view==='list' || _wm.view==='all';
+  const berSel = showBer ? ('<label>Berater:</label><select id="wm-fb"><option value="alle">Alle</option>'+names.map(n=>'<option value="'+esc(n)+'"'+(_wm.fBerater===n?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select>') : '';
+  const segActive = _wm.view==='all' ? 'all' : 'list';
+  const seg = '<span class="wm-seg"><button data-v="list" class="'+(segActive==='list'?'on':'')+'">Je Berater</button><button data-v="all" class="'+(segActive==='all'?'on':'')+'">Alle Teilnehmer</button></span>';
+  $("wm-filters").innerHTML = seg + '<label>Status:</label><select id="wm-fs">'
+    +['alle:Alle','ja:Teilgenommen','nein:Nicht teilgenommen','storno:Storniert'].map(o=>{const[v,l]=o.split(':');return '<option value="'+v+'"'+(_wm.fStatus===v?' selected':'')+'>'+l+'</option>';}).join('')
+    +'</select>'+berSel+'<input id="wm-q" type="search" placeholder="Name oder E-Mail suchen…" value="'+esc(_wm.q)+'">';
+  $("wm-filters").querySelectorAll('.wm-seg button').forEach(b=>b.onclick=()=>{ _wm.view=b.dataset.v; _wm.adv=null; wmRender(); });
+  $("wm-fs").onchange=e=>{_wm.fStatus=e.target.value; wmRenderBody();};
+  if($("wm-fb")) $("wm-fb").onchange=e=>{_wm.fBerater=e.target.value; wmRenderBody();};
+  $("wm-q").oninput=e=>{_wm.q=e.target.value; wmRenderBody();};
+  wmRenderBody();
+}
+function wmRenderBody(){ if(_wm.view==='detail') wmRenderDetail(); else if(_wm.view==='all') wmRenderAll(); else wmRenderList(); }
+function _anwCell(r){
+  if(r.status==='canceled') return '<span style="color:#b03a3a;">storniert</span>';
+  if(r.attended===true) return '<span style="color:#1a7d4b;font-weight:600;">✓ ja</span>';
+  if(r.attended===false) return '<span style="color:#b03a3a;font-weight:600;">nein</span>';
+  return '<span class="muted">n. erf.</span>';
+}
+function wmRenderAll(){
+  let rows=_wmStatusSearch(_wm.rows.slice());
+  if(_wm.fBerater!=='alle') rows=rows.filter(r=>_advKey(r)===_wm.fBerater);
+  rows.sort((a,b)=> (a.attendee_name||'').localeCompare(b.attendee_name||''));
+  const canAssign = isAdmin && _advisors.length;
+  let html='<table class="wm-tbl"><thead><tr><th>Kunde</th><th>E-Mail</th><th>Berater</th><th>Angemeldet</th><th>Gekommen</th><th>Dauer</th></tr></thead><tbody>';
+  html+= rows.length ? rows.map((r,i)=>{
+    let ber;
+    if(canAssign){
+      const cur=r.advisor_id||'';
+      ber='<select class="wm-assign" data-reg="'+esc(r.reg_id||'')+'"><option value="">— ohne —</option>'+_advisors.map(a=>'<option value="'+a.id+'"'+(a.id===cur?' selected':'')+'>'+esc(a.name)+'</option>').join('')+'</select>';
+    } else { ber=esc(r.advisor)||'–'; }
+    return '<tr><td>'+(esc(r.attendee_name)||'–')+'</td><td>'+(esc(r.attendee_email)||'–')+'</td><td>'+ber+'</td><td>'+(r.registered_at?new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}):'–')+'</td><td>'+_anwCell(r)+'</td><td>'+(durStr(r.attended_seconds)||'–')+'</td></tr>';
+  }).join('') : '<tr><td colspan="6" class="muted">Keine Treffer.</td></tr>';
+  html+='</tbody></table>';
+  $("wm-body").innerHTML=html;
+  $("wm-body").querySelectorAll('.wm-assign').forEach(sel=>sel.onchange=async()=>{
+    const regId=sel.dataset.reg, advId=sel.value||null;
+    sel.disabled=true;
+    const { error } = await sb.rpc("webinar_admin_set_advisor",{p_reg_id:regId, p_advisor_id:advId});
+    sel.disabled=false;
+    if(!error){ const row=_wm.rows.find(x=>x.reg_id===regId); if(row){ row.advisor_id=advId; const a=_advisors.find(x=>x.id===advId); row.advisor=a?a.name:'–'; } }
+  });
+}
+function wmRenderList(){
+  let rows=_wmStatusSearch(_wm.rows.slice());
+  if(_wm.fBerater!=='alle') rows=rows.filter(r=>_advKey(r)===_wm.fBerater);
+  const tracked=_wm.rows.some(r=>r.attended!==null && r.status!=='canceled');
+  const g={};
+  rows.forEach(r=>{const a=_advKey(r); if(!g[a])g[a]={a,ang:0,teil:0}; if(r.status!=='canceled'){g[a].ang++; if(r.attended===true)g[a].teil++;}});
+  const arr=Object.values(g).filter(x=>x.ang>0).sort((x,y)=>y.ang-x.ang||x.a.localeCompare(y.a));
+  let html='<table class="wm-tbl"><thead><tr><th>Berater</th><th>Angemeldet</th><th>Teilgenommen</th><th>Quote</th><th></th></tr></thead><tbody>';
+  html+= arr.length ? arr.map((r,i)=>'<tr class="wm-row" data-adv="'+esc(r.a)+'"><td>'+(i+1)+'. '+esc(r.a)+'</td><td>'+r.ang+'</td><td>'+(tracked?r.teil:'<span class="muted">n. erf.</span>')+'</td><td>'+((tracked&&r.ang)?Math.round(r.teil/r.ang*100)+' %':'<span class="muted">–</span>')+'</td><td style="color:var(--brand);font-size:12px;">Kunden ›</td></tr>').join('') : '<tr><td colspan="5" class="muted">Keine Treffer.</td></tr>';
+  html+='</tbody></table>';
+  $("wm-body").innerHTML=html;
+  $("wm-body").querySelectorAll(".wm-row").forEach(tr=>tr.onclick=()=>{ _wm.adv=tr.dataset.adv; _wm.view='detail'; wmRender(); });
+}
+function wmRenderDetail(){
+  const adv=_wm.adv;
+  const base=_wm.rows.filter(r=>_advKey(r)===adv);
+  const rows=_wmStatusSearch(base.slice());
+  const ang=base.filter(r=>r.status!=='canceled').length;
+  const anw=base.filter(r=>r.attended===true).length;
+  let html='<button class="wm-back" onclick="wmBack()">← Zurück zu Beratern</button>';
+  html+='<div class="wm-deth">'+esc(adv)+' · '+ang+' eingeladen · '+anw+' gekommen</div>';
+  html+='<table class="wm-tbl"><thead><tr><th>Kunde</th><th>E-Mail</th><th>Angemeldet</th><th>Gekommen</th><th>Dauer</th></tr></thead><tbody>';
+  html+= rows.length ? rows.map(r=>{
+    let anwc; if(r.status==='canceled') anwc='<span style="color:#b03a3a;">storniert</span>';
+    else if(r.attended===true) anwc='<span style="color:#1a7d4b;font-weight:600;">✓ ja</span>';
+    else if(r.attended===false) anwc='<span style="color:#b03a3a;font-weight:600;">nein</span>';
+    else anwc='<span class="muted">n. erf.</span>';
+    return '<tr><td>'+(esc(r.attendee_name)||'–')+'</td><td>'+(esc(r.attendee_email)||'–')+'</td><td>'+(r.registered_at?new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}):'–')+'</td><td>'+anwc+'</td><td>'+(durStr(r.attended_seconds)||'–')+'</td></tr>';
+  }).join('') : '<tr><td colspan="5" class="muted">Keine Treffer.</td></tr>';
+  html+='</tbody></table>';
+  $("wm-body").innerHTML=html;
+}
+function wmBack(){ _wm.view='list'; _wm.adv=null; wmRender(); }
+
+function openRowModal(r){
+  if(!r) return;
+  let anw='–'; if(r.status==='canceled') anw='<span style="color:#b03a3a;">Storniert</span>';
+  else if(r.attended===true) anw='<span style="color:#1a7d4b;font-weight:700;">✓ Teilgenommen</span>';
+  else if(r.attended===false) anw='<span style="color:#b03a3a;">Nicht teilgenommen</span>';
+  const dauer = durStr(r.attended_seconds)||'–';
+  const row=(k,v)=>'<div class="rm-row"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>';
+  $("rm-card").innerHTML='<h3>Teilnehmer-Details</h3>'
+    + row('Teilnehmer', esc(r.attendee_name)||'–')
+    + row('E-Mail', esc(r.attendee_email)||'–')
+    + (_withAdv?row('Berater', esc(r.advisor)||'–'):'')
+    + row('Angemeldet am', r.registered_at?new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}):'–')
+    + row('Status', anw)
+    + row('Anwesenheitsdauer', dauer)
+    + '<button class="rm-close" onclick="closeRowModal()">Schließen</button>';
+  $("row-modal").classList.add("open");
+}
+function closeRowModal(){ $("row-modal").classList.remove("open"); }
+
+function renderWebinar(wid) {
+  $("detail").classList.remove("hidden"); $("tables").classList.remove("hidden");
+  const w = totals.find(x => x.webinar_id === wid);
+  if (w){ const d = w.starts_at ? new Date(w.starts_at) : null;
+    $("detail-head").textContent = w.title + (d ? " · " + d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"long",year:"numeric",timeZone:TZ}) + ", " + d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ}) + " Uhr" : ""); }
+  if (isAdmin && w){ $("admin-edit").classList.remove("hidden"); $("ae-link").value = w.web_url||""; $("ae-pres").value = w.presenters||""; $("ae-all").checked=false; $("ae-status").textContent=""; }
+  else { $("admin-edit").classList.add("hidden"); }
+  const total = w?.total_registrations || 0;
+  { const ex=[]; if (w && w.attended!=null) ex.push("Teilnehmer anwesend: "+w.attended); if (w && Number(w.canceled)>0) ex.push("Davon storniert: "+w.canceled); $("detail-cancel").textContent = ex.join("   ·   "); }
+  const rows = counts.filter(c => c.webinar_id === wid && Number(c.registrations) > 0).sort((a,b) => b.registrations - a.registrations);
+  const mineRow = counts.find(c => c.webinar_id === wid && (c.email||"").toLowerCase() === me);
+  const mineCount = mineRow ? Number(mineRow.registrations) : 0;
+  const rank = mineRow && mineCount>0 ? rows.findIndex(r => r.advisor_id === mineRow.advisor_id) + 1 : "–";
+  $("s-mine").textContent = mineCount;
+  $("s-total").textContent = total;
+  $("s-share").textContent = total ? Math.round(mineCount/total*100) + " %" : "–";
+  $("s-rank").textContent = (mineCount>0) ? rank + " / " + rows.length : "–";
+  const isPres = presenterWids.has(wid);
+  const orgRows = isOrgLead ? rows.filter(r => orgIds.has(r.advisor_id)) : [];
+  if (isAdmin && w){
+    $("l-mine").textContent = "Anwesend"; $("s-mine").textContent = (w.attended!=null) ? w.attended : "–";
+    $("l-share").textContent = "Anwesenheitsquote"; $("s-share").textContent = (w.attended!=null && total) ? Math.round(w.attended/total*100)+" %" : "–";
+    $("l-rank").textContent = "Storniert"; $("s-rank").textContent = w.canceled || 0;
+  } else if (isOrgLead && !isPres){
+    const orgCount = orgRows.reduce((s,r)=> s+Number(r.registrations), 0);
+    $("l-mine").textContent = "Anmeldungen (Org)"; $("s-mine").textContent = orgCount;
+    $("l-share").textContent = "Anteil deiner Org"; $("s-share").textContent = total ? Math.round(orgCount/total*100)+" %" : "–";
+    $("l-rank").textContent = "Aktive Berater (Org)"; $("s-rank").textContent = orgRows.length;
+  }
+  const fullBd = isAdmin || isPres;
+  const canBd = fullBd || (isOrgLead && orgRows.length>0);
+  $("chart-panel").style.display = canBd ? "" : "none";
+  if (canBd){ const src = fullBd ? rows : orgRows;
+    const cL=src.map(r=>r.advisor_name), cD=src.map(r=>Number(r.registrations)), cC=src.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9");
+    if (fullBd){ const assigned=cD.reduce((s,n)=>s+n,0), un=total-assigned; if(un>0){ cL.push("Nicht zugeordnet"); cD.push(un); cC.push("#c8d2dd"); } }
+    drawChart(cL,cD,cC); }
+  if (isAdmin){ $("mytbl-title").innerHTML = "Teilnehmer je Berater <span style=\"font-weight:400;font-size:11px;color:var(--muted);\">· Berater anklicken für Teilnehmer</span>"; sb.rpc("webinar_admin_registrations",{p_webinar_id:wid}).then(({data})=>fillOrgSummary(data||[])); }
+  else if (isPres){ $("mytbl-title").innerHTML = "Teilnehmer je Berater · dein Webinar <span style=\"font-weight:400;font-size:11px;color:var(--muted);\">· Berater anklicken für Teilnehmer</span>"; sb.rpc("webinar_referent_registrations",{p_webinar_id:wid}).then(({data})=>fillOrgSummary(data||[])); }
+  else if (isOrgLead){ $("mytbl-title").innerHTML = "Teilnehmer je Berater · deine Organisation <span style=\"font-weight:400;font-size:11px;color:var(--muted);\">· Berater anklicken für Teilnehmer</span>"; sb.rpc("webinar_org_registrations",{p_webinar_id:wid}).then(({data})=>fillOrgSummary(data||[])); }
+  else { $("mytbl-title").textContent = "Deine Anmeldungen (Teilnehmer)"; fillTable(mine.filter(r => r.webinar_id === wid), false); }
+}
+
+// Summe über mehrere Webinare (z. B. alle anstehenden)
+function renderAggregate(list){
+  $("detail").classList.remove("hidden"); $("tables").classList.remove("hidden");
+  $("admin-edit").classList.add("hidden");
+  selectedWid = null; markSelection();
+  const ids = new Set(list.map(w=>w.webinar_id));
+  const total = list.reduce((s,w)=> s + Number(w.total_registrations||0), 0);
+  const canceled = list.reduce((s,w)=> s + Number(w.canceled||0), 0);
+  const attendedSum = list.reduce((s,w)=> s + (w.attended!=null?Number(w.attended):0), 0);
+  { const ex=[]; if (list.some(w=>w.attended!=null)) ex.push("Teilnehmer anwesend (gesamt): "+attendedSum); if (canceled>0) ex.push("Davon storniert: "+canceled); $("detail-cancel").textContent = ex.join("   ·   "); }
+  const byAdv = {};
+  counts.forEach(c => { if (ids.has(c.webinar_id) && Number(c.registrations)>0){ const k=c.advisor_id||c.advisor_name; if(!byAdv[k]) byAdv[k]={advisor_id:c.advisor_id,name:c.advisor_name,email:c.email,n:0}; byAdv[k].n += Number(c.registrations); } });
+  const rows = Object.values(byAdv).sort((a,b)=> b.n - a.n);
+  const mineCount = rows.filter(r=>(r.email||"").toLowerCase()===me).reduce((s,r)=> s+r.n, 0);
+  const myRank = rows.findIndex(r=>(r.email||"").toLowerCase()===me) + 1;
+  $("detail-head").textContent = "Alle anstehenden Webinare · " + list.length + (list.length===1?" Termin":" Termine");
+  $("s-mine").textContent = mineCount;
+  $("s-total").textContent = total;
+  $("s-share").textContent = total ? Math.round(mineCount/total*100) + " %" : "–";
+  $("s-rank").textContent = (mineCount>0 && myRank>0) ? myRank + " / " + rows.length : "–";
+  const orgRows = isOrgLead ? rows.filter(r => orgIds.has(r.advisor_id)) : [];
+  if (isAdmin){
+    $("l-mine").textContent = "Anwesend gesamt"; $("s-mine").textContent = attendedSum;
+    $("l-share").textContent = "Anwesenheitsquote"; $("s-share").textContent = (attendedSum>0 && total) ? Math.round(attendedSum/total*100)+" %" : "–";
+    $("l-rank").textContent = "Storniert"; $("s-rank").textContent = canceled;
+  } else if (isOrgLead){
+    const orgCount = orgRows.reduce((s,r)=> s+r.n, 0);
+    $("l-mine").textContent = "Anmeldungen (Org)"; $("s-mine").textContent = orgCount;
+    $("l-share").textContent = "Anteil deiner Org"; $("s-share").textContent = total ? Math.round(orgCount/total*100)+" %" : "–";
+    $("l-rank").textContent = "Aktive Berater (Org)"; $("s-rank").textContent = orgRows.length;
+  }
+  const aggBd = isAdmin || (isOrgLead && orgRows.length>0);
+  $("chart-panel").style.display = aggBd ? "" : "none";
+  if (aggBd){ const src = isAdmin ? rows : orgRows;
+    const cL=src.map(r=>r.name), cD=src.map(r=>r.n), cC=src.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9");
+    if (isAdmin){ const assigned=cD.reduce((s,n)=>s+n,0), un=total-assigned; if(un>0){ cL.push("Nicht zugeordnet"); cD.push(un); cC.push("#c8d2dd"); } }
+    drawChart(cL,cD,cC); }
+  if (isAdmin){ $("mytbl-title").textContent = "Teilnehmer je Berater"; orgSummaryHint("Bitte ein Webinar im Kalender wählen, um die Berater-Auswertung zu sehen."); }
+  else if (isOrgLead){ $("mytbl-title").textContent = "Teilnehmer je Berater · deine Organisation"; orgSummaryHint("Bitte ein Webinar im Kalender wählen, um die Berater-Auswertung zu sehen."); }
+  else { $("mytbl-title").textContent = presenterWids.size ? "Deine Anmeldungen — für die Gesamtübersicht ein Webinar wählen" : "Deine Anmeldungen (Teilnehmer)"; fillTable(mine.filter(r => ids.has(r.webinar_id)), false); }
+}
+
+$("row-modal").addEventListener("click", e=>{ if(e.target.id==="row-modal") closeRowModal(); });
+$("table-modal").addEventListener("click", e=>{ if(e.target.id==="table-modal") closeTableModal(); });
+$("webinar-modal").addEventListener("click", e=>{ if(e.target.id==="webinar-modal") wmClose(); });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape"){ closeRowModal(); closeTableModal(); wmClose(); } });
+
+// Einklappbare Panels: Titel anklicken zum Auf-/Zuklappen
+function makeCollapsible(panelId, collapsed){
+  const p=$(panelId); if(!p || p.dataset.coll) return;
+  const title=p.querySelector(":scope > .ptitle"); if(!title) return;
+  const body=document.createElement("div"); body.className="panel-body";
+  while(title.nextSibling) body.appendChild(title.nextSibling);
+  p.appendChild(body);
+  p.classList.add("collapsible"); if(collapsed) p.classList.add("collapsed");
+  title.addEventListener("click", ()=> p.classList.toggle("collapsed"));
+  p.dataset.coll="1";
+}
+makeCollapsible("reg-panel", false);
+makeCollapsible("overview-panel", false);
+makeCollapsible("rank-panel", false);
+
+sb.auth.onAuthStateChange(() => init());
+init();
+</script>
+</body>
+</html>
