@@ -161,7 +161,7 @@
 </style>
 </head>
 <body>
-<div class="top"><div class="in"><img src="/logo.png" alt="mitNORM" style="height:28px;width:auto;display:block;"><span class="logo-t">· Live-Workshops</span><a class="berater-login" href="/" title="Nur für mitNORM-Berater"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Berater-Login</a></div></div>
+<div class="top"><div class="in"><img src="/logo.png" alt="mitNORM" style="height:28px;width:auto;display:block;"><span class="logo-t">· Live-Workshops</span><a class="berater-login" href="/login" title="Nur für mitNORM-Berater"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Berater-Login</a></div></div>
 <div class="wrap">
   <div id="invite" class="invite hidden"></div>
   <div id="view"></div>
@@ -248,7 +248,6 @@ function fmtFull(d){const x=new Date(d);return x.toLocaleDateString("de-DE",{wee
 
 let refMap={};
 async function init(){
-  if(!slug){ $("view").innerHTML='<div class="msg err" style="display:block">Dieser Link ist unvollständig. Bitte nutze den persönlichen Link deines Beraters.</div>'; return; }
   const [{data:adv},{data:w},{data:tp},{data:ro}]=await Promise.all([
     sb.rpc("webinar_advisor_by_slug",{p_slug:slug}),
     sb.rpc("webinar_public_upcoming"),

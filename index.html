@@ -362,7 +362,8 @@
 const SUPABASE_URL = "https://umgbtymowqavnmsbgceh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_uwCtealR7TogA86X68-RZg_3FQ1RPT0";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const APP_URL = "https://webinare.mitnorm.de/"; // fester Rücksprung nach Microsoft-Login (Custom-Domain)
+const APP_URL = "https://webinare.mitnorm.de/"; // Basis für Affiliate-Links (Kundenübersicht)
+const LOGIN_URL = "https://webinare.mitnorm.de/login"; // Rücksprung nach Microsoft-Login (Dashboard)
 const $ = (id) => document.getElementById(id);
 const DOW = ["Mo","Di","Mi","Do","Fr","Sa","So"];
 const MONTHS = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
@@ -372,7 +373,7 @@ let orgIds = new Set(); let isOrgLead = false;
 let totals = [], counts = [], mine = [], byDate = {}, viewY, viewM, selectedDate = null, selectedWid = null;
 
 $("btn-login").onclick = async () => {
-  const { error } = await sb.auth.signInWithOAuth({ provider: "azure", options: { scopes: "openid email profile", redirectTo: APP_URL } });
+  const { error } = await sb.auth.signInWithOAuth({ provider: "azure", options: { scopes: "openid email profile", redirectTo: LOGIN_URL } });
   if (error){ const e=$("login-err"); e.style.display="block"; e.textContent = error.message; }
 };
 $("btn-logout").onclick = async () => { await sb.auth.signOut(); location.reload(); };
