@@ -411,6 +411,13 @@ async function submit(t){
   if(!main.w) return err("Bitte wähle einen Termin aus.");
   if(!main.vorname||!main.nachname||!main.email) return err("Bitte fülle deine Felder aus.");
   if(!main.consent) return err("Bitte stimme der Datenverarbeitung zu.");
+  if(/@(mitnorm\.com|myvi\.de)$/i.test(main.email)){
+    const wb=webs.find(x=>x.webinar_id===selectedW);
+    const tl=wb?("https://events.teams.microsoft.com/event/"+wb.graph_id):null;
+    m.className="msg"; m.style.display="block"; m.style.background="#eef7fb"; m.style.border="1px solid #cdeaf3"; m.style.color="#0b2138";
+    m.innerHTML='Du nutzt eine interne mitNORM-Adresse. Als Mitarbeiter meldest du dich bitte direkt über Microsoft Teams an (mit deinem mitNORM-Konto):'+(tl?'<br><a href="'+tl+'" target="_blank" rel="noopener" style="display:inline-block;margin-top:10px;font-weight:700;">→ Über Teams anmelden</a>':'');
+    return;
+  }
   const guests=[];
   document.querySelectorAll(".guestrow").forEach(r=>{ const vn=r.querySelector(".g-vn").value.trim(),nn=r.querySelector(".g-nn").value.trim(),em=r.querySelector(".g-em").value.trim(); if(vn&&nn&&em) guests.push({b:slug,w:selectedW,vorname:vn,nachname:nn,email:em,consent:true}); });
   $("submit").disabled=true;$("submit").textContent="Wird angemeldet…";m.style.display="none";
