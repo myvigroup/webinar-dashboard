@@ -269,6 +269,7 @@
         </div>
         <div id="detail" class="hidden">
           <div id="detail-head"></div>
+          <div id="intern-teams" class="hidden" style="margin:-4px 0 12px;font-size:13px;color:var(--muted);"></div>
           <div id="admin-edit" class="panel hidden" style="margin:8px 0 12px;">
             <div class="ptitle">Admin · Webinar bearbeiten</div>
             <label style="display:block;font-size:13px;color:var(--muted);margin:6px 0 2px;">Buchungs-/Anmeldelink</label>
@@ -939,6 +940,12 @@ function renderWebinar(wid) {
     $("detail-head").textContent = w.title + (d ? " · " + d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"long",year:"numeric",timeZone:TZ}) + ", " + d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ}) + " Uhr" : ""); }
   if (isAdmin && w){ $("admin-edit").classList.remove("hidden"); $("ae-link").value = w.web_url||""; $("ae-pres").value = w.presenters||""; $("ae-all").checked=false; $("ae-status").textContent=""; }
   else { $("admin-edit").classList.add("hidden"); }
+  { const it=$("intern-teams"); if (w && w.web_url){ it.classList.remove("hidden");
+      it.innerHTML='<b style="color:var(--navy);">Interne Teilnahme:</b> Als mitNORM-Mitarbeiter über Teams (eigenes Konto) – '
+        +'<a href="'+esc(w.web_url)+'" target="_blank" rel="noopener" style="font-weight:600;">Teams öffnen ↗</a>'
+        +' · <button id="it-copy" style="font:inherit;font-size:13px;font-weight:600;color:var(--navy);background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;">Teams-Link kopieren</button>';
+      const b=$("it-copy"); if(b) b.onclick=()=>{ navigator.clipboard.writeText(w.web_url).then(()=>{ b.textContent="Kopiert ✓"; setTimeout(()=>{b.textContent="Teams-Link kopieren";},1500); }).catch(()=>{}); };
+    } else { it.classList.add("hidden"); it.innerHTML=""; } }
   const total = w?.total_registrations || 0;
   { const ex=[]; if (w && w.attended!=null) ex.push("Teilnehmer anwesend: "+w.attended); if (w && Number(w.canceled)>0) ex.push("Davon storniert: "+w.canceled); $("detail-cancel").textContent = ex.join("   ·   "); }
   const rows = counts.filter(c => c.webinar_id === wid && Number(c.registrations) > 0).sort((a,b) => b.registrations - a.registrations);
