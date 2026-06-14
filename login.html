@@ -296,6 +296,10 @@
       </div>
     </div>
     <div id="tables" class="hidden">
+      <div class="panel hidden" id="delta-panel" style="margin-bottom:14px;">
+        <div class="ptitle">Neue Anmeldungen · Veränderung</div>
+        <div id="delta-body" class="muted">Lädt…</div>
+      </div>
       <div class="panel hidden" id="pe-panel" style="margin-bottom:14px;">
         <div class="ptitle">ProvenExpert-Bewertungen über Webinar-Mails</div>
         <div id="pe-body" class="muted">Lädt…</div>
@@ -527,7 +531,25 @@ async function loadAdmin(){
   const [ov, rk] = await Promise.all([ sb.rpc("webinar_admin_overview"), sb.rpc("webinar_admin_ranking") ]);
   renderAdminOverview(ov.data || []);
   renderAdminRanking(rk.data || []);
+  loadDelta();
   loadCms();
+}
+
+async function loadDelta(){
+  try{
+    const { data } = await sb.rpc("webinar_admin_daily_delta");
+    const s = (data && data[0]) || {heute:0,gestern:0,vorgestern:0};
+    $("delta-panel").classList.remove("hidden");
+    const delta = (s.gestern||0) - (s.vorgestern||0);
+    const dCol = delta>0 ? "#1a7d4b" : (delta<0 ? "#b03a3a" : "var(--muted)");
+    const dTxt = (delta>0?"+":"")+delta+" zum Vortag";
+    const card=(l,v,extra)=>'<div class="stat"><div class="label">'+l+'</div><div class="val">'+v+'</div>'+(extra||"")+'</div>';
+    $("delta-body").innerHTML='<div class="cards" style="margin:0;">'
+      + card("Gestern", (s.gestern||0), '<div style="font-size:12px;font-weight:700;color:'+dCol+';margin-top:4px;">'+dTxt+'</div>')
+      + card("Heute (bisher)", (s.heute||0))
+      + card("Vorgestern", (s.vorgestern||0))
+      + '</div><div class="muted" style="font-size:12px;margin-top:8px;">Neue Anmeldungen nach Eingangstag (Europe/Berlin), ohne stornierte.</div>';
+  }catch(_){}
 }
 
 let _cmsTopics=[], _cmsRefOv={}, _cmsPhotoUrl=null;
