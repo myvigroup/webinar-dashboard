@@ -526,10 +526,8 @@ async function loadOrg(){
 
 async function loadAdmin(){
   $("admin-section").classList.remove("hidden");
-  $("overview-panel").classList.remove("hidden");
-  $("detail-grid").classList.add("cols2");
-  const [ov, rk] = await Promise.all([ sb.rpc("webinar_admin_overview"), sb.rpc("webinar_admin_ranking") ]);
-  renderAdminOverview(ov.data || []);
+  // "Übersicht aller Webinare" bewusst ausgeblendet – Details kommen beim Klick aufs Webinar.
+  const rk = await sb.rpc("webinar_admin_ranking");
   renderAdminRanking(rk.data || []);
   loadDelta();
   loadCms();
@@ -543,13 +541,21 @@ async function loadDelta(){
     const delta = (s.gestern||0) - (s.vorgestern||0);
     const dCol = delta>0 ? "#1a7d4b" : (delta<0 ? "#b03a3a" : "var(--muted)");
     const dTxt = (delta>0?"+":"")+delta+" zum Vortag";
-    const card=(l,v,extra)=>'<div class="stat"><div class="label">'+l+'</div><div class="val">'+v+'</div>'+(extra||"")+'</div>';
+    const card=(l,v,off,extra)=>'<div class="stat dstat" data-off="'+off+'" data-label="'+l+'" style="cursor:pointer;">'+'<div class="label">'+l+'</div><div class="val">'+v+'</div>'+(extra||"")+'<div style="font-size:11px;font-weight:600;color:var(--cyan-d);margin-top:6px;">Details ansehen ›</div></div>';
     $("delta-body").innerHTML='<div class="cards" style="margin:0;">'
-      + card("Gestern", (s.gestern||0), '<div style="font-size:12px;font-weight:700;color:'+dCol+';margin-top:4px;">'+dTxt+'</div>')
-      + card("Heute (bisher)", (s.heute||0))
-      + card("Vorgestern", (s.vorgestern||0))
-      + '</div><div class="muted" style="font-size:12px;margin-top:8px;">Neue Anmeldungen nach Eingangstag (Europe/Berlin), ohne stornierte.</div>';
+      + card("Gestern", (s.gestern||0), 1, '<div style="font-size:12px;font-weight:700;color:'+dCol+';margin-top:4px;">'+dTxt+'</div>')
+      + card("Heute (bisher)", (s.heute||0), 0)
+      + card("Vorgestern", (s.vorgestern||0), 2)
+      + '</div><div class="muted" style="font-size:12px;margin-top:8px;">Kachel anklicken zeigt die Anmeldungen des Tags inkl. Berater. Eingangstag Europe/Berlin, ohne Storno.</div>';
+    $("delta-body").querySelectorAll(".dstat").forEach(c=>c.onclick=()=>openDeltaDay(Number(c.dataset.off), c.dataset.label));
   }catch(_){}
+}
+async function openDeltaDay(off, label){
+  const { data } = await sb.rpc("webinar_admin_registrations_for_day", {p_offset:off});
+  const rows = data || [];
+  const head='<thead><tr><th>Uhrzeit</th><th>Kunde</th><th>E-Mail</th><th>Webinar</th><th>Berater</th></tr></thead>';
+  const body=rows.length? rows.map(r=>'<tr><td>'+new Date(r.registered_at).toLocaleTimeString("de-DE",{timeZone:"Europe/Berlin",hour:"2-digit",minute:"2-digit"})+' Uhr</td><td>'+(esc(r.attendee_name)||"–")+'</td><td>'+(esc(r.attendee_email)||"–")+'</td><td>'+esc(r.webinar_title)+'</td><td>'+(esc(r.advisor)||"–")+'</td></tr>').join("") : '<tr><td colspan="5" class="muted">Keine neuen Anmeldungen an diesem Tag.</td></tr>';
+  openBigTable("Neue Anmeldungen · "+label+" ("+rows.length+")", head+'<tbody>'+body+'</tbody>');
 }
 
 let _cmsTopics=[], _cmsRefOv={}, _cmsPhotoUrl=null;
@@ -1063,7 +1069,7 @@ function makeCollapsible(panelId, collapsed){
 }
 makeCollapsible("reg-panel", false);
 makeCollapsible("overview-panel", false);
-makeCollapsible("rank-panel", false);
+makeCollapsible("rank-panel", true);
 
 sb.auth.onAuthStateChange(() => init());
 init();
