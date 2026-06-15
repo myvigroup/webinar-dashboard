@@ -447,7 +447,18 @@ let _canEvents=false;
 async function loadData() {
   const [t, c, m] = await Promise.all([ sb.rpc("webinar_totals"), sb.rpc("webinar_advisor_counts"), sb.rpc("webinar_my_registrations") ]);
   totals = t.data || []; counts = c.data || []; mine = m.data || [];
-  try{ const [sl, ce] = await Promise.all([ sb.rpc("webinar_my_slug"), sb.rpc("webinar_can_events") ]); _affilSlug = (sl.data && sl.data[0] && sl.data[0].slug) || _affilSlug; _canEvents = ce.data === true; }catch(_){}
+  try{
+    const [sl, ce] = await Promise.all([ sb.rpc("webinar_my_slug"), sb.rpc("webinar_can_events") ]);
+    const meRow = sl.data && sl.data[0];
+    if(meRow){
+      _affilSlug = meRow.slug || _affilSlug;
+      if(meRow.email && meRow.email.toLowerCase() !== me){
+        me = meRow.email.toLowerCase();
+        if(meRow.name){ $("who").textContent = meRow.name + (isAdmin?" · Admin":""); $("avatar").textContent = meRow.name.split(" ").map(s=>s[0]).slice(0,2).join("").toUpperCase(); }
+      }
+    }
+    _canEvents = ce.data === true;
+  }catch(_){}
   if (!isAdmin){
     const [rw, og] = await Promise.all([ sb.rpc("webinar_referent_webinars"), sb.rpc("webinar_org_advisor_ids") ]);
     presenterWids = new Set((rw.data || []).map(x => x.webinar_id));
