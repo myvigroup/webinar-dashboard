@@ -178,6 +178,8 @@ const TZ="UTC";
 const params=new URLSearchParams(location.search);
 const slug=(params.get("b")||"").trim();
 let curTopic=(params.get("t")||"").trim();
+const curW=(params.get("w")||"").trim();
+let singleWeb=null;
 const S='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">';
 const ICONS={
  house:S+'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',
@@ -261,6 +263,7 @@ async function init(){
     if(Array.isArray(d.benefits)&&d.benefits.length) t.benefits=d.benefits;
   });
   refMap={}; (ro||[]).forEach(r=>{ if(r.name_key) refMap[r.name_key]=r; });
+  if(curW){ try{ const { data:one }=await sb.rpc("webinar_public_one",{p_id:curW}); singleWeb=(one&&one[0])||null; if(singleWeb && !webs.some(x=>x.webinar_id===singleWeb.webinar_id)) webs.push(singleWeb); }catch(_){} }
   if(advisor){ $("invite").classList.remove("hidden"); $("invite").innerHTML=avatar(advisor.name,null,"av")+'<div>Du wurdest von <b>'+esc(advisor.name)+'</b> zu unseren kostenlosen Live-Workshops eingeladen.</div>'; }
   render();
 }
@@ -275,9 +278,42 @@ function presentersOf(dates){
   return out;
 }
 function render(){
+  if(curW){ if(singleWeb) renderSingleWebinar(singleWeb); else $("view").innerHTML='<div class="msg err" style="display:block">Dieses Webinar ist nicht (mehr) verfügbar.</div>'; return; }
   const list=topicsWithDates();
   const sel=curTopic && list.find(t=>t.key===curTopic);
   if(sel) renderTopic(sel); else renderOverview(list);
+}
+function renderSingleWebinar(wb){
+  selectedW = wb.webinar_id; guestCount=0; window._singleWid=wb.webinar_id;
+  const heroCal='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+  const ps=presentersOf([wb]); const p=ps[0];
+  let refHtml="";
+  if(p){ const bio=p.bio?esc(p.bio):(esc(p.name)+' führt dich live durch den Workshop – verständlich, praxisnah und mit Raum für deine Fragen.');
+    refHtml='<div class="ref"><h3>Dein Referent</h3><div class="refrow">'+avatar(p.name,p.avatar,"refav")+'<div><div class="refname">'+esc(p.name)+'</div><div class="refrole">'+esc(p.title||'mitNORM')+'</div></div></div><p class="refbio">'+bio+'</p></div>'; }
+  const shareUrl=location.origin+"/?w="+encodeURIComponent(wb.webinar_id)+(slug?("&b="+encodeURIComponent(slug)):"");
+  const wa=encodeURIComponent("Sei dabei beim kostenlosen Live-Workshop von mitNORM: "+wb.title+" → "+shareUrl);
+  $("view").innerHTML=
+    '<a class="back" href="/">'+ic("arrow")+' Alle Live-Workshops</a>'+
+    '<div class="hero"><div class="tag">'+ic("monitor")+' Live-Workshop</div><h1>'+esc(wb.title)+'</h1><p>Sei live dabei – kompakt, praxisnah und mit Raum für deine Fragen.</p>'+
+      '<div class="hero-cta"><div class="hero-date">'+heroCal+'<span class="lbl">Termin:</span> <b>'+fmtFull(wb.starts_at)+'</b></div>'+
+      '<span class="hero-btn" id="hero-anmelden">Jetzt anmelden →</span></div></div>'+
+    '<div class="badges"><div class="badge free">'+ic("check")+' 100 % kostenlos</div><div class="badge">'+ic("monitor")+' Live online</div><div class="badge">'+ic("chat")+' Fragen willkommen</div></div>'+
+    stepsHtml()+ refHtml+
+    '<div class="panel" id="anmelden"><h3>Termin &amp; Anmeldung</h3>'+
+      '<div class="dates"><div class="date sel"><div class="dbox"><div class="d">'+fmtDay(wb.starts_at)+'</div><div class="m">'+fmtMon(wb.starts_at)+'</div></div><div class="dmeta"><b>'+fmtFull(wb.starts_at)+'</b><span>Online via Microsoft Teams</span></div></div></div>'+
+      '<div class="frow"><div><label>Vorname</label><input id="vorname" autocomplete="given-name"></div><div><label>Nachname</label><input id="nachname" autocomplete="family-name"></div></div>'+
+      '<label>E-Mail</label><input id="email" type="email" autocomplete="email">'+
+      '<div class="guests" id="guests"></div>'+
+      '<button type="button" class="addbtn" id="addguest">'+ic("plus")+' Freunde mitbringen</button>'+
+      '<label class="consent"><input id="consent" type="checkbox"> <span>Ich bin mit der Verarbeitung der angegebenen Daten zur Webinar-Anmeldung einverstanden (<a href="https://www.mitnorm.com/datenschutz" target="_blank" rel="noopener">Datenschutz</a>).</span></label>'+
+      '<button class="cta" id="submit">Kostenlos anmelden</button><div id="msg" class="msg"></div>'+
+    '</div>'+
+    '<div class="share" style="margin-top:20px;"><h4>'+ic("share")+' Teile diesen Workshop</h4><div style="font-size:14px;color:var(--muted);">Leite ihn weiter – per QR oder Link kann sich jeder direkt anmelden.</div><div class="sharebtns"><a class="sbtn wa" href="https://wa.me/?text='+wa+'" target="_blank" rel="noopener">Per WhatsApp teilen</a><button class="sbtn" id="tp-copy">Link kopieren</button></div></div>'+
+    faqHtml();
+  $("addguest").onclick=addGuest;
+  $("submit").onclick=()=>submit({key:"",label:wb.title});
+  const ha=document.getElementById("hero-anmelden"); if(ha) ha.onclick=()=>{ const el=document.getElementById("anmelden"); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}); };
+  const tc=document.getElementById("tp-copy"); if(tc) tc.onclick=()=>{ navigator.clipboard.writeText(shareUrl).then(()=>{ tc.textContent="Link kopiert ✓"; setTimeout(()=>{tc.textContent="Link kopieren";},1800); }).catch(()=>{}); };
 }
 function faqHtml(){
   const qs=[
@@ -433,7 +469,7 @@ async function submit(t){
   const okMain=await regOne(main);
   if(!okMain){ err("Anmeldung fehlgeschlagen. Bitte prüfe deine E-Mail-Adresse oder versuche es später erneut."); $("submit").disabled=false;$("submit").textContent="Kostenlos anmelden"; return; }
   let g=0; for(const gu of guests){ if(await regOne(gu)) g++; }
-  const shareUrl=location.origin+location.pathname+"?b="+encodeURIComponent(slug)+"&t="+t.key;
+  const shareUrl=window._singleWid ? (location.origin+"/?w="+encodeURIComponent(window._singleWid)+(slug?("&b="+encodeURIComponent(slug)):"")) : (location.origin+location.pathname+"?b="+encodeURIComponent(slug)+"&t="+t.key);
   const waText=encodeURIComponent("Schau dir diesen kostenlosen Live-Workshop von mitNORM an: "+t.label+" → "+shareUrl);
   document.querySelector(".cols").innerHTML=
     '<div class="panel" style="grid-column:1/-1;text-align:center;padding:36px 24px;">'+
