@@ -497,7 +497,7 @@ async function loadData() {
       if (diff < best) { best = diff; pick = d; }
     }
   });
-  if (pick && !isAdmin) selectDay(dateKey(pick));
+  if (pick) selectDay(dateKey(pick));
   if (isAdmin) loadAdmin();
   else if (isOrgLead) loadOrg();
   if (isAdmin || isOrgLead) loadReviewStats();
