@@ -145,6 +145,16 @@
   .cms-form input,.cms-form textarea{font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;width:100%;}
   .cms-form textarea{resize:vertical;line-height:1.5;}
   .cms-photo{width:64px;height:64px;border-radius:50%;object-fit:cover;border:1px solid var(--line);}
+  .lb-row{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--line);}
+  .lb-row:last-child{border-bottom:none;}
+  .lb-pos{flex:0 0 34px;text-align:center;font-family:Outfit,sans-serif;font-weight:800;font-size:18px;color:var(--muted);}
+  .lb-main{flex:1;min-width:0;}
+  .lb-name{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:600;color:var(--ink);font-size:15px;}
+  .lb-n{font-family:Outfit,sans-serif;font-weight:800;color:var(--navy);font-size:17px;}
+  .lb-bar{background:#e8eef4;border-radius:6px;height:8px;margin:6px 0 3px;overflow:hidden;}
+  .lb-fill{background:linear-gradient(90deg,var(--cyan),var(--navy));height:8px;border-radius:6px;}
+  .lb-sub{font-size:12px;color:var(--muted);}
+  .lb-row.top .lb-pos{font-size:22px;}
   #tm-table{width:100%;border-collapse:collapse;font-size:14px;}
   #tm-table th,#tm-table td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;}
   #tm-table th{color:var(--muted);font-weight:600;position:sticky;top:0;background:#fff;}
@@ -301,6 +311,11 @@
         <div class="ptitle">Neue Anmeldungen · Veränderung</div>
         <div id="delta-body" class="muted">Lädt…</div>
       </div>
+      <div class="panel hidden" id="rank-panel" style="margin-bottom:14px;">
+        <div class="ptitle">🏆 Berater-Ranking <span style="font-weight:400;font-size:11px;color:var(--muted);">· wer hat am meisten eingeladen</span></div>
+        <div class="cms-tabs" id="rank-filter" style="margin-bottom:14px;"><button data-p="all" class="on">Gesamt</button><button data-p="7d">Letzte 7 Tage</button><button data-p="today">Heute</button></div>
+        <div id="rank-board" class="muted">Lädt…</div>
+      </div>
       <div class="panel hidden" id="pe-panel" style="margin-bottom:14px;">
         <div class="ptitle">ProvenExpert-Bewertungen über Webinar-Mails</div>
         <div id="pe-body" class="muted">Lädt…</div>
@@ -316,12 +331,7 @@
           <div style="overflow-x:auto"><table id="admin-overview-tbl"></table></div>
         </div>
       </div>
-      <div id="admin-section" class="hidden">
-        <div class="panel" id="rank-panel">
-          <div class="ptitle">Berater-Ranking gesamt · Admin <span style="font-weight:400;font-size:11px;color:var(--muted);">· Doppelklick = groß</span></div>
-          <div style="overflow-x:auto"><table id="admin-rank-tbl"></table></div>
-        </div>
-      </div>
+      <div id="admin-section" class="hidden"></div>
       <div class="panel hidden" id="cms-panel" style="margin-top:14px;">
         <div class="ptitle">Inhalte verwalten · Admin <span style="font-weight:400;font-size:11px;color:var(--muted);">· Texte &amp; Referenten der Landingpage</span></div>
         <div class="cms-tabs"><button id="cms-t-topics" class="on">Themen-Texte</button><button id="cms-t-ref">Referenten</button><button id="cms-t-events">Veranstalter</button></div>
@@ -487,11 +497,22 @@ async function loadData() {
       if (diff < best) { best = diff; pick = d; }
     }
   });
-  if (pick) selectDay(dateKey(pick));
+  if (pick && !isAdmin) selectDay(dateKey(pick));
   if (isAdmin) loadAdmin();
   else if (isOrgLead) loadOrg();
   if (isAdmin || isOrgLead) loadReviewStats();
   loadAffil();
+  if (isAdmin && !window._liveTimer) window._liveTimer = setInterval(refreshLive, 60000);
+}
+async function refreshLive(){
+  if (document.querySelector("#webinar-modal.open, #table-modal.open, #row-modal.open")) return;
+  try{
+    const [t,c] = await Promise.all([ sb.rpc("webinar_totals"), sb.rpc("webinar_advisor_counts") ]);
+    if(t.data) totals=t.data; if(c.data) counts=c.data;
+    byDate={}; totals.forEach(w=>{ if(!w.starts_at) return; const d=new Date(w.starts_at), k=dateKey(d); (byDate[k]=byDate[k]||[]).push(w); });
+    if(selectedWid) renderWebinar(selectedWid);
+    loadRanking(); loadDelta();
+  }catch(_){}
 }
 
 async function loadReviewStats(){
@@ -537,20 +558,36 @@ async function loadAffil(){
 }
 
 async function loadOrg(){
-  $("admin-section").classList.remove("hidden");
-  const t = document.querySelector("#admin-section .ptitle");
-  if (t) t.innerHTML = 'Berater-Ranking deiner Organisation <span style="font-weight:400;font-size:11px;color:var(--muted);">· Doppelklick = groß</span>';
+  $("tables").classList.remove("hidden");
+  $("rank-panel").classList.remove("hidden");
+  document.querySelector("#rank-panel .ptitle").innerHTML='🏆 Berater-Ranking deiner Organisation';
+  $("rank-filter").style.display="none";
   const { data } = await sb.rpc("webinar_org_ranking");
-  renderAdminRanking(data || []);
+  renderRankBoard(data || []);
 }
 
+let _rankPeriod="all";
 async function loadAdmin(){
-  $("admin-section").classList.remove("hidden");
-  // "Übersicht aller Webinare" bewusst ausgeblendet – Details kommen beim Klick aufs Webinar.
-  const rk = await sb.rpc("webinar_admin_ranking");
-  renderAdminRanking(rk.data || []);
+  $("tables").classList.remove("hidden");
+  $("rank-panel").classList.remove("hidden");
+  $("rank-filter").querySelectorAll("button").forEach(b=>b.onclick=()=>{ _rankPeriod=b.dataset.p; $("rank-filter").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b)); loadRanking(); });
+  if(!selectedWid){ $("mytbl-title").textContent="Teilnehmer je Berater"; $("tbl-filters").classList.add("hidden"); $("mytable").innerHTML='<tbody><tr><td class="muted" style="padding:14px;">Wähle ein Webinar im Kalender, um die Anmeldungen je Berater zu sehen.</td></tr></tbody>'; }
+  loadRanking();
   loadDelta();
   loadCms();
+}
+async function loadRanking(){
+  const { data } = await sb.rpc("webinar_admin_ranking_f", { p_period:_rankPeriod });
+  renderRankBoard(data || []);
+}
+function renderRankBoard(rows){
+  rows = rows || [];
+  const max = Math.max(1, ...rows.map(r=>Number(r.anmeldungen)));
+  const medal=i=> i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1)+".";
+  $("rank-board").innerHTML = rows.length ? rows.map((r,i)=>{
+    const pct=Math.max(4, Math.round(Number(r.anmeldungen)/max*100));
+    return '<div class="lb-row'+(i<3?' top':'')+'"><div class="lb-pos">'+medal(i)+'</div><div class="lb-main"><div class="lb-name">'+esc(r.advisor)+'<span class="lb-n">'+r.anmeldungen+'</span></div><div class="lb-bar"><div class="lb-fill" style="width:'+pct+'%;"></div></div><div class="lb-sub">'+(r.teilgenommen||0)+' teilgenommen</div></div></div>';
+  }).join("") : '<div class="muted">Keine Anmeldungen im gewählten Zeitraum.</div>';
 }
 
 async function loadDelta(){
@@ -1126,7 +1163,6 @@ function makeCollapsible(panelId, collapsed){
 }
 makeCollapsible("reg-panel", false);
 makeCollapsible("overview-panel", false);
-makeCollapsible("rank-panel", true);
 
 sb.auth.onAuthStateChange(() => init());
 init();
