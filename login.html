@@ -285,6 +285,8 @@
             <div class="ptitle">Admin · Webinar bearbeiten</div>
             <label style="display:block;font-size:13px;color:var(--muted);margin:6px 0 2px;">Buchungs-/Anmeldelink</label>
             <input id="ae-link" type="url" placeholder="https://…" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;">
+            <label style="display:block;font-size:13px;color:var(--muted);margin:8px 0 2px;">Teams-Beitritts-Link (für unsere E-Mails) <span style="color:var(--cyan-d);">· aus Teams „Teilnehmen"-Link kopieren</span></label>
+            <input id="ae-join" type="url" placeholder="https://teams.microsoft.com/l/meetup-join/…" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;">
             <label style="display:block;font-size:13px;color:var(--muted);margin:8px 0 2px;">Referent(en)</label>
             <input id="ae-pres" type="text" placeholder="z. B. Karsten Hintsch" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;">
             <label style="display:flex;align-items:center;gap:6px;font-size:13px;margin:10px 0;"><input id="ae-all" type="checkbox"> Für alle Termine mit diesem Titel übernehmen</label>
@@ -414,6 +416,8 @@ async function saveMeta(){
   $("ae-status").textContent = "Speichere…";
   const { error } = await sb.rpc("webinar_admin_set_meta", { p_webinar_id: selectedWid, p_web_url: $("ae-link").value, p_presenters: $("ae-pres").value, p_apply_all: $("ae-all").checked });
   if (error){ $("ae-status").textContent = "Fehler: " + error.message; return; }
+  const { error: je } = await sb.rpc("webinar_set_join_url", { p_webinar_id: selectedWid, p_url: $("ae-join").value });
+  if (je){ $("ae-status").textContent = "Beitritts-Link-Fehler: " + je.message; return; }
   $("ae-status").textContent = "Gespeichert ✓";
   const keep = selectedWid;
   await loadData();
@@ -1043,7 +1047,8 @@ function renderWebinar(wid) {
   const w = totals.find(x => x.webinar_id === wid);
   if (w){ const d = w.starts_at ? new Date(w.starts_at) : null;
     $("detail-head").textContent = w.title + (d ? " · " + d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"long",year:"numeric",timeZone:TZ}) + ", " + d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ}) + " Uhr" : ""); }
-  if (isAdmin && w){ $("admin-edit").classList.remove("hidden"); $("ae-link").value = w.web_url||""; $("ae-pres").value = w.presenters||""; $("ae-all").checked=false; $("ae-status").textContent=""; }
+  if (isAdmin && w){ $("admin-edit").classList.remove("hidden"); $("ae-link").value = w.web_url||""; $("ae-pres").value = w.presenters||""; $("ae-join").value=""; $("ae-all").checked=false; $("ae-status").textContent="";
+    sb.rpc("webinar_join_url_get",{p_webinar_id:wid}).then(({data})=>{ if(selectedWid===wid) $("ae-join").value = data||""; }); }
   else { $("admin-edit").classList.add("hidden"); }
   { const it=$("intern-teams"); if (w && w.web_url){ it.classList.remove("hidden");
       it.innerHTML='<b style="color:var(--navy);">Interne Teilnahme:</b> Als mitNORM-Mitarbeiter über Teams (eigenes Konto) – '
