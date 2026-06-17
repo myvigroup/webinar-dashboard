@@ -369,10 +369,20 @@ function renderOverview(list){
   startCountdown();
 }
 let _cdTimer=null;
+// starts_at ist nominal-UTC (Wanduhr-Zeit als +00 gespeichert). Fuer den Countdown
+// brauchen wir den ECHTEN Zeitpunkt = diese Wanduhr-Zeit in Europe/Berlin.
+function berlinTargetMs(iso){
+  const n=new Date(iso);
+  const p=new Intl.DateTimeFormat("en-US",{timeZone:"Europe/Berlin",hour12:false,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"})
+    .formatToParts(n).reduce((a,x)=>{a[x.type]=x.value;return a;},{});
+  const asBerlin=Date.UTC(+p.year,+p.month-1,+p.day,+p.hour,+p.minute,+p.second);
+  const off=asBerlin - n.getTime();
+  return n.getTime() - off;
+}
 function startCountdown(){
   if(_cdTimer){ clearInterval(_cdTimer); _cdTimer=null; }
   const el=document.getElementById("nf-cd"); if(!el) return;
-  const target=new Date(el.dataset.target).getTime();
+  const target=berlinTargetMs(el.dataset.target);
   const box=(n,u)=>'<div class="cd"><span class="n">'+String(n).padStart(2,"0")+'</span><span class="u">'+u+'</span></div>';
   function tick(){
     const node=document.getElementById("nf-cd"); if(!node){ clearInterval(_cdTimer); _cdTimer=null; return; }
