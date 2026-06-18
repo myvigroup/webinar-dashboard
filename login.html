@@ -182,6 +182,14 @@
   .cal-cell.today .cal-daynum{color:var(--navy);font-weight:800;}
   .cal-daynum{color:var(--muted);font-weight:600;}
   .cal-badge{margin-top:4px;display:inline-block;background:var(--navy);color:#fff;font-size:9px;font-weight:600;border-radius:5px;padding:1px 6px;white-space:nowrap;letter-spacing:.1px;}
+  .cal-badge.reg{background:#C2410C;}
+  .rbadge{display:inline-block;background:#C2410C;color:#fff;font-size:9px;font-weight:700;border-radius:5px;padding:2px 7px;margin-left:8px;letter-spacing:.3px;text-transform:uppercase;vertical-align:middle;}
+  .witem.reg{border-left:4px solid #C2410C;}
+  .social-grid{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;}
+  .social-card{width:148px;}
+  .social-card img{width:148px;height:auto;max-height:200px;object-fit:cover;border:1px solid var(--line);border-radius:8px;display:block;background:#f3f7fb;}
+  .social-card .sc-l{font-size:12px;color:var(--muted);margin:6px 0 4px;font-weight:600;}
+  .social-card .sc-dl{font-size:12px;padding:6px 10px;}
   /* Webinar-Items */
   .wlist{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
   .witem{text-align:left;width:100%;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;display:block;}
@@ -304,6 +312,11 @@
           <div class="panel" id="chart-panel">
             <div class="ptitle">Anmeldungen pro Berater</div>
             <div style="position:relative;height:240px;"><canvas id="chart"></canvas></div>
+          </div>
+          <div class="panel hidden" id="social-panel" style="margin-top:14px;">
+            <div class="ptitle">Social-Media-Vorlagen <span style="font-weight:400;font-size:11px;color:var(--muted);">· für dieses Webinar – herunterladen &amp; posten</span></div>
+            <div id="social-body" class="social-grid"></div>
+            <div id="social-empty" class="muted" style="font-size:13px;display:none;">Für dieses Webinar sind noch keine Vorlagen hinterlegt.</div>
           </div>
         </div>
       </div>
@@ -724,7 +737,7 @@ function renderCalendar() {
     const e = document.createElement("div");
     e.className = "cal-cell" + (list ? " has" : "") + (k===selectedDate ? " sel" : "") + (k===todayKey ? " today" : "");
     e.innerHTML = '<span class="cal-daynum">'+day+(k===todayKey?'<span class="tlbl"> · heute</span>':'')+'</span>';
-    if (list){ e.innerHTML += '<br><span class="cal-badge">'+list.length+'<span class="blbl"> '+(list.length>1?'Webinare':'Webinar')+'</span></span>'; e.onclick = () => selectDay(k); }
+    if (list){ const hasReg = list.some(x=>x.is_regional); e.innerHTML += '<br><span class="cal-badge'+(hasReg?' reg':'')+'">'+list.length+'<span class="blbl"> '+(list.length>1?'Webinare':'Webinar')+'</span></span>'; e.onclick = () => selectDay(k); }
     grid.appendChild(e);
   }
 }
@@ -736,9 +749,10 @@ function webinarItem(w, withDate){
   const attStr = (w.attended!=null) ? '<span style="color:#0596b3;font-weight:700;">'+w.attended+' anwesend</span>' : '';
   const meta = [presLine(w), '<span class="cnt">'+w.total_registrations+' Anmeldungen</span>', attStr, cancelStr, linkLine(w)].filter(Boolean).join("");
   const b = document.createElement("div");
-  b.className = "witem" + (w.webinar_id===selectedWid ? " sel" : "");
+  b.className = "witem" + (w.webinar_id===selectedWid ? " sel" : "") + (w.is_regional ? " reg" : "");
   b.dataset.wid = w.webinar_id;
-  b.innerHTML = '<div class="top"><span class="date">'+dateStr+'</span><span class="ttl">'+esc(w.title)+'</span></div><div class="meta">'+meta+'</div>';
+  const rbadge = w.is_regional ? '<span class="rbadge">Regional'+(w.region_advisor?' · '+esc(w.region_advisor):'')+'</span>' : '';
+  b.innerHTML = '<div class="top"><span class="date">'+dateStr+'</span><span class="ttl">'+esc(w.title)+rbadge+'</span></div><div class="meta">'+meta+'</div>';
   b.addEventListener("click",(ev)=>{ if(ev.target.tagName==="A") return; selectWebinar(w.webinar_id); if(wmEligible(w.webinar_id)) openWebinarModal(w.webinar_id); });
   return b;
 }
@@ -1042,6 +1056,40 @@ function openRowModal(r){
 }
 function closeRowModal(){ $("row-modal").classList.remove("open"); }
 
+const SOCIAL_BASE = SUPABASE_URL + "/storage/v1/object/public/social/";
+function socialTopic(title){ const t=(title||"").toLowerCase();
+  if(/baufinanz/.test(t)) return "baufi";
+  if(/geldanlage/.test(t)) return "geldanlage";
+  if(/immobilie/.test(t)) return "immobilie";
+  if(/ruhestand/.test(t)) return "ruhestand";
+  if(/steuer/.test(t)) return "steuern";
+  return null; }
+function socialDate(d){ const p=n=>String(n).padStart(2,"0"); return d.getUTCFullYear()+"-"+p(d.getUTCMonth()+1)+"-"+p(d.getUTCDate()); }
+async function dlImage(url,name){ try{ const r=await fetch(url); if(!r.ok) throw 0; const b=await r.blob(); const u=URL.createObjectURL(b); const a=document.createElement("a"); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); }catch(_){ window.open(url,"_blank"); } }
+function fillSocial(w){
+  const panel=$("social-panel"), body=$("social-body"), empty=$("social-empty");
+  if(!w || !w.starts_at){ panel.classList.add("hidden"); return; }
+  const topic=socialTopic(w.title);
+  if(!topic){ panel.classList.add("hidden"); return; }
+  const date=socialDate(new Date(w.starts_at));
+  panel.classList.remove("hidden"); empty.style.display="none"; body.innerHTML="";
+  const variants=[{k:"beitrag",l:"Beitrag (4:5)"},{k:"story",l:"Story (9:16)"},{k:"linkedin",l:"LinkedIn"}];
+  let pending=variants.length, anyOk=false;
+  const done=()=>{ if(--pending<=0 && !anyOk) empty.style.display=""; };
+  variants.forEach(v=>{
+    const url=SOCIAL_BASE+topic+"/"+date+"/"+v.k+".png";
+    const fname="mitnorm_"+topic+"_"+date+"_"+v.k+".png";
+    const card=document.createElement("div"); card.className="social-card"; card.style.display="none";
+    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img loading="lazy" alt=""></a>'
+      +'<div class="sc-l">'+v.l+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
+    const img=card.querySelector("img");
+    img.onload=()=>{ card.style.display=""; anyOk=true; done(); };
+    img.onerror=()=>{ card.remove(); done(); };
+    img.src=url;
+    card.querySelector(".sc-dl").onclick=()=>dlImage(url,fname);
+    body.appendChild(card);
+  });
+}
 function renderWebinar(wid) {
   $("detail").classList.remove("hidden"); $("tables").classList.remove("hidden");
   const w = totals.find(x => x.webinar_id === wid);
@@ -1056,6 +1104,7 @@ function renderWebinar(wid) {
         +' · <button id="it-copy" style="font:inherit;font-size:13px;font-weight:600;color:var(--navy);background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;">Teams-Link kopieren</button>';
       const b=$("it-copy"); if(b) b.onclick=()=>{ navigator.clipboard.writeText(w.web_url).then(()=>{ b.textContent="Kopiert ✓"; setTimeout(()=>{b.textContent="Teams-Link kopieren";},1500); }).catch(()=>{}); };
     } else { it.classList.add("hidden"); it.innerHTML=""; } }
+  fillSocial(w);
   { const eq=$("event-qr");
     if(_canEvents && w){
       eq.classList.remove("hidden");
@@ -1124,6 +1173,7 @@ function renderAggregate(list){
   const mineCount = rows.filter(r=>(r.email||"").toLowerCase()===me).reduce((s,r)=> s+r.n, 0);
   const myRank = rows.findIndex(r=>(r.email||"").toLowerCase()===me) + 1;
   $("detail-head").textContent = "Alle anstehenden Webinare · " + list.length + (list.length===1?" Termin":" Termine");
+  $("social-panel").classList.add("hidden");
   $("s-mine").textContent = mineCount;
   $("s-total").textContent = total;
   $("s-share").textContent = total ? Math.round(mineCount/total*100) + " %" : "–";
