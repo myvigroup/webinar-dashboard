@@ -301,6 +301,18 @@
             <button id="ae-save" style="background:var(--navy);color:#fff;border:none;padding:9px 18px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;">Speichern</button>
             <button id="ae-del" style="background:#fff;color:#b03a3a;border:1px solid #b03a3a;padding:9px 16px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;margin-left:8px;">Webinar entfernen</button>
             <span id="ae-status" class="muted" style="margin-left:10px;font-size:13px;"></span>
+            <div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px;">
+              <div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:2px;">Nachbereitung · Anwesenheit &amp; Nachfass</div>
+              <div class="muted" style="font-size:12px;margin-bottom:8px;">1. Teams-Anwesenheitsliste (CSV) hochladen → setzt die Anwesenheit verbindlich. 2. Danach Nachfass-Mails senden.</div>
+              <label style="display:block;font-size:13px;color:var(--muted);margin:2px 0 4px;">Anwesenheitsliste (Teams-CSV)</label>
+              <input type="file" id="att-file" accept=".csv,text/csv" style="font:inherit;font-size:13px;">
+              <span id="att-status" class="muted" style="margin-left:8px;font-size:13px;"></span>
+              <div id="att-actions" style="margin-top:10px;">
+                <button id="att-test" style="background:#fff;color:var(--navy);border:1px solid var(--navy);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;">Testversand an mich</button>
+                <button id="att-send" style="background:var(--cyan-d);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700;font:inherit;margin-left:8px;">Nachfass-Mails jetzt senden</button>
+                <span id="att-send-status" class="muted" style="margin-left:10px;font-size:13px;"></span>
+              </div>
+            </div>
           </div>
           <div class="cards" style="margin-bottom:14px;">
             <div class="stat"><div class="label" id="l-mine">Deine Anmeldungen</div><div class="val" id="s-mine">–</div></div>
@@ -415,6 +427,50 @@ $("btn-login").onclick = async () => {
 };
 $("btn-logout").onclick = async () => { await sb.auth.signOut(); location.reload(); };
 $("ae-save").onclick = saveMeta;
+if($("att-file")){
+  $("att-file").onchange = handleAttFile;
+  $("att-test").onclick = ()=>sendFollowup(true);
+  $("att-send").onclick = ()=>sendFollowup(false);
+}
+function durToSecs(s){ s=(s||"").toLowerCase(); let t=0,m; if((m=s.match(/(\d+)\s*h/)))t+=+m[1]*3600; if((m=s.match(/(\d+)\s*m/)))t+=+m[1]*60; if((m=s.match(/(\d+)\s*s/)))t+=+m[1]; return t; }
+async function handleAttFile(ev){
+  const f=ev.target.files&&ev.target.files[0]; if(!f||!selectedWid) return;
+  $("att-status").textContent="Lese Datei…"; $("att-send-status").textContent="";
+  try{
+    const buf=await f.arrayBuffer(); const b=new Uint8Array(buf); let text;
+    if(b[0]===0xFF&&b[1]===0xFE) text=new TextDecoder("utf-16le").decode(buf);
+    else if(b[0]===0xFE&&b[1]===0xFF) text=new TextDecoder("utf-16be").decode(buf);
+    else text=new TextDecoder("utf-8").decode(buf);
+    const lines=text.split(/\r?\n/);
+    let hi=lines.findIndex(l=>/Registrierungs-E-Mail/i.test(l) && l.indexOf("\t")>=0);
+    if(hi<0){ $("att-status").textContent="Teilnehmer-Liste in der Datei nicht gefunden. Bitte den Teams-Anwesenheitsbericht (CSV) hochladen."; return; }
+    const head=lines[hi].split("\t").map(x=>x.trim());
+    const iMail=head.findIndex(h=>/Registrierungs-E-Mail/i.test(h));
+    const iDur=head.findIndex(h=>/Dauer der Besprechung/i.test(h));
+    const map={};
+    for(let i=hi+1;i<lines.length;i++){ const ln=lines[i]; if(!ln.trim()) break; if(/^\d+\.\s/.test(ln.trim())) break;
+      const c=ln.split("\t"); const mail=(c[iMail]||"").trim().toLowerCase(); const dur=iDur>=0?(c[iDur]||"").trim():"";
+      if(mail && dur){ const sec=durToSecs(dur); if(sec>0) map[mail]=sec; } }
+    const n=Object.keys(map).length;
+    if(!n){ $("att-status").textContent="Keine Anwesenden mit Beitrittszeit gefunden – bitte Datei prüfen."; return; }
+    $("att-status").textContent="Setze Anwesenheit ("+n+")…";
+    const { data, error } = await sb.rpc("webinar_confirm_attendance",{p_webinar_id:selectedWid,p_map:map});
+    if(error){ $("att-status").textContent="Fehler: "+error.message; return; }
+    const r=(data&&data[0])||{};
+    $("att-status").innerHTML='<span style="color:#1a7d4b;font-weight:600;">✓ '+(r.anwesend!=null?r.anwesend:n)+' anwesend / '+(r.gesamt!=null?r.gesamt:"?")+' angemeldet verbindlich gesetzt</span>';
+  }catch(e){ $("att-status").textContent="Fehler beim Einlesen: "+e; }
+}
+async function sendFollowup(test){
+  if(!selectedWid) return;
+  if(!test && !confirm("Nachfass-Mails jetzt an alle Teilnehmer dieses Webinars senden (Danke + No-Show + Berater-Impuls)?")) return;
+  $("att-send-status").textContent = test?"Sende Test an dich…":"Sende…";
+  try{
+    const { data, error } = await sb.functions.invoke("webinar-send-followup",{ body:{ webinar_id:selectedWid, test:!!test } });
+    if(error){ $("att-send-status").textContent="Fehler: "+error.message; return; }
+    if(data&&data.ok){ $("att-send-status").innerHTML='<span style="color:#1a7d4b;font-weight:600;">✓ '+(test?"Test an dich gesendet":(data.danke+"× Danke · "+data.noshow+"× No-Show · "+data.berater+" Berater"))+'</span>'; }
+    else { $("att-send-status").textContent="Fehler: "+((data&&data.error)||"unbekannt"); }
+  }catch(e){ $("att-send-status").textContent="Fehler: "+e; }
+}
 $("ae-del").onclick = async () => {
   if(!selectedWid) return;
   if(!confirm("Dieses Webinar aus dem Dashboard entfernen? Es bleibt in Teams bestehen und kann später wieder eingeblendet werden.")) return;
@@ -1096,7 +1152,8 @@ function renderWebinar(wid) {
   if (w){ const d = w.starts_at ? new Date(w.starts_at) : null;
     $("detail-head").textContent = w.title + (d ? " · " + d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"long",year:"numeric",timeZone:TZ}) + ", " + d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ}) + " Uhr" : ""); }
   if (isAdmin && w){ $("admin-edit").classList.remove("hidden"); $("ae-link").value = w.web_url||""; $("ae-pres").value = w.presenters||""; $("ae-join").value=""; $("ae-all").checked=false; $("ae-status").textContent="";
-    sb.rpc("webinar_join_url_get",{p_webinar_id:wid}).then(({data})=>{ if(selectedWid===wid) $("ae-join").value = data||""; }); }
+    sb.rpc("webinar_join_url_get",{p_webinar_id:wid}).then(({data})=>{ if(selectedWid===wid) $("ae-join").value = data||""; });
+    $("att-file").value=""; $("att-status").textContent=""; $("att-send-status").textContent=""; }
   else { $("admin-edit").classList.add("hidden"); }
   { const it=$("intern-teams"); if (w && w.web_url){ it.classList.remove("hidden");
       it.innerHTML='<b style="color:var(--navy);">Interne Teilnahme:</b> Als mitNORM-Mitarbeiter über Teams (eigenes Konto) – '
