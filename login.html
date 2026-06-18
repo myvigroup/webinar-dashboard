@@ -291,8 +291,8 @@
           <div id="event-qr" class="panel hidden" style="margin:8px 0 12px;"></div>
           <div id="admin-edit" class="panel hidden" style="margin:8px 0 12px;">
             <div class="ptitle">Admin · Webinar bearbeiten</div>
-            <label style="display:block;font-size:13px;color:var(--muted);margin:6px 0 2px;">Buchungs-/Anmeldelink</label>
-            <input id="ae-link" type="url" placeholder="https://…" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;">
+            <label style="display:block;font-size:13px;color:var(--muted);margin:6px 0 2px;">Teams-Event-Seite (nur interne Anmeldung) <span style="color:var(--cyan-d);">· Kunden buchen automatisch über die Anmeldeseite</span></label>
+            <input id="ae-link" type="url" placeholder="https://events.teams.microsoft.com/event/…" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;">
             <label style="display:block;font-size:13px;color:var(--muted);margin:8px 0 2px;">Teams-Beitritts-Link (für unsere E-Mails) <span style="color:var(--cyan-d);">· aus Teams „Teilnehmen"-Link kopieren</span></label>
             <input id="ae-join" type="url" placeholder="https://teams.microsoft.com/l/meetup-join/…" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;">
             <label style="display:block;font-size:13px;color:var(--muted);margin:8px 0 2px;">Referent(en)</label>
@@ -446,7 +446,7 @@ function dateKey(d){ return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).pad
 const TZ = "UTC";
 function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
 function presLine(w){ return w.presenters ? '<span><b style="color:var(--navy)">Referent:</b> '+esc(w.presenters)+'</span>' : ''; }
-function linkLine(w){ return w.web_url ? '<a href="'+esc(w.web_url)+'" target="_blank" rel="noopener">Zum Webinar ↗</a>' : ''; }
+function linkLine(w){ if(!w||!w.webinar_id) return ''; const u=APP_URL+"?w="+encodeURIComponent(w.webinar_id)+(_affilSlug?"&b="+encodeURIComponent(_affilSlug):""); return '<a href="'+u+'" target="_blank" rel="noopener">Zur Anmeldeseite ↗</a>'; }
 
 function switchView(v){
   const cal = v==="cal";
