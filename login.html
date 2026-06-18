@@ -1056,7 +1056,7 @@ function openRowModal(r){
 }
 function closeRowModal(){ $("row-modal").classList.remove("open"); }
 
-const SOCIAL_BASE = SUPABASE_URL + "/storage/v1/object/public/social/";
+const SOCIAL_BASE = SUPABASE_URL + "/storage/v1/object/public/social/social-vorlagen/";
 function socialTopic(title){ const t=(title||"").toLowerCase();
   if(/baufinanz/.test(t)) return "baufi";
   if(/geldanlage/.test(t)) return "geldanlage";
