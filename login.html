@@ -274,6 +274,10 @@
       <div class="affil-row"><label for="sov-sel">Vorlage:</label><select id="sov-sel" style="min-width:260px;"></select></div>
       <div id="sov-body" class="social-grid" style="margin-top:12px;"></div>
     </div>
+    <div class="panel hidden" id="leads-panel" style="margin-bottom:14px;">
+      <div class="ptitle">📥 Beratungsanfragen <span style="font-weight:400;font-size:11px;color:var(--muted);">· aus dem Rente-Check auf der Landingpage – diese Kunden möchten eine persönliche Beratung</span></div>
+      <div style="overflow-x:auto"><table id="leadstable"></table></div>
+    </div>
     <div class="layout">
       <div class="col-left">
         <div class="panel" id="cal-panel">
@@ -581,6 +585,7 @@ async function loadData() {
   if (isAdmin || isOrgLead) loadReviewStats();
   loadAffil();
   loadSocialOverview();
+  loadMyLeads();
   if (isAdmin && !window._liveTimer) window._liveTimer = setInterval(refreshLive, 60000);
 }
 async function refreshLive(){
@@ -620,6 +625,19 @@ const AFFIL_TOPICS=[
   {k:"geldanlage",l:"Geldanlage"}
 ];
 let _affilSlug=null;
+async function loadMyLeads(){
+  try{
+    const { data, error } = await sb.rpc("webinar_my_leads");
+    if(error){ return; }
+    const rows = data || [];
+    if(!rows.length){ $("leads-panel").classList.add("hidden"); return; }
+    $("leads-panel").classList.remove("hidden");
+    const fmt=(d)=>{ try{ return new Date(d).toLocaleString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}); }catch(_){ return ""; } };
+    const head='<thead><tr><th>Eingegangen</th><th>Name</th><th>E-Mail</th><th>Telefon</th><th>Status</th></tr></thead>';
+    const body=rows.map(r=>'<tr><td>'+esc(fmt(r.created_at))+'</td><td>'+esc(r.first_name||"–")+'</td><td>'+esc(r.email||"–")+'</td><td>'+esc(r.phone||"–")+'</td><td>'+esc(r.status||"")+'</td></tr>').join("");
+    $("leadstable").innerHTML=head+'<tbody>'+body+'</tbody>';
+  }catch(_){ }
+}
 async function loadAffil(){
   try{
     const { data } = await sb.rpc("webinar_my_slug");
