@@ -196,7 +196,8 @@ const ICONS={
  arrow:S+'<path d="M19 12H5M11 18l-6-6 6-6"/></svg>',
  plus:S+'<path d="M12 5v14M5 12h14"/></svg>',
  checkcircle:S+'<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>',
- share:S+'<circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8.1 10.9 15.9 7.1M8.1 13.1 15.9 16.9"/></svg>'
+ share:S+'<circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8.1 10.9 15.9 7.1M8.1 13.1 15.9 16.9"/></svg>',
+ landmark:S+'<path d="M3 10l9-5 9 5M4 10h16M6 10v8M10 10v8M14 10v8M18 10v8M3 21h18"/></svg>'
 };
 function ic(k){return ICONS[k]||"";}
 
@@ -213,6 +214,12 @@ const TOPICS=[
   problem:"Die gesetzliche Rente reicht für die meisten nicht aus – aber kaum jemand weiß, wie groß die eigene Lücke wirklich ist.",
   pains:["Keine klare Zahl, wie viel im Alter fehlt","Ein unübersichtlicher Mix aus alten Verträgen","Das Gefühl, zu wenig oder das Falsche zu tun"],
   benefits:["Wie viel du wirklich für später brauchst","Versorgungslücke erkennen und schließen","Die Bausteine der privaten Altersvorsorge","Konkrete nächste Schritte für deine Planung"]},
+ {key:"rente",match:/rentenkommission|rente 2026|gesetzliche rente/i,label:"Rente & Rentenreform",icon:"landmark",
+  headline:"Rente 2026 verstehen – was die Reform für dich bedeutet",
+  sub:"Die Empfehlungen der Rentenkommission verständlich erklärt – und was sie konkret für deine Altersvorsorge bedeuten.",
+  problem:"Die gesetzliche Rente steht vor großen Veränderungen – aber kaum jemand weiß, was die Reform konkret für die eigene Vorsorge heißt.",
+  pains:["Unklar, was sich mit der Reform wirklich ändert","Sorge, dass die gesetzliche Rente nicht reicht","Keine Idee, wie man jetzt reagieren sollte"],
+  benefits:["Die Empfehlungen der Rentenkommission verständlich erklärt","Was die Reform für deine Rente bedeutet","Wie groß deine persönliche Versorgungslücke ist","Welche Schritte jetzt sinnvoll sind"]},
  {key:"baufi",match:/baufinanzierung/i,label:"Baufinanzierung",icon:"key",
   headline:"Deine Traumimmobilie sicher finanzieren",
   sub:"Zins, Tilgung, Förderung – verständlich erklärt, damit du deine Finanzierung solide und planbar aufstellst.",
