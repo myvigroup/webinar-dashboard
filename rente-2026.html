@@ -174,7 +174,7 @@
   .webinar-speaker .ws-role{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#9fd0ff}
   .webinar-speaker .ws-name{font-family:'Manrope',sans-serif;font-weight:800;font-size:22px;color:#fff}
   .webinar-speaker .ws-sub{font-family:'Inter',sans-serif;font-size:14px;color:#c2d4e8}
-  #check,#news,#webinar,#empfehlungen,#anmeldung{scroll-margin-top:92px}
+  #check,#news,#webinar,#empfehlungen,#beratung{scroll-margin-top:92px}
 </style>
 </head>
 <body>
@@ -538,6 +538,26 @@
   </div>
 </section>
 
+<section class="block" id="beratung">
+  <div class="wrap">
+    <div class="eyebrow">Persönlich &amp; unverbindlich</div>
+    <h2 class="title">Lieber ein persönliches Gespräch?</h2>
+    <p class="lead">Fordere ein kostenloses, unverbindliches Beratungsgespräch an – dein:e mitNORM-Berater:in meldet sich bei dir.</p>
+    <div class="lead-card" style="max-width:660px;margin-top:26px">
+      <form data-lead-form>
+        <div class="form-row">
+          <input name="vorname" placeholder="Vorname" required>
+          <input name="email" type="email" placeholder="E-Mail-Adresse" required>
+        </div>
+        <div class="form-row" style="margin-top:12px"><input name="telefon" placeholder="Telefon (optional)"></div>
+        <label class="consent"><input type="checkbox" required style="margin-top:3px"> Ich möchte ein Beratungsgespräch und stimme der <a href="https://mitnorm.de/datenschutz" target="_blank" rel="noopener">Datenschutzerklärung</a> zu.</label>
+        <div style="margin-top:16px"><button type="submit" class="btn btn-light">Beratung anfragen</button></div>
+        <div class="ok-msg">Danke! Wir melden uns in Kürze bei dir.</div>
+      </form>
+    </div>
+  </div>
+</section>
+
 <footer>
   <div class="wrap">
     <div class="cols">
@@ -545,7 +565,7 @@
         <svg class="brand-logo" viewBox="0 0 207.008 78.0079"><use href="#mnlogo"/></svg>
         <p style="font-size:14px;color:#9fb6d0">Strukturierte Finanzplanung nach DIN&nbsp;77230 – für Entscheidungen, die zu deinem Leben passen.</p>
       </div>
-      <div><a href="#check">Rente-Check</a><br><a href="#news">Aktuelles</a><br><a href="#webinar">Webinar</a></div>
+      <div><a href="#check">Rente-Check</a><br><a href="#news">Aktuelles</a><br><a href="#webinar">Webinar</a><br><a href="#beratung">Beratung anfragen</a></div>
       <div><a href="https://mitnorm.de/impressum" target="_blank" rel="noopener">Impressum</a><br><a href="https://mitnorm.de/datenschutz" target="_blank" rel="noopener">Datenschutz</a><br><a href="https://mitnorm.de/lets-talk" target="_blank" rel="noopener">Kontakt</a></div>
     </div>
     <p class="disc">Hinweis: Diese Seite dient der neutralen Verbraucherinformation und stellt keine Anlage-, Steuer- oder Rechtsberatung dar. Die Ergebnisse des Rente-Checks sind eine unverbindliche Orientierung und ersetzen keine individuelle Beratung. Quelle der inhaltlichen Einordnung: GDV-Faktencheck zur Rentenkommission (23.06.2026). © mitNORM.</p>
@@ -647,7 +667,7 @@ function finish(){
   <div class="lead-card">
     <h3>Deine persönliche Einschätzung – kostenlos</h3>
     <p>Wir senden dir dein Ergebnis und zeigen dir in einem unverbindlichen Gespräch (oder im Webinar), welche konkreten Schritte für dich sinnvoll sind.</p>
-    <form id="leadForm">
+    <form id="leadForm" data-lead-form>
       <div class="form-row">
         <input name="vorname" placeholder="Vorname" required>
         <input name="email" type="email" placeholder="E-Mail-Adresse" required>
@@ -655,27 +675,18 @@ function finish(){
       <label class="consent"><input type="checkbox" required style="margin-top:3px"> Ich möchte mein Ergebnis erhalten und stimme der <a href="https://mitnorm.de/datenschutz" target="_blank" rel="noopener">Datenschutzerklärung</a> zu.</label>
       <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:12px">
         <button type="submit" class="btn btn-light">Ergebnis & Beratung anfragen</button>
-        <a href="#webinar" class="btn btn-ghost" style="color:#fff;border-color:rgba(255,255,255,.4)">Lieber zum Webinar</a>
+        <a href="https://webinare.mitnorm.de/?t=rente" class="btn btn-ghost" style="color:#fff;border-color:rgba(255,255,255,.4)" data-webinar-cta>Lieber zum Webinar</a>
       </div>
-      <div class="ok-msg" id="okMsg">Danke! Wir melden uns in Kürze bei dir. (Demo – im Live-Betrieb landet die Anfrage bei deinem mitNORM-Berater.)</div>
+      <div class="ok-msg" id="okMsg">Danke! Wir melden uns in Kürze bei dir.</div>
     </form>
   </div>
   <div style="text-align:center;margin-top:18px"><button class="link-back" id="restart">↺ Check neu starten</button></div>`;
   quizBody.style.display='none';
   resultEl.innerHTML=html; resultEl.classList.add('show');
+  window.__checkAnswers=A;
+  if(window.mnApplyWebinarCtas) window.mnApplyWebinarCtas();
   resultEl.scrollIntoView({behavior:'smooth',block:'start'});
   document.getElementById('restart').onclick=()=>{for(const k in A)delete A[k];i=0;resultEl.classList.remove('show');resultEl.innerHTML='';quizBody.style.display='block';render();window.scrollTo({top:document.getElementById('check').offsetTop-60,behavior:'smooth'});};
-  document.getElementById('leadForm').addEventListener('submit',e=>{
-    e.preventDefault();
-    const data=Object.fromEntries(new FormData(e.target).entries());
-    data.antworten=A; data.quelle='rente-2026-landingpage';
-    /* TODO Live-Anbindung: an Supabase (EU-Frankfurt) speichern + Brevo-Mail an Interessent & Berater-Routing,
-       analog zum bestehenden Riester-Flow. z.B.:
-       fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); */
-    console.log('LEAD (Demo):',data);
-    document.getElementById('okMsg').style.display='block';
-    e.target.querySelector('button[type=submit]').disabled=true;
-  });
 }
 render();
 </script>
@@ -708,47 +719,57 @@ render();
 })();
 </script>
 <script>
-/* ---- mitNORM Webinar-Registrierung (rentenreform.mitnorm.de) ---- */
+/* mitNORM – Berater-Auflösung + Beratungs-Lead (public.leads) */
 (function(){
   var CFG=window.MITNORM_CONFIG||{}, BASE=(CFG.supabaseUrl||'').replace(/\/$/,''), KEY=CFG.supabaseAnonKey||'';
   var ready = BASE && KEY && KEY.indexOf('__')!==0;
+  var APP_SLUG='rente-2026', DEFAULT_ADVISOR='service';
   function rest(p,o){o=o||{};return fetch(BASE+'/rest/v1'+p,Object.assign({},o,{headers:Object.assign({apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json',Prefer:'return=representation'},o.headers||{})}));}
-  function slug(){var m=location.pathname.match(/\/b\/([a-z0-9-]+)/i);if(m)return m[1].toLowerCase();var p=new URL(location.href).searchParams.get('b');return p?p.toLowerCase():null;}
-  function fmt(iso,tz){try{return new Date(iso).toLocaleString('de-DE',{weekday:'long',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit',timeZone:tz||'Europe/Berlin'})+' Uhr';}catch(e){return '';}}
-  var state={advisor:null,webinar:null};
+  function gj(r){return r.json();}
+  function bslug(){var m=location.pathname.match(/\/b\/([a-z0-9-]+)/i);if(m)return m[1].toLowerCase();var p=new URLSearchParams(location.search).get('b');return p?p.toLowerCase():null;}
+  var state={advisor:null,appId:null};
   if(ready){
-    var s=slug();
-    if(s){rest('/advisors?slug=eq.'+s+'&active=eq.true&select=id,first_name,last_name').then(function(r){return r.json();}).then(function(a){if(a&&a[0]){state.advisor=a[0];var el=document.getElementById('advisorNote');if(el){el.textContent='Dein persönlicher Ansprechpartner: '+[a[0].first_name,a[0].last_name].filter(Boolean).join(' ');el.style.display='block';}}}).catch(function(){});}
-    rest('/webinars?status=eq.scheduled&select=id,title,subtitle,starts_at,timezone&order=starts_at.asc&limit=1').then(function(r){return r.json();}).then(function(w){if(w&&w[0]){state.webinar=w[0];var t=document.getElementById('wbWhen');if(t)t.textContent='Nächster Termin: '+fmt(w[0].starts_at,w[0].timezone);}}).catch(function(){});
+    var s=bslug();
+    (s?rest('/advisors?slug=eq.'+encodeURIComponent(s)+'&active=eq.true&select=id,first_name,last_name').then(gj):Promise.resolve([]))
+      .then(function(a){
+        if(a&&a[0]){ state.advisor=a[0];
+          var el=document.getElementById('advisorNote');
+          if(el){el.textContent='Dein persönlicher Ansprechpartner: '+[a[0].first_name,a[0].last_name].filter(Boolean).join(' ');el.style.display='block';}
+          return;
+        }
+        return rest('/advisors?slug=eq.'+DEFAULT_ADVISOR+'&active=eq.true&select=id').then(gj).then(function(b){ if(b&&b[0]) state.advisor=b[0]; });
+      }).catch(function(){});
+    rest('/apps?slug=eq.'+APP_SLUG+'&select=id').then(gj).then(function(a){ if(a&&a[0]) state.appId=a[0].id; }).catch(function(){});
   }
-  // Anmeldeformular (überschreibt den Demo-Handler der Seite via Capture-Phase)
   document.addEventListener('submit',function(e){
-    var f=e.target; if(!f||(f.id!=='leadForm'&&f.id!=='webinarForm')) return;
+    var f=e.target; if(!f||!f.matches('[data-lead-form]')) return;
     e.preventDefault(); e.stopImmediatePropagation();
-    var d={}; new FormData(f).forEach(function(v,k){d[k]=v;});
+    var d={}; new FormData(f).forEach(function(v,k){ d[k]=v; });
     var ok=f.querySelector('.ok-msg'), btn=f.querySelector('button[type=submit]');
-    function msg(t){ if(ok){ok.style.display='block';ok.textContent=t;} }
-    if(!ready||!state.webinar){ msg('Danke! (Vorschau – Backend/Webinar noch nicht verbunden.)'); return; }
+    function msg(t){ if(ok){ ok.style.display='block'; ok.textContent=t; } }
+    if(!ready||!state.appId||!state.advisor){ msg('Danke! Wir melden uns bei dir.'); return; }
     if(btn) btn.disabled=true;
-    rest('/webinar_registrations',{method:'POST',body:JSON.stringify({
-      webinar_id:state.webinar.id, advisor_id:state.advisor?state.advisor.id:null,
-      first_name:d.vorname||null, email:d.email,
-      consent_at:new Date().toISOString(), consent_text:'Webinar-Anmeldung über rentenreform.mitnorm.de'
+    rest('/leads',{method:'POST',body:JSON.stringify({
+      advisor_id: state.advisor.id, app_id: state.appId,
+      first_name: d.vorname||null, email: d.email||null, phone: d.telefon||null,
+      calc_data: window.__checkAnswers || {},
+      consent_at: new Date().toISOString(),
+      consent_text: 'Beratungsanfrage \u00fcber rente-2026 (webinare.mitnorm.de)', status: 'new'
     })}).then(function(r){
-      if(r.ok){ msg('✓ Anmeldung erfolgreich! Du bekommst gleich eine Bestätigung per E-Mail – mit deinem Teams-Link.'); }
-      else if(r.status===409){ msg('Du bist für dieses Webinar bereits angemeldet ✓'); }
+      if(r.ok){ msg('\u2713 Danke! Deine Beratungsanfrage ist eingegangen \u2013 wir melden uns in K\u00fcrze.'); var ii=f.querySelectorAll('input'); for(var k=0;k<ii.length;k++) ii[k].disabled=true; }
       else { throw new Error('HTTP '+r.status); }
-    }).catch(function(){ msg('Es gab ein Problem bei der Anmeldung – bitte später erneut versuchen.'); if(btn) btn.disabled=false; });
+    }).catch(function(){ msg('Es gab ein Problem \u2013 bitte sp\u00e4ter erneut versuchen.'); if(btn) btn.disabled=false; });
   },true);
 })();
 </script>
 <script>
-/* Webinar-CTAs auf die bestehende Webinar-Seite leiten, Berater-Kürzel mitnehmen */
-(function(){
+/* Webinar-CTAs auf die bestehende Webinar-Seite leiten, Berater-K\u00fcrzel mitnehmen */
+window.mnApplyWebinarCtas=function(){
   var b=new URLSearchParams(location.search).get('b');
   var url='https://webinare.mitnorm.de/?t=rente'+(b?'&b='+encodeURIComponent(b):'');
   document.querySelectorAll('[data-webinar-cta]').forEach(function(a){ a.setAttribute('href',url); });
-})();
+};
+window.mnApplyWebinarCtas();
 </script>
 </body>
 </html>
