@@ -749,7 +749,7 @@ render();
     function msg(t){ if(ok){ ok.style.display='block'; ok.textContent=t; } }
     if(!ready||!state.appId||!state.advisor){ msg('Danke! Wir melden uns bei dir.'); return; }
     if(btn) btn.disabled=true;
-    rest('/leads',{method:'POST',body:JSON.stringify({
+    rest('/leads',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({
       advisor_id: state.advisor.id, app_id: state.appId,
       first_name: d.vorname||null, email: d.email||null, phone: d.telefon||null,
       calc_data: window.__checkAnswers || {},
