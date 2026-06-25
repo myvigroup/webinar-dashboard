@@ -617,6 +617,8 @@ async function loadReviewStats(){
 
 const AFFIL_TOPICS=[
   {k:"",l:"Alle Themen (Übersicht)"},
+  {k:"__landing",l:"➜ Rente-Landingpage (rente.mitnorm.de)"},
+  {k:"rente",l:"Rente & Rentenreform (Webinar)"},
   {k:"immobilie",l:"Immobilie als Kapitalanlage"},
   {k:"ruhestand",l:"Ruhestandsplanung"},
   {k:"baufi",l:"Baufinanzierung"},
@@ -647,7 +649,7 @@ async function loadAffil(){
     $("affil-panel").classList.remove("hidden");
     const sel=$("affil-topic");
     sel.innerHTML=AFFIL_TOPICS.map(t=>'<option value="'+t.k+'">'+t.l+'</option>').join("");
-    const upd=()=>{ const t=sel.value; const url=APP_URL+"?b="+encodeURIComponent(_affilSlug)+(t?"&t="+t:""); $("affil-link").value=url; $("affil-open").href=url; };
+    const upd=()=>{ const t=sel.value; const url=(t==="__landing")?("https://rente.mitnorm.de/?b="+encodeURIComponent(_affilSlug)):(APP_URL+"?b="+encodeURIComponent(_affilSlug)+(t?"&t="+t:"")); $("affil-link").value=url; $("affil-open").href=url; };
     sel.onchange=upd; upd();
     $("affil-copy").onclick=async()=>{ try{ await navigator.clipboard.writeText($("affil-link").value); }catch(_){ $("affil-link").select(); try{document.execCommand("copy");}catch(e){} } const b=$("affil-copy"); const o=b.textContent; b.textContent="✓ Kopiert"; setTimeout(()=>{b.textContent=o;},1500); };
     $("affil-hint").textContent="Tipp: Wähle ein Thema, um direkt dorthin zu verlinken – oder „Alle Themen“ für die Übersicht. Anmeldungen über deinen Link werden automatisch dir zugeordnet.";

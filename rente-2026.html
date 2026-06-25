@@ -764,12 +764,21 @@ render();
 </script>
 <script>
 /* Webinar-CTAs auf die bestehende Webinar-Seite leiten, Berater-K\u00fcrzel mitnehmen */
-window.mnApplyWebinarCtas=function(){
+function mnWebinarUrl(vn){
   var b=new URLSearchParams(location.search).get('b');
-  var url='https://webinare.mitnorm.de/?t=rente'+(b?'&b='+encodeURIComponent(b):'');
-  document.querySelectorAll('[data-webinar-cta]').forEach(function(a){ a.setAttribute('href',url); });
+  return 'https://webinare.mitnorm.de/?t=rente'+(b?'&b='+encodeURIComponent(b):'')+(vn?'&vorname='+encodeURIComponent(vn):'');
+}
+window.mnApplyWebinarCtas=function(){
+  document.querySelectorAll('[data-webinar-cta]').forEach(function(a){ a.setAttribute('href', mnWebinarUrl('')); });
 };
 window.mnApplyWebinarCtas();
+/* Beim Klick auf einen Webinar-CTA den aktuell eingegebenen Vornamen aus dem nächstgelegenen Formular mitgeben */
+document.addEventListener('click',function(e){
+  var a=e.target.closest&&e.target.closest('[data-webinar-cta]'); if(!a) return;
+  var near=a.closest('form[data-lead-form]')||document.querySelector('[data-lead-form]');
+  var vn=''; if(near){ var vi=near.querySelector('[name=vorname]'); vn=(vi&&vi.value.trim())||''; }
+  a.setAttribute('href', mnWebinarUrl(vn));
+},true);
 </script>
 </body>
 </html>
