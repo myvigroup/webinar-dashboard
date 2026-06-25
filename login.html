@@ -274,10 +274,6 @@
       <div class="affil-row"><label for="sov-sel">Vorlage:</label><select id="sov-sel" style="min-width:260px;"></select></div>
       <div id="sov-body" class="social-grid" style="margin-top:12px;"></div>
     </div>
-    <div class="panel hidden" id="leads-panel" style="margin-bottom:14px;">
-      <div class="ptitle">📥 Beratungsanfragen <span style="font-weight:400;font-size:11px;color:var(--muted);">· aus dem Rente-Check auf der Landingpage – diese Kunden möchten eine persönliche Beratung</span></div>
-      <div style="overflow-x:auto"><table id="leadstable"></table></div>
-    </div>
     <div class="layout">
       <div class="col-left">
         <div class="panel" id="cal-panel">
@@ -320,6 +316,12 @@
                 <button id="att-test" style="background:#fff;color:var(--navy);border:1px solid var(--navy);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;">Testversand an mich</button>
                 <button id="att-send" style="background:var(--cyan-d);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700;font:inherit;margin-left:8px;">Nachfass-Mails jetzt senden</button>
                 <span id="att-send-status" class="muted" style="margin-left:10px;font-size:13px;"></span>
+              </div>
+              <div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px;">
+                <label style="display:block;font-size:13px;color:var(--muted);margin:2px 0 4px;">Handout (PDF) – wird Anwesenden automatisch an die Danke-Mail angehängt</label>
+                <input type="file" id="ho-file" accept="application/pdf,.pdf" style="font:inherit;font-size:13px;">
+                <span id="ho-status" class="muted" style="margin-left:8px;font-size:13px;"></span>
+                <div id="ho-current" style="margin-top:8px;font-size:13px;"></div>
               </div>
             </div>
           </div>
@@ -440,6 +442,43 @@ if($("att-file")){
   $("att-file").onchange = handleAttFile;
   $("att-test").onclick = ()=>sendFollowup(true);
   $("att-send").onclick = ()=>sendFollowup(false);
+}
+if($("ho-file")){ $("ho-file").onchange = handleHandoutFile; }
+function renderHandoutCurrent(url,name){
+  const el=$("ho-current"); if(!el) return;
+  if(url){ el.innerHTML='<span style="color:#1a7d4b;font-weight:600;">✓ Handout hinterlegt</span> · '
+      +'<a href="'+esc(url)+'" target="_blank" rel="noopener" style="font-weight:600;">ansehen ↗</a>'
+      +' · <button id="ho-del" style="font:inherit;font-size:13px;color:#b03a3a;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;">entfernen</button>';
+    const b=$("ho-del"); if(b) b.onclick=removeHandout;
+  } else { el.innerHTML='<span class="muted">Noch kein Handout hinterlegt.</span>'; }
+}
+function loadHandout(wid){
+  renderHandoutCurrent(null);
+  sb.rpc("webinar_handout_get",{p_webinar_id:wid}).then(({data})=>{ if(selectedWid===wid) renderHandoutCurrent(data||null); });
+}
+async function handleHandoutFile(ev){
+  const f=ev.target.files&&ev.target.files[0]; if(!f||!selectedWid) return;
+  if(f.size>8*1024*1024){ $("ho-status").textContent="PDF zu groß (max 8 MB)."; return; }
+  $("ho-status").textContent="Lade hoch…";
+  try{
+    const buf=await f.arrayBuffer(); const bytes=new Uint8Array(buf);
+    let bin=""; const chunk=0x8000; for(let i=0;i<bytes.length;i+=chunk){ bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk)); }
+    const b64=btoa(bin);
+    const { data, error } = await sb.functions.invoke("webinar-handout-upload",{ body:{ webinar_id:selectedWid, filename:f.name, content_base64:b64 } });
+    if(error){ $("ho-status").textContent="Fehler: "+error.message; return; }
+    if(data&&data.ok){ $("ho-status").innerHTML='<span style="color:#1a7d4b;font-weight:600;">✓ hochgeladen</span>'; renderHandoutCurrent(data.url,f.name); $("ho-file").value=""; }
+    else { $("ho-status").textContent="Fehler: "+((data&&data.error)||"unbekannt"); }
+  }catch(e){ $("ho-status").textContent="Fehler: "+e; }
+}
+async function removeHandout(){
+  if(!selectedWid) return;
+  if(!confirm("Handout für dieses Webinar entfernen?")) return;
+  $("ho-status").textContent="Entferne…";
+  try{
+    const { data, error } = await sb.functions.invoke("webinar-handout-upload",{ body:{ webinar_id:selectedWid, action:"remove" } });
+    if(error){ $("ho-status").textContent="Fehler: "+error.message; return; }
+    $("ho-status").textContent=""; renderHandoutCurrent(null);
+  }catch(e){ $("ho-status").textContent="Fehler: "+e; }
 }
 function durToSecs(s){ s=(s||"").toLowerCase(); let t=0,m; if((m=s.match(/(\d+)\s*h/)))t+=+m[1]*3600; if((m=s.match(/(\d+)\s*m/)))t+=+m[1]*60; if((m=s.match(/(\d+)\s*s/)))t+=+m[1]; return t; }
 async function handleAttFile(ev){
@@ -585,7 +624,6 @@ async function loadData() {
   if (isAdmin || isOrgLead) loadReviewStats();
   loadAffil();
   loadSocialOverview();
-  loadMyLeads();
   if (isAdmin && !window._liveTimer) window._liveTimer = setInterval(refreshLive, 60000);
 }
 async function refreshLive(){
@@ -617,8 +655,6 @@ async function loadReviewStats(){
 
 const AFFIL_TOPICS=[
   {k:"",l:"Alle Themen (Übersicht)"},
-  {k:"__landing",l:"➜ Rente-Landingpage (rente.mitnorm.de)"},
-  {k:"rente",l:"Rente & Rentenreform (Webinar)"},
   {k:"immobilie",l:"Immobilie als Kapitalanlage"},
   {k:"ruhestand",l:"Ruhestandsplanung"},
   {k:"baufi",l:"Baufinanzierung"},
@@ -627,19 +663,6 @@ const AFFIL_TOPICS=[
   {k:"geldanlage",l:"Geldanlage"}
 ];
 let _affilSlug=null;
-async function loadMyLeads(){
-  try{
-    const { data, error } = await sb.rpc("webinar_my_leads");
-    if(error){ return; }
-    const rows = data || [];
-    if(!rows.length){ $("leads-panel").classList.add("hidden"); return; }
-    $("leads-panel").classList.remove("hidden");
-    const fmt=(d)=>{ try{ return new Date(d).toLocaleString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}); }catch(_){ return ""; } };
-    const head='<thead><tr><th>Eingegangen</th><th>Name</th><th>E-Mail</th><th>Telefon</th><th>Status</th></tr></thead>';
-    const body=rows.map(r=>'<tr><td>'+esc(fmt(r.created_at))+'</td><td>'+esc(r.first_name||"–")+'</td><td>'+esc(r.email||"–")+'</td><td>'+esc(r.phone||"–")+'</td><td>'+esc(r.status||"")+'</td></tr>').join("");
-    $("leadstable").innerHTML=head+'<tbody>'+body+'</tbody>';
-  }catch(_){ }
-}
 async function loadAffil(){
   try{
     const { data } = await sb.rpc("webinar_my_slug");
@@ -649,7 +672,7 @@ async function loadAffil(){
     $("affil-panel").classList.remove("hidden");
     const sel=$("affil-topic");
     sel.innerHTML=AFFIL_TOPICS.map(t=>'<option value="'+t.k+'">'+t.l+'</option>').join("");
-    const upd=()=>{ const t=sel.value; const url=(t==="__landing")?("https://rente.mitnorm.de/?b="+encodeURIComponent(_affilSlug)):(APP_URL+"?b="+encodeURIComponent(_affilSlug)+(t?"&t="+t:"")); $("affil-link").value=url; $("affil-open").href=url; };
+    const upd=()=>{ const t=sel.value; const url=APP_URL+"?b="+encodeURIComponent(_affilSlug)+(t?"&t="+t:""); $("affil-link").value=url; $("affil-open").href=url; };
     sel.onchange=upd; upd();
     $("affil-copy").onclick=async()=>{ try{ await navigator.clipboard.writeText($("affil-link").value); }catch(_){ $("affil-link").select(); try{document.execCommand("copy");}catch(e){} } const b=$("affil-copy"); const o=b.textContent; b.textContent="✓ Kopiert"; setTimeout(()=>{b.textContent=o;},1500); };
     $("affil-hint").textContent="Tipp: Wähle ein Thema, um direkt dorthin zu verlinken – oder „Alle Themen“ für die Übersicht. Anmeldungen über deinen Link werden automatisch dir zugeordnet.";
@@ -1145,23 +1168,17 @@ function socialTopic(title){ const t=(title||"").toLowerCase();
   if(/immobilie/.test(t)) return "immobilie";
   if(/ruhestand/.test(t)) return "ruhestand";
   if(/steuer/.test(t)) return "steuern";
-  if(/rente|rentenreform|rentenkommission/.test(t)) return "rentenreform";
   return null; }
 function socialDate(d){ const p=n=>String(n).padStart(2,"0"); return d.getUTCFullYear()+"-"+p(d.getUTCMonth()+1)+"-"+p(d.getUTCDate()); }
 async function dlImage(url,name){ try{ const r=await fetch(url); if(!r.ok) throw 0; const b=await r.blob(); const u=URL.createObjectURL(b); const a=document.createElement("a"); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); }catch(_){ window.open(url,"_blank"); } }
-const SOC_TOPIC_LABEL={baufi:"Baufinanzierung",geldanlage:"Geldanlage",immobilie:"Immobilie",ruhestand:"Ruhestand",steuern:"Steuern",riester:"Riester",rente:"Rente & Rentenreform",rentenreform:"Rente & Rentenreform"};
-const SOC_FMT_LABEL={beitrag:"Beitrag (4:5)",story:"Story (9:16)",linkedin:"LinkedIn"};
-function socialLabelFor(fn,i){ const b=(fn||"").replace(/\.png$/i,"").toLowerCase(); if(SOC_FMT_LABEL[b]) return SOC_FMT_LABEL[b]; if(/story/.test(b)) return "Story (9:16)"; if(/beitrag|post|feed/.test(b)) return "Beitrag (4:5)"; if(/linkedin/.test(b)) return "LinkedIn"; return "Vorlage "+(i+1); }
+const SOC_TOPIC_LABEL={baufi:"Baufinanzierung",geldanlage:"Geldanlage",immobilie:"Immobilie",ruhestand:"Ruhestand",steuern:"Steuern",riester:"Riester"};
 function fmtSetDate(d){ const p=(d||"").split("-"); return p.length===3? p[2]+"."+p[1]+"."+p[0] : d; }
-async function renderSovCards(topic,date){
+function renderSovCards(topic,date){
   const body=$("sov-body"); body.innerHTML="";
-  let files=[];
-  try{ const { data }=await sb.rpc("webinar_social_files",{p_topic:topic,p_date:date}); files=(data||[]).map(r=>r.filename); }catch(_){}
-  if(!files.length) files=["beitrag.png","story.png","linkedin.png"];
-  files.forEach((fn,i)=>{
-    const url=SOCIAL_BASE+topic+"/"+date+"/"+fn; const fname="mitnorm_"+topic+"_"+date+"_"+fn;
+  [{k:"beitrag",l:"Beitrag (4:5)"},{k:"story",l:"Story (9:16)"},{k:"linkedin",l:"LinkedIn"}].forEach(v=>{
+    const url=SOCIAL_BASE+topic+"/"+date+"/"+v.k+".png"; const fname="mitnorm_"+topic+"_"+date+"_"+v.k+".png";
     const card=document.createElement("div"); card.className="social-card";
-    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img loading="lazy" alt=""></a><div class="sc-l">'+esc(socialLabelFor(fn,i))+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
+    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img loading="lazy" alt=""></a><div class="sc-l">'+v.l+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
     card.querySelector("img").src=url;
     card.querySelector(".sc-dl").onclick=()=>dlImage(url,fname);
     body.appendChild(card);
@@ -1180,23 +1197,26 @@ async function loadSocialOverview(){
     sel.value=up.topic+"|"+up.set_date; renderSovCards(up.topic,up.set_date);
   }catch(_){ $("sov-panel").classList.add("hidden"); }
 }
-async function fillSocial(w){
+function fillSocial(w){
   const panel=$("social-panel"), body=$("social-body"), empty=$("social-empty");
   if(!w || !w.starts_at){ panel.classList.add("hidden"); return; }
   const topic=socialTopic(w.title);
   if(!topic){ panel.classList.add("hidden"); return; }
   const date=socialDate(new Date(w.starts_at));
   panel.classList.remove("hidden"); empty.style.display="none"; body.innerHTML="";
-  let files=[];
-  try{ const { data }=await sb.rpc("webinar_social_files",{p_topic:topic,p_date:date}); files=(data||[]).map(r=>r.filename); }catch(_){}
-  if(!files.length){ empty.style.display=""; return; }
-  files.forEach((fn,i)=>{
-    const url=SOCIAL_BASE+topic+"/"+date+"/"+fn;
-    const fname="mitnorm_"+topic+"_"+date+"_"+fn;
-    const card=document.createElement("div"); card.className="social-card";
+  const variants=[{k:"beitrag",l:"Beitrag (4:5)"},{k:"story",l:"Story (9:16)"},{k:"linkedin",l:"LinkedIn"}];
+  let pending=variants.length, anyOk=false;
+  const done=()=>{ if(--pending<=0 && !anyOk) empty.style.display=""; };
+  variants.forEach(v=>{
+    const url=SOCIAL_BASE+topic+"/"+date+"/"+v.k+".png";
+    const fname="mitnorm_"+topic+"_"+date+"_"+v.k+".png";
+    const card=document.createElement("div"); card.className="social-card"; card.style.display="none";
     card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img loading="lazy" alt=""></a>'
-      +'<div class="sc-l">'+esc(socialLabelFor(fn,i))+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
-    card.querySelector("img").src=url;
+      +'<div class="sc-l">'+v.l+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
+    const img=card.querySelector("img");
+    img.onload=()=>{ card.style.display=""; anyOk=true; done(); };
+    img.onerror=()=>{ card.remove(); done(); };
+    img.src=url;
     card.querySelector(".sc-dl").onclick=()=>dlImage(url,fname);
     body.appendChild(card);
   });
@@ -1208,7 +1228,8 @@ function renderWebinar(wid) {
     $("detail-head").textContent = w.title + (d ? " · " + d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"long",year:"numeric",timeZone:TZ}) + ", " + d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ}) + " Uhr" : ""); }
   if (isAdmin && w){ $("admin-edit").classList.remove("hidden"); $("ae-link").value = w.web_url||""; $("ae-pres").value = w.presenters||""; $("ae-join").value=""; $("ae-all").checked=false; $("ae-status").textContent="";
     sb.rpc("webinar_join_url_get",{p_webinar_id:wid}).then(({data})=>{ if(selectedWid===wid) $("ae-join").value = data||""; });
-    $("att-file").value=""; $("att-status").textContent=""; $("att-send-status").textContent=""; }
+    $("att-file").value=""; $("att-status").textContent=""; $("att-send-status").textContent="";
+    if($("ho-file")) $("ho-file").value=""; if($("ho-status")) $("ho-status").textContent=""; loadHandout(wid); }
   else { $("admin-edit").classList.add("hidden"); }
   { const it=$("intern-teams"); if (w && w.web_url){ it.classList.remove("hidden");
       it.innerHTML='<b style="color:var(--navy);">Interne Teilnahme:</b> Als mitNORM-Mitarbeiter über Teams (eigenes Konto) – '
