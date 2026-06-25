@@ -1,5 +1,6 @@
 {
   "rewrites": [
-    { "source": "/login", "destination": "/login.html" }
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/", "has": [{ "type": "host", "value": "rente.mitnorm.de" }], "destination": "/rente-2026.html" }
   ]
 }
