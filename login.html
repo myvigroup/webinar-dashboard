@@ -1184,7 +1184,7 @@ function renderSovCards(topic,date){
   [{k:"beitrag",l:"Beitrag (4:5)"},{k:"story",l:"Story (9:16)"},{k:"linkedin",l:"LinkedIn"}].forEach(v=>{
     const url=SOCIAL_BASE+topic+"/"+date+"/"+v.k+".png"; const fname="mitnorm_"+topic+"_"+date+"_"+v.k+".png";
     const card=document.createElement("div"); card.className="social-card"; card.style.display="none";
-    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img loading="lazy" alt=""></a><div class="sc-l">'+v.l+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
+    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img alt=""></a><div class="sc-l">'+v.l+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
     const img=card.querySelector("img");
     img.onload=()=>{ card.style.display=""; anyOk=true; done(); };
     img.onerror=()=>{ card.remove(); done(); };
@@ -1221,7 +1221,7 @@ function fillSocial(w){
     const url=SOCIAL_BASE+topic+"/"+date+"/"+v.k+".png";
     const fname="mitnorm_"+topic+"_"+date+"_"+v.k+".png";
     const card=document.createElement("div"); card.className="social-card"; card.style.display="none";
-    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img loading="lazy" alt=""></a>'
+    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img alt=""></a>'
       +'<div class="sc-l">'+v.l+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
     const img=card.querySelector("img");
     img.onload=()=>{ card.style.display=""; anyOk=true; done(); };
