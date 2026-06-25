@@ -1163,6 +1163,26 @@ function openRowModal(r){
 function closeRowModal(){ $("row-modal").classList.remove("open"); }
 
 const SOCIAL_BASE = SUPABASE_URL + "/storage/v1/object/public/social/social-vorlagen/";
+const SOCIAL_PUBLIC = SUPABASE_URL + "/storage/v1/object/public/social/";
+// Themen, die KEIN Standard-3er-Schema nutzen, sondern alle vorhandenen Story-Grafiken zeigen:
+const STORY_ONLY = new Set(["rentenreform"]);
+async function renderStorySet(body, topic, date, onResult){
+  body.innerHTML="";
+  let files=[];
+  try{ const { data } = await sb.rpc("webinar_social_files",{p_topic:topic,p_date:date}); files=(data||[]).map(r=>r.name); }catch(_){}
+  files=files.filter(n=>/\.png$/i.test(n) && !/\(\d+\)\.png$/i.test(n)).sort();
+  if(!files.length){ if(onResult) onResult(false); return; }
+  files.forEach((full,idx)=>{
+    const url=SOCIAL_PUBLIC+full;
+    const fname="mitnorm_"+topic+"_"+date+"_story_"+(idx+1)+".png";
+    const card=document.createElement("div"); card.className="social-card";
+    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img alt=""></a><div class="sc-l">Story '+(idx+1)+' (9:16)</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
+    card.querySelector("img").src=url;
+    card.querySelector(".sc-dl").onclick=()=>dlImage(url,fname);
+    body.appendChild(card);
+  });
+  if(onResult) onResult(true);
+}
 function socialTopic(title){ const t=(title||"").toLowerCase();
   if(/baufinanz/.test(t)) return "baufi";
   if(/geldanlage/.test(t)) return "geldanlage";
@@ -1178,6 +1198,7 @@ const SOC_TOPIC_LABEL={baufi:"Baufinanzierung",geldanlage:"Geldanlage",immobilie
 function fmtSetDate(d){ const p=(d||"").split("-"); return p.length===3? p[2]+"."+p[1]+"."+p[0] : d; }
 function renderSovCards(topic,date){
   const body=$("sov-body"); body.innerHTML="";
+  if(STORY_ONLY.has(topic)){ renderStorySet(body,topic,date); return; }
   const note=document.createElement("div"); note.className="muted"; note.style.cssText="font-size:13px;display:none;"; note.textContent="Für dieses Thema sind die Vorlagen noch nicht im Standard-Format (Beitrag/Story/LinkedIn) hinterlegt.";
   let pending=3, anyOk=false;
   const done=()=>{ if(--pending<=0 && !anyOk) note.style.display=""; };
@@ -1214,6 +1235,7 @@ function fillSocial(w){
   if(!topic){ panel.classList.add("hidden"); return; }
   const date=socialDate(new Date(w.starts_at));
   panel.classList.remove("hidden"); empty.style.display="none"; body.innerHTML="";
+  if(STORY_ONLY.has(topic)){ renderStorySet(body,topic,date,(ok)=>{ if(!ok) empty.style.display=""; }); return; }
   const variants=[{k:"beitrag",l:"Beitrag (4:5)"},{k:"story",l:"Story (9:16)"},{k:"linkedin",l:"LinkedIn"}];
   let pending=variants.length, anyOk=false;
   const done=()=>{ if(--pending<=0 && !anyOk) empty.style.display=""; };
