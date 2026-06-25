@@ -1166,17 +1166,28 @@ const SOCIAL_BASE = SUPABASE_URL + "/storage/v1/object/public/social/social-vorl
 const SOCIAL_PUBLIC = SUPABASE_URL + "/storage/v1/object/public/social/";
 // Themen, die KEIN Standard-3er-Schema nutzen, sondern alle vorhandenen Story-Grafiken zeigen:
 const STORY_ONLY = new Set(["rentenreform"]);
+// Pro Story-Thema: welche Dateien sind Webinar-Promos (kommen zuerst), Rest = allgemeine Stories.
+const STORY_META = { rentenreform: { promo: ["01","03"] } };
+function storyBase(full){ return (full.split("/").pop()||"").replace(/\.png$/i,""); }
 async function renderStorySet(body, topic, date, onResult){
   body.innerHTML="";
   let files=[];
   try{ const { data } = await sb.rpc("webinar_social_files",{p_topic:topic,p_date:date}); files=(data||[]).map(r=>r.name); }catch(_){}
-  files=files.filter(n=>/\.png$/i.test(n) && !/\(\d+\)\.png$/i.test(n)).sort();
+  files=files.filter(n=>/\.png$/i.test(n) && !/\(\d+\)\.png$/i.test(n));
   if(!files.length){ if(onResult) onResult(false); return; }
-  files.forEach((full,idx)=>{
+  const promoList=(STORY_META[topic]&&STORY_META[topic].promo)||[];
+  const promos=files.filter(f=>promoList.includes(storyBase(f))).sort((a,b)=>promoList.indexOf(storyBase(a))-promoList.indexOf(storyBase(b)));
+  const general=files.filter(f=>!promoList.includes(storyBase(f))).sort();
+  let pi=0, gi=0;
+  promos.concat(general).forEach((full)=>{
+    const isPromo=promoList.includes(storyBase(full));
+    const n=isPromo?(++pi):(++gi);
+    const label=isPromo?("Webinar-Promo "+n):("Allgemeine Story "+n);
     const url=SOCIAL_PUBLIC+full;
-    const fname="mitnorm_"+topic+"_"+date+"_story_"+(idx+1)+".png";
+    const fname="mitnorm_"+topic+"_"+date+"_"+(isPromo?"promo":"story")+"_"+n+".png";
     const card=document.createElement("div"); card.className="social-card";
-    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img alt=""></a><div class="sc-l">Story '+(idx+1)+' (9:16)</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
+    const lblStyle=isPromo?' style="color:var(--navy);font-weight:700;"':'';
+    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img alt=""></a><div class="sc-l"'+lblStyle+'>'+label+' (9:16)</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
     card.querySelector("img").src=url;
     card.querySelector(".sc-dl").onclick=()=>dlImage(url,fname);
     body.appendChild(card);
