@@ -659,6 +659,7 @@ const AFFIL_TOPICS=[
   {k:"ruhestand",l:"Ruhestandsplanung"},
   {k:"baufi",l:"Baufinanzierung"},
   {k:"riester",l:"Riester & Altersvorsorge"},
+  {k:"rente",l:"Rente & Rentenreform"},
   {k:"steuern",l:"Steuern sparen"},
   {k:"geldanlage",l:"Geldanlage"}
 ];
@@ -1168,21 +1169,30 @@ function socialTopic(title){ const t=(title||"").toLowerCase();
   if(/immobilie/.test(t)) return "immobilie";
   if(/ruhestand/.test(t)) return "ruhestand";
   if(/steuer/.test(t)) return "steuern";
+  if(/riester|altersvorsorgedepot/.test(t)) return "riester";
+  if(/rentenkommission|rente 2026|gesetzliche rente|rentenreform/.test(t)) return "rentenreform";
   return null; }
 function socialDate(d){ const p=n=>String(n).padStart(2,"0"); return d.getUTCFullYear()+"-"+p(d.getUTCMonth()+1)+"-"+p(d.getUTCDate()); }
 async function dlImage(url,name){ try{ const r=await fetch(url); if(!r.ok) throw 0; const b=await r.blob(); const u=URL.createObjectURL(b); const a=document.createElement("a"); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); }catch(_){ window.open(url,"_blank"); } }
-const SOC_TOPIC_LABEL={baufi:"Baufinanzierung",geldanlage:"Geldanlage",immobilie:"Immobilie",ruhestand:"Ruhestand",steuern:"Steuern",riester:"Riester"};
+const SOC_TOPIC_LABEL={baufi:"Baufinanzierung",geldanlage:"Geldanlage",immobilie:"Immobilie",ruhestand:"Ruhestand",steuern:"Steuern",riester:"Riester",rentenreform:"Rente & Rentenreform"};
 function fmtSetDate(d){ const p=(d||"").split("-"); return p.length===3? p[2]+"."+p[1]+"."+p[0] : d; }
 function renderSovCards(topic,date){
   const body=$("sov-body"); body.innerHTML="";
+  const note=document.createElement("div"); note.className="muted"; note.style.cssText="font-size:13px;display:none;"; note.textContent="Für dieses Thema sind die Vorlagen noch nicht im Standard-Format (Beitrag/Story/LinkedIn) hinterlegt.";
+  let pending=3, anyOk=false;
+  const done=()=>{ if(--pending<=0 && !anyOk) note.style.display=""; };
   [{k:"beitrag",l:"Beitrag (4:5)"},{k:"story",l:"Story (9:16)"},{k:"linkedin",l:"LinkedIn"}].forEach(v=>{
     const url=SOCIAL_BASE+topic+"/"+date+"/"+v.k+".png"; const fname="mitnorm_"+topic+"_"+date+"_"+v.k+".png";
-    const card=document.createElement("div"); card.className="social-card";
+    const card=document.createElement("div"); card.className="social-card"; card.style.display="none";
     card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img loading="lazy" alt=""></a><div class="sc-l">'+v.l+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
-    card.querySelector("img").src=url;
+    const img=card.querySelector("img");
+    img.onload=()=>{ card.style.display=""; anyOk=true; done(); };
+    img.onerror=()=>{ card.remove(); done(); };
+    img.src=url;
     card.querySelector(".sc-dl").onclick=()=>dlImage(url,fname);
     body.appendChild(card);
   });
+  body.appendChild(note);
 }
 async function loadSocialOverview(){
   try{
