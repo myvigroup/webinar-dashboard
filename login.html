@@ -1143,17 +1143,23 @@ function socialTopic(title){ const t=(title||"").toLowerCase();
   if(/immobilie/.test(t)) return "immobilie";
   if(/ruhestand/.test(t)) return "ruhestand";
   if(/steuer/.test(t)) return "steuern";
+  if(/rente|rentenreform|rentenkommission/.test(t)) return "rente";
   return null; }
 function socialDate(d){ const p=n=>String(n).padStart(2,"0"); return d.getUTCFullYear()+"-"+p(d.getUTCMonth()+1)+"-"+p(d.getUTCDate()); }
 async function dlImage(url,name){ try{ const r=await fetch(url); if(!r.ok) throw 0; const b=await r.blob(); const u=URL.createObjectURL(b); const a=document.createElement("a"); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); }catch(_){ window.open(url,"_blank"); } }
-const SOC_TOPIC_LABEL={baufi:"Baufinanzierung",geldanlage:"Geldanlage",immobilie:"Immobilie",ruhestand:"Ruhestand",steuern:"Steuern",riester:"Riester"};
+const SOC_TOPIC_LABEL={baufi:"Baufinanzierung",geldanlage:"Geldanlage",immobilie:"Immobilie",ruhestand:"Ruhestand",steuern:"Steuern",riester:"Riester",rente:"Rente & Rentenreform"};
+const SOC_FMT_LABEL={beitrag:"Beitrag (4:5)",story:"Story (9:16)",linkedin:"LinkedIn"};
+function socialLabelFor(fn,i){ const b=(fn||"").replace(/\.png$/i,"").toLowerCase(); if(SOC_FMT_LABEL[b]) return SOC_FMT_LABEL[b]; if(/story/.test(b)) return "Story (9:16)"; if(/beitrag|post|feed/.test(b)) return "Beitrag (4:5)"; if(/linkedin/.test(b)) return "LinkedIn"; return "Vorlage "+(i+1); }
 function fmtSetDate(d){ const p=(d||"").split("-"); return p.length===3? p[2]+"."+p[1]+"."+p[0] : d; }
-function renderSovCards(topic,date){
+async function renderSovCards(topic,date){
   const body=$("sov-body"); body.innerHTML="";
-  [{k:"beitrag",l:"Beitrag (4:5)"},{k:"story",l:"Story (9:16)"},{k:"linkedin",l:"LinkedIn"}].forEach(v=>{
-    const url=SOCIAL_BASE+topic+"/"+date+"/"+v.k+".png"; const fname="mitnorm_"+topic+"_"+date+"_"+v.k+".png";
+  let files=[];
+  try{ const { data }=await sb.rpc("webinar_social_files",{p_topic:topic,p_date:date}); files=(data||[]).map(r=>r.filename); }catch(_){}
+  if(!files.length) files=["beitrag.png","story.png","linkedin.png"];
+  files.forEach((fn,i)=>{
+    const url=SOCIAL_BASE+topic+"/"+date+"/"+fn; const fname="mitnorm_"+topic+"_"+date+"_"+fn;
     const card=document.createElement("div"); card.className="social-card";
-    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img loading="lazy" alt=""></a><div class="sc-l">'+v.l+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
+    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img loading="lazy" alt=""></a><div class="sc-l">'+esc(socialLabelFor(fn,i))+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
     card.querySelector("img").src=url;
     card.querySelector(".sc-dl").onclick=()=>dlImage(url,fname);
     body.appendChild(card);
@@ -1172,26 +1178,23 @@ async function loadSocialOverview(){
     sel.value=up.topic+"|"+up.set_date; renderSovCards(up.topic,up.set_date);
   }catch(_){ $("sov-panel").classList.add("hidden"); }
 }
-function fillSocial(w){
+async function fillSocial(w){
   const panel=$("social-panel"), body=$("social-body"), empty=$("social-empty");
   if(!w || !w.starts_at){ panel.classList.add("hidden"); return; }
   const topic=socialTopic(w.title);
   if(!topic){ panel.classList.add("hidden"); return; }
   const date=socialDate(new Date(w.starts_at));
   panel.classList.remove("hidden"); empty.style.display="none"; body.innerHTML="";
-  const variants=[{k:"beitrag",l:"Beitrag (4:5)"},{k:"story",l:"Story (9:16)"},{k:"linkedin",l:"LinkedIn"}];
-  let pending=variants.length, anyOk=false;
-  const done=()=>{ if(--pending<=0 && !anyOk) empty.style.display=""; };
-  variants.forEach(v=>{
-    const url=SOCIAL_BASE+topic+"/"+date+"/"+v.k+".png";
-    const fname="mitnorm_"+topic+"_"+date+"_"+v.k+".png";
-    const card=document.createElement("div"); card.className="social-card"; card.style.display="none";
+  let files=[];
+  try{ const { data }=await sb.rpc("webinar_social_files",{p_topic:topic,p_date:date}); files=(data||[]).map(r=>r.filename); }catch(_){}
+  if(!files.length){ empty.style.display=""; return; }
+  files.forEach((fn,i)=>{
+    const url=SOCIAL_BASE+topic+"/"+date+"/"+fn;
+    const fname="mitnorm_"+topic+"_"+date+"_"+fn;
+    const card=document.createElement("div"); card.className="social-card";
     card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img loading="lazy" alt=""></a>'
-      +'<div class="sc-l">'+v.l+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
-    const img=card.querySelector("img");
-    img.onload=()=>{ card.style.display=""; anyOk=true; done(); };
-    img.onerror=()=>{ card.remove(); done(); };
-    img.src=url;
+      +'<div class="sc-l">'+esc(socialLabelFor(fn,i))+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
+    card.querySelector("img").src=url;
     card.querySelector(".sc-dl").onclick=()=>dlImage(url,fname);
     body.appendChild(card);
   });
