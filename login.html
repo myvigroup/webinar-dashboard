@@ -1145,11 +1145,11 @@ function socialTopic(title){ const t=(title||"").toLowerCase();
   if(/immobilie/.test(t)) return "immobilie";
   if(/ruhestand/.test(t)) return "ruhestand";
   if(/steuer/.test(t)) return "steuern";
-  if(/rente|rentenreform|rentenkommission/.test(t)) return "rente";
+  if(/rente|rentenreform|rentenkommission/.test(t)) return "rentenreform";
   return null; }
 function socialDate(d){ const p=n=>String(n).padStart(2,"0"); return d.getUTCFullYear()+"-"+p(d.getUTCMonth()+1)+"-"+p(d.getUTCDate()); }
 async function dlImage(url,name){ try{ const r=await fetch(url); if(!r.ok) throw 0; const b=await r.blob(); const u=URL.createObjectURL(b); const a=document.createElement("a"); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); }catch(_){ window.open(url,"_blank"); } }
-const SOC_TOPIC_LABEL={baufi:"Baufinanzierung",geldanlage:"Geldanlage",immobilie:"Immobilie",ruhestand:"Ruhestand",steuern:"Steuern",riester:"Riester",rente:"Rente & Rentenreform"};
+const SOC_TOPIC_LABEL={baufi:"Baufinanzierung",geldanlage:"Geldanlage",immobilie:"Immobilie",ruhestand:"Ruhestand",steuern:"Steuern",riester:"Riester",rente:"Rente & Rentenreform",rentenreform:"Rente & Rentenreform"};
 const SOC_FMT_LABEL={beitrag:"Beitrag (4:5)",story:"Story (9:16)",linkedin:"LinkedIn"};
 function socialLabelFor(fn,i){ const b=(fn||"").replace(/\.png$/i,"").toLowerCase(); if(SOC_FMT_LABEL[b]) return SOC_FMT_LABEL[b]; if(/story/.test(b)) return "Story (9:16)"; if(/beitrag|post|feed/.test(b)) return "Beitrag (4:5)"; if(/linkedin/.test(b)) return "LinkedIn"; return "Vorlage "+(i+1); }
 function fmtSetDate(d){ const p=(d||"").split("-"); return p.length===3? p[2]+"."+p[1]+"."+p[0] : d; }
