@@ -1,6 +1,7 @@
 {
-  "rewrites": [
-    { "source": "/login", "destination": "/login.html" },
-    { "source": "/", "has": [{ "type": "host", "value": "rente.mitnorm.de" }], "destination": "/rente-2026.html" }
+  "routes": [
+    { "src": "/", "has": [{ "type": "host", "value": "rente.mitnorm.de" }], "dest": "/rente-2026.html" },
+    { "src": "/login", "dest": "/login.html" },
+    { "handle": "filesystem" }
   ]
 }
