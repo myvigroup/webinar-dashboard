@@ -730,17 +730,17 @@ async function loadAdmin(){
   if($("adm-new")) $("adm-new").onclick=()=>editAdvisor(null);
 }
 // ===== Beraterverwaltung + Unzugeordnete Kunden (Admin) =====
-let _advisors=[], _unassigned=[];
+let _admAdv=[], _unassigned=[];
 function normName(s){ return (s||"").toLowerCase().replace(/[^a-zäöüß ]/g,"").replace(/\s+/g," ").trim(); }
 async function loadAdvisors(){
   $("advisors-panel").classList.remove("hidden");
-  try{ const { data } = await sb.rpc("webinar_admin_advisors_full"); _advisors=data||[]; }catch(_){ _advisors=[]; }
-  $("adm-count").textContent="· "+_advisors.length+" Einträge";
+  try{ const { data } = await sb.rpc("webinar_admin_advisors_full"); _admAdv=data||[]; }catch(_){ _admAdv=[]; }
+  $("adm-count").textContent="· "+_admAdv.length+" Einträge";
   renderAdvisors();
 }
 function renderAdvisors(){
   const q=($("adm-search").value||"").toLowerCase().trim();
-  const rows=_advisors.filter(a=>!q || ((a.name||"")+" "+(a.email||"")+" "+(a.slug||"")).toLowerCase().includes(q));
+  const rows=_admAdv.filter(a=>!q || ((a.name||"")+" "+(a.email||"")+" "+(a.slug||"")).toLowerCase().includes(q));
   if(!rows.length){ $("adm-body").innerHTML='<div class="muted">Keine Treffer.</div>'; return; }
   $("adm-body").innerHTML='<div style="overflow:auto;"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:640px;">'+
     '<tr style="text-align:left;color:var(--muted);font-size:11px;"><th style="padding:6px 8px;">Name</th><th style="padding:6px 8px;">E-Mail</th><th style="padding:6px 8px;">Slug</th><th style="padding:6px 8px;">Anm.</th><th style="padding:6px 8px;">Aktiv</th><th style="padding:6px 8px;">Events</th><th style="padding:6px 8px;">Leads</th><th></th></tr>'+
@@ -760,7 +760,7 @@ function renderAdvisors(){
   document.querySelectorAll(".adm-merge").forEach(b=>b.onclick=()=>mergeAdvisor(b.dataset.id));
 }
 function editAdvisor(id){
-  const a=id?(_advisors.find(x=>x.id===id)||{}):{};
+  const a=id?(_admAdv.find(x=>x.id===id)||{}):{};
   const v=(x)=>esc(x||"");
   const ck=(b)=>b?"checked":"";
   $("adm-editor").innerHTML='<div style="background:#f6f9fc;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px;">'+
@@ -790,8 +790,8 @@ async function saveAdvisor(){
   $("adm-editor").innerHTML=""; await loadAdvisors();
 }
 function mergeAdvisor(fromId){
-  const from=_advisors.find(x=>x.id===fromId); if(!from) return;
-  const others=_advisors.filter(x=>x.id!==fromId).slice();
+  const from=_admAdv.find(x=>x.id===fromId); if(!from) return;
+  const others=_admAdv.filter(x=>x.id!==fromId).slice();
   others.sort((a,b)=> ((normName(b.name)===normName(from.name))-(normName(a.name)===normName(from.name))) || (b.webinar_regs-a.webinar_regs));
   const opts=others.map(a=>'<option value="'+a.id+'">'+esc(a.name)+(a.email?" · "+esc(a.email):"")+" ("+a.webinar_regs+" Anm.)</option>").join("");
   $("adm-editor").innerHTML='<div style="background:#fff7f6;border:1px solid #f0c8c2;border-radius:10px;padding:14px;margin-bottom:12px;">'+
@@ -812,7 +812,7 @@ function mergeAdvisor(fromId){
 }
 async function loadUnassigned(){
   $("unassigned-panel").classList.remove("hidden");
-  if(!_advisors.length){ try{ const {data}=await sb.rpc("webinar_admin_advisors_full"); _advisors=data||[]; }catch(_){} }
+  if(!_admAdv.length){ try{ const {data}=await sb.rpc("webinar_admin_advisors_full"); _admAdv=data||[]; }catch(_){} }
   try{ const { data } = await sb.rpc("webinar_admin_unassigned"); _unassigned=data||[]; }catch(_){ _unassigned=[]; }
   $("ua-count").textContent="· "+_unassigned.length+" offen";
   renderUnassigned();
@@ -822,7 +822,7 @@ function renderUnassigned(){
   const q=($("ua-search").value||"").toLowerCase().trim();
   let rows=_unassigned.filter(r=>!q || ((r.attendee_name||"")+" "+(r.attendee_email||"")+" "+(r.webinar_title||"")).toLowerCase().includes(q));
   if(!rows.length){ $("ua-body").innerHTML='<div class="muted">Keine offenen Zuordnungen 🎉</div>'; return; }
-  const active=_advisors.filter(a=>a.active);
+  const active=_admAdv.filter(a=>a.active);
   const optsFor=(answer)=>{ const want=normName(answer);
     return '<option value="">– Berater wählen –</option>'+active.map(a=>'<option value="'+a.id+'"'+((want&&normName(a.name)===want)?" selected":"")+'>'+esc(a.name)+'</option>').join(""); };
   rows=rows.slice(0,300);
