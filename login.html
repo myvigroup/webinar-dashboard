@@ -861,7 +861,7 @@ function renderUnassigned(){
   if(!rows.length){ $("ua-body").innerHTML='<div class="muted">Keine offenen Zuordnungen 🎉</div>'; return; }
   const active=_admAdv.filter(a=>a.active);
   const optsFor=(answer)=>{ const want=normName(answer);
-    return '<option value="">– Berater wählen –</option>'+active.map(a=>'<option value="'+a.id+'"'+((want&&normName(a.name)===want)?" selected":"")+'>'+esc(a.name)+'</option>').join(""); };
+    return '<option value="">– Berater wählen –</option><option value="__none__">— Ohne Berater (kein) —</option>'+active.map(a=>'<option value="'+a.id+'"'+((want&&normName(a.name)===want)?" selected":"")+'>'+esc(a.name)+'</option>').join(""); };
   rows=rows.slice(0,300);
   $("ua-body").innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'+clampRows("ua",rows.map(r=>{
     const hint=(r.advisor_answer&&r.advisor_answer.trim())?'<span style="background:#eef7fb;color:var(--navy);font-size:11px;font-weight:600;padding:2px 7px;border-radius:6px;">Hinweis: '+esc(r.advisor_answer)+'</span>':"";
@@ -882,8 +882,9 @@ async function assignRow(btn){
   const all=row.querySelector(".ua-all").checked;
   const st=row.querySelector(".ua-status");
   if(!advisorId){ st.textContent="Bitte Berater wählen."; return; }
+  const none = advisorId==="__none__";
   st.textContent="…";
-  const { error } = await sb.rpc("webinar_admin_assign",{ p_registration_id:id, p_advisor_id:advisorId, p_all_for_email:all });
+  const { error } = await sb.rpc("webinar_admin_assign",{ p_registration_id:id, p_advisor_id: none?null:advisorId, p_all_for_email:all, p_no_advisor:none });
   if(error){ st.textContent="Fehler: "+error.message; return; }
   const email=((_unassigned.find(x=>x.id===id)||{}).attendee_email||"").toLowerCase();
   _unassigned=_unassigned.filter(x=> (all&&email) ? (x.attendee_email||"").toLowerCase()!==email : x.id!==id );
