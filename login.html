@@ -362,6 +362,19 @@
           <div><div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:10px;">✅ Meiste Teilnahmen</div><div id="month-teil" class="muted">Lädt…</div></div>
         </div>
       </div>
+      <div class="panel hidden" id="unassigned-panel" style="margin-bottom:14px;">
+        <div class="ptitle">👥 Unzugeordnete Kunden <span id="ua-count" style="font-weight:400;font-size:11px;color:var(--muted);"></span></div>
+        <div class="muted" style="font-size:12px;margin-bottom:10px;">Anmeldungen ohne Berater – Berater wählen und zuordnen. „Hinweis" = Antwort aus der Teams-Anmeldung (zur Vorauswahl genutzt).</div>
+        <input id="ua-search" placeholder="Suche Name / E-Mail / Webinar…" style="width:100%;max-width:340px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;margin-bottom:10px;">
+        <div id="ua-body" class="muted">Lädt…</div>
+      </div>
+      <div class="panel hidden" id="advisors-panel" style="margin-bottom:14px;">
+        <div class="ptitle">🧑‍💼 Berater verwalten <span id="adm-count" style="font-weight:400;font-size:11px;color:var(--muted);"></span>
+          <button id="adm-new" style="float:right;background:var(--navy);color:#fff;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;font-size:13px;">+ Neuer Berater</button></div>
+        <input id="adm-search" placeholder="Suche Name / E-Mail / Slug…" style="width:100%;max-width:340px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;margin:8px 0 10px;">
+        <div id="adm-editor"></div>
+        <div id="adm-body" class="muted">Lädt…</div>
+      </div>
       <div class="panel hidden" id="pe-panel" style="margin-bottom:14px;">
         <div class="ptitle">ProvenExpert-Bewertungen über Webinar-Mails</div>
         <div id="pe-body" class="muted">Lädt…</div>
@@ -710,6 +723,135 @@ async function loadAdmin(){
   loadMonthRanking();
   loadDelta();
   loadCms();
+  loadAdvisors();
+  loadUnassigned();
+  if($("ua-search")) $("ua-search").oninput=renderUnassigned;
+  if($("adm-search")) $("adm-search").oninput=renderAdvisors;
+  if($("adm-new")) $("adm-new").onclick=()=>editAdvisor(null);
+}
+// ===== Beraterverwaltung + Unzugeordnete Kunden (Admin) =====
+let _advisors=[], _unassigned=[];
+function normName(s){ return (s||"").toLowerCase().replace(/[^a-zäöüß ]/g,"").replace(/\s+/g," ").trim(); }
+async function loadAdvisors(){
+  $("advisors-panel").classList.remove("hidden");
+  try{ const { data } = await sb.rpc("webinar_admin_advisors_full"); _advisors=data||[]; }catch(_){ _advisors=[]; }
+  $("adm-count").textContent="· "+_advisors.length+" Einträge";
+  renderAdvisors();
+}
+function renderAdvisors(){
+  const q=($("adm-search").value||"").toLowerCase().trim();
+  const rows=_advisors.filter(a=>!q || ((a.name||"")+" "+(a.email||"")+" "+(a.slug||"")).toLowerCase().includes(q));
+  if(!rows.length){ $("adm-body").innerHTML='<div class="muted">Keine Treffer.</div>'; return; }
+  $("adm-body").innerHTML='<div style="overflow:auto;"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:640px;">'+
+    '<tr style="text-align:left;color:var(--muted);font-size:11px;"><th style="padding:6px 8px;">Name</th><th style="padding:6px 8px;">E-Mail</th><th style="padding:6px 8px;">Slug</th><th style="padding:6px 8px;">Anm.</th><th style="padding:6px 8px;">Aktiv</th><th style="padding:6px 8px;">Events</th><th style="padding:6px 8px;">Leads</th><th></th></tr>'+
+    rows.map(a=>{
+      const dup=a.dup_count>1?' <span style="background:#fdecea;color:#b03a3a;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;">Dublette</span>':'';
+      const ina=a.active?'':'opacity:.5;';
+      return '<tr style="border-top:1px solid var(--line);'+ina+'"><td style="padding:6px 8px;font-weight:600;color:var(--navy);">'+esc(a.name)+dup+'</td>'+
+        '<td style="padding:6px 8px;color:var(--muted);">'+esc(a.email||"–")+'</td>'+
+        '<td style="padding:6px 8px;color:var(--muted);">'+esc(a.slug||"")+'</td>'+
+        '<td style="padding:6px 8px;">'+a.webinar_regs+'</td>'+
+        '<td style="padding:6px 8px;">'+(a.active?"✓":"–")+'</td>'+
+        '<td style="padding:6px 8px;">'+(a.can_events?"✓":"–")+'</td>'+
+        '<td style="padding:6px 8px;">'+(a.can_leads?"✓":"–")+'</td>'+
+        '<td style="padding:6px 8px;white-space:nowrap;"><button class="adm-edit" data-id="'+a.id+'" style="font:inherit;font-size:12px;color:var(--navy);background:none;border:1px solid var(--line);border-radius:6px;padding:4px 8px;cursor:pointer;">Bearbeiten</button> <button class="adm-merge" data-id="'+a.id+'" style="font:inherit;font-size:12px;color:#b03a3a;background:none;border:1px solid #f0c8c2;border-radius:6px;padding:4px 8px;cursor:pointer;">Merge</button></td></tr>';
+    }).join("")+'</table></div>';
+  document.querySelectorAll(".adm-edit").forEach(b=>b.onclick=()=>editAdvisor(b.dataset.id));
+  document.querySelectorAll(".adm-merge").forEach(b=>b.onclick=()=>mergeAdvisor(b.dataset.id));
+}
+function editAdvisor(id){
+  const a=id?(_advisors.find(x=>x.id===id)||{}):{};
+  const v=(x)=>esc(x||"");
+  const ck=(b)=>b?"checked":"";
+  $("adm-editor").innerHTML='<div style="background:#f6f9fc;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px;">'+
+    '<div style="font-weight:700;color:var(--navy);margin-bottom:8px;">'+(id?"Berater bearbeiten":"Neuer Berater")+'</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+
+      '<label style="font-size:12px;color:var(--muted);">Vorname<input id="ed-first" value="'+v(a.first_name)+'" style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;"></label>'+
+      '<label style="font-size:12px;color:var(--muted);">Nachname<input id="ed-last" value="'+v(a.last_name)+'" style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;"></label>'+
+      '<label style="font-size:12px;color:var(--muted);">E-Mail<input id="ed-email" value="'+v(a.email)+'" style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;"></label>'+
+      '<label style="font-size:12px;color:var(--muted);">Slug<input id="ed-slug" value="'+v(a.slug)+'" style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;"></label>'+
+      '<label style="font-size:12px;color:var(--muted);">Telefon<input id="ed-phone" value="'+v(a.phone)+'" style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;"></label>'+
+    '</div>'+
+    '<div style="display:flex;gap:16px;margin-top:10px;font-size:13px;">'+
+      '<label><input type="checkbox" id="ed-active" '+ck(id?a.active:true)+'> Aktiv</label>'+
+      '<label><input type="checkbox" id="ed-events" '+ck(a.can_events)+'> Events</label>'+
+      '<label><input type="checkbox" id="ed-leads" '+ck(a.can_leads)+'> Leads</label>'+
+    '</div>'+
+    '<div style="margin-top:12px;"><button id="ed-save" data-id="'+(id||"")+'" style="background:var(--navy);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;">Speichern</button> <button id="ed-cancel" style="background:#fff;border:1px solid var(--line);padding:8px 14px;border-radius:8px;cursor:pointer;font:inherit;">Abbrechen</button> <span id="ed-status" class="muted" style="font-size:13px;margin-left:8px;"></span></div></div>';
+  $("ed-cancel").onclick=()=>{ $("adm-editor").innerHTML=""; };
+  $("ed-save").onclick=saveAdvisor;
+  $("adm-editor").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+async function saveAdvisor(){
+  const id=$("ed-save").dataset.id||null;
+  $("ed-status").textContent="Speichern…";
+  const { error } = await sb.rpc("webinar_admin_advisor_save",{ p_id:id||null, p_first:$("ed-first").value, p_last:$("ed-last").value, p_email:$("ed-email").value, p_slug:$("ed-slug").value, p_phone:$("ed-phone").value, p_active:$("ed-active").checked, p_can_events:$("ed-events").checked, p_can_leads:$("ed-leads").checked });
+  if(error){ $("ed-status").textContent="Fehler: "+error.message; return; }
+  $("adm-editor").innerHTML=""; await loadAdvisors();
+}
+function mergeAdvisor(fromId){
+  const from=_advisors.find(x=>x.id===fromId); if(!from) return;
+  const others=_advisors.filter(x=>x.id!==fromId).slice();
+  others.sort((a,b)=> ((normName(b.name)===normName(from.name))-(normName(a.name)===normName(from.name))) || (b.webinar_regs-a.webinar_regs));
+  const opts=others.map(a=>'<option value="'+a.id+'">'+esc(a.name)+(a.email?" · "+esc(a.email):"")+" ("+a.webinar_regs+" Anm.)</option>").join("");
+  $("adm-editor").innerHTML='<div style="background:#fff7f6;border:1px solid #f0c8c2;border-radius:10px;padding:14px;margin-bottom:12px;">'+
+    '<div style="font-weight:700;color:#b03a3a;margin-bottom:6px;">Dublette zusammenführen</div>'+
+    '<div style="font-size:13px;margin-bottom:8px;">Alle Daten von <b>'+esc(from.name)+'</b> ('+from.webinar_regs+' Anm.'+(from.email?", "+esc(from.email):"")+') werden auf den Zielberater übertragen (Webinare, Leads, Termine, Anträge, VLZ). Danach wird <b>'+esc(from.name)+'</b> deaktiviert.</div>'+
+    '<label style="font-size:12px;color:var(--muted);">Zielberater (behalten):</label><br><select id="mg-into" style="min-width:280px;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;margin:4px 0;">'+opts+'</select>'+
+    '<div style="margin-top:10px;"><button id="mg-go" style="background:#b03a3a;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;">Zusammenführen</button> <button id="mg-cancel" style="background:#fff;border:1px solid var(--line);padding:8px 14px;border-radius:8px;cursor:pointer;font:inherit;">Abbrechen</button> <span id="mg-status" class="muted" style="font-size:13px;margin-left:8px;"></span></div></div>';
+  $("mg-cancel").onclick=()=>{ $("adm-editor").innerHTML=""; };
+  $("mg-go").onclick=async()=>{
+    const into=$("mg-into").value; if(!into) return;
+    if(!confirm("Wirklich zusammenführen? "+from.name+" wird deaktiviert und alle Daten auf den Zielberater übertragen.")) return;
+    $("mg-status").textContent="Führe zusammen…";
+    const { error } = await sb.rpc("webinar_admin_advisor_merge",{ p_from:fromId, p_into:into });
+    if(error){ $("mg-status").textContent="Fehler: "+error.message; return; }
+    $("adm-editor").innerHTML=""; await loadAdvisors(); await loadUnassigned();
+  };
+  $("adm-editor").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+async function loadUnassigned(){
+  $("unassigned-panel").classList.remove("hidden");
+  if(!_advisors.length){ try{ const {data}=await sb.rpc("webinar_admin_advisors_full"); _advisors=data||[]; }catch(_){} }
+  try{ const { data } = await sb.rpc("webinar_admin_unassigned"); _unassigned=data||[]; }catch(_){ _unassigned=[]; }
+  $("ua-count").textContent="· "+_unassigned.length+" offen";
+  renderUnassigned();
+}
+function fmtDshort(iso){ try{ return new Date(iso).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric",timeZone:TZ}); }catch(_){ return ""; } }
+function renderUnassigned(){
+  const q=($("ua-search").value||"").toLowerCase().trim();
+  let rows=_unassigned.filter(r=>!q || ((r.attendee_name||"")+" "+(r.attendee_email||"")+" "+(r.webinar_title||"")).toLowerCase().includes(q));
+  if(!rows.length){ $("ua-body").innerHTML='<div class="muted">Keine offenen Zuordnungen 🎉</div>'; return; }
+  const active=_advisors.filter(a=>a.active);
+  const optsFor=(answer)=>{ const want=normName(answer);
+    return '<option value="">– Berater wählen –</option>'+active.map(a=>'<option value="'+a.id+'"'+((want&&normName(a.name)===want)?" selected":"")+'>'+esc(a.name)+'</option>').join(""); };
+  rows=rows.slice(0,300);
+  $("ua-body").innerHTML='<div style="display:flex;flex-direction:column;gap:8px;max-height:560px;overflow:auto;">'+rows.map(r=>{
+    const hint=(r.advisor_answer&&r.advisor_answer.trim())?'<span style="background:#eef7fb;color:var(--navy);font-size:11px;font-weight:600;padding:2px 7px;border-radius:6px;">Hinweis: '+esc(r.advisor_answer)+'</span>':"";
+    return '<div class="ua-row" data-id="'+r.id+'" style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'+
+      '<div style="flex:1;min-width:200px;"><div style="font-weight:600;color:var(--navy);">'+esc(r.attendee_name||"(ohne Name)")+'</div><div style="font-size:12px;color:var(--muted);">'+esc(r.attendee_email||"")+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">'+esc(r.webinar_title||"")+' · '+fmtDshort(r.starts_at)+'</div></div>'+
+      '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+hint+
+      '<select class="ua-sel" style="padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;min-width:180px;">'+optsFor(r.advisor_answer)+'</select>'+
+      '<label style="font-size:11px;color:var(--muted);"><input type="checkbox" class="ua-all"> alle Termine dieser E-Mail</label>'+
+      '<button class="ua-go" style="background:var(--cyan-d);color:#fff;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;font-size:13px;">Zuordnen</button>'+
+      '<span class="ua-status muted" style="font-size:12px;"></span></div></div>';
+  }).join("")+'</div>';
+  document.querySelectorAll(".ua-go").forEach(b=>b.onclick=()=>assignRow(b));
+}
+async function assignRow(btn){
+  const row=btn.closest(".ua-row"); const id=row.dataset.id;
+  const advisorId=row.querySelector(".ua-sel").value;
+  const all=row.querySelector(".ua-all").checked;
+  const st=row.querySelector(".ua-status");
+  if(!advisorId){ st.textContent="Bitte Berater wählen."; return; }
+  st.textContent="…";
+  const { error } = await sb.rpc("webinar_admin_assign",{ p_registration_id:id, p_advisor_id:advisorId, p_all_for_email:all });
+  if(error){ st.textContent="Fehler: "+error.message; return; }
+  const email=((_unassigned.find(x=>x.id===id)||{}).attendee_email||"").toLowerCase();
+  _unassigned=_unassigned.filter(x=> (all&&email) ? (x.attendee_email||"").toLowerCase()!==email : x.id!==id );
+  $("ua-count").textContent="· "+_unassigned.length+" offen";
+  row.style.transition="opacity .25s"; row.style.opacity=".3";
+  setTimeout(renderUnassigned,260);
 }
 const MONTH_NAMES=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
 async function loadMonthRanking(){
