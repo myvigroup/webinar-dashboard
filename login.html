@@ -262,12 +262,12 @@
         <div class="avatar" id="avatar">–</div><span class="muted" id="who"></span><span style="color:var(--muted);font-size:11px;">▾</span>
       </button>
       <div id="hmenu-list" class="hidden" style="position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 34px rgba(0,40,80,.16);min-width:240px;padding:6px;z-index:50;">
-        <button class="hmi" data-sec="uebersicht">📊 Übersicht</button>
-        <button class="hmi adm-only" data-sec="kunden">👥 Unzugeordnete Kunden</button>
-        <button class="hmi adm-only" data-sec="berater">🧑‍💼 Berater verwalten</button>
-        <button class="hmi adm-only" data-sec="monat">📅 Monatsrangliste</button>
+        <button class="hmi" data-sec="uebersicht"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:9px;"><path d="M4 19V5M4 19h16M8 16l3-4 3 2 4-6"/></svg>Übersicht</button>
+        <button class="hmi adm-only" data-sec="kunden"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:9px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Unzugeordnete Kunden</button>
+        <button class="hmi adm-only" data-sec="berater"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:9px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Berater verwalten</button>
+        <button class="hmi adm-only" data-sec="monat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:9px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Monatsrangliste</button>
         <div style="border-top:1px solid var(--line);margin:6px 4px;"></div>
-        <button class="hmi" id="btn-logout" style="color:#b03a3a;">⎋ Abmelden</button>
+        <button class="hmi" id="btn-logout" style="color:#b03a3a;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:9px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Abmelden</button>
       </div>
     </div>
   </header>
@@ -287,7 +287,7 @@
       <div id="affil-hint" class="muted" style="font-size:12px;margin-top:8px;"></div>
     </div>
     <div class="panel hidden" id="sov-panel" style="margin-bottom:14px;">
-      <div class="ptitle">🎨 Social-Media-Vorlagen <span style="font-weight:400;font-size:11px;color:var(--muted);">· Vorlage wählen, herunterladen &amp; posten</span></div>
+      <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Social-Media-Vorlagen <span style="font-weight:400;font-size:11px;color:var(--muted);">· Vorlage wählen, herunterladen &amp; posten</span></div>
       <div class="affil-row"><label for="sov-sel">Vorlage:</label><select id="sov-sel" style="min-width:260px;"></select></div>
       <div id="sov-body" class="social-grid" style="margin-top:12px;"></div>
     </div>
@@ -367,26 +367,26 @@
         <div id="delta-body" class="muted">Lädt…</div>
       </div>
       <div class="panel hidden" id="rank-panel" style="margin-bottom:14px;">
-        <div class="ptitle">🏆 Berater-Ranking <span style="font-weight:400;font-size:11px;color:var(--muted);">· wer hat am meisten eingeladen</span></div>
+        <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v2a3 3 0 0 0 3 3"/><path d="M17 6h3v2a3 3 0 0 1-3 3"/></svg>Berater-Ranking <span style="font-weight:400;font-size:11px;color:var(--muted);">· wer hat am meisten eingeladen</span></div>
         <div class="cms-tabs" id="rank-filter" style="margin-bottom:14px;"><button data-p="all" class="on">Gesamt</button><button data-p="7d">Letzte 7 Tage</button><button data-p="today">Heute</button></div>
         <div id="rank-board" class="muted">Lädt…</div>
       </div>
       <div class="panel hidden" id="month-panel" style="margin-bottom:14px;">
-        <div class="ptitle">📅 Monatsrangliste <span style="font-weight:400;font-size:11px;color:var(--muted);">· Berater nach Anmeldungen &amp; Teilnahmen</span></div>
+        <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Monatsrangliste <span style="font-weight:400;font-size:11px;color:var(--muted);">· Berater nach Anmeldungen &amp; Teilnahmen</span></div>
         <div style="margin-bottom:14px;"><label style="font-size:13px;color:var(--muted);margin-right:6px;">Monat:</label><select id="month-sel" style="font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;min-width:160px;"></select></div>
         <div id="month-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
-          <div><div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:10px;">🏆 Meiste Anmeldungen</div><div id="month-anm" class="muted">Lädt…</div></div>
-          <div><div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:10px;">✅ Meiste Teilnahmen</div><div id="month-teil" class="muted">Lädt…</div></div>
+          <div><div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v2a3 3 0 0 0 3 3"/><path d="M17 6h3v2a3 3 0 0 1-3 3"/></svg>Meiste Anmeldungen</div><div id="month-anm" class="muted">Lädt…</div></div>
+          <div><div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>Meiste Teilnahmen</div><div id="month-teil" class="muted">Lädt…</div></div>
         </div>
       </div>
       <div class="panel hidden" id="unassigned-panel" style="margin-bottom:14px;">
-        <div class="ptitle">👥 Unzugeordnete Kunden <span id="ua-count" style="font-weight:400;font-size:11px;color:var(--muted);"></span></div>
+        <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Unzugeordnete Kunden <span id="ua-count" style="font-weight:400;font-size:11px;color:var(--muted);"></span></div>
         <div class="muted" style="font-size:12px;margin-bottom:10px;">Anmeldungen ohne Berater – Berater wählen und zuordnen. „Hinweis" = Antwort aus der Teams-Anmeldung (zur Vorauswahl genutzt).</div>
         <input id="ua-search" placeholder="Suche Name / E-Mail / Webinar…" style="width:100%;max-width:340px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;margin-bottom:10px;">
         <div id="ua-body" class="muted">Lädt…</div>
       </div>
       <div class="panel hidden" id="advisors-panel" style="margin-bottom:14px;">
-        <div class="ptitle">🧑‍💼 Berater verwalten <span id="adm-count" style="font-weight:400;font-size:11px;color:var(--muted);"></span>
+        <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Berater verwalten <span id="adm-count" style="font-weight:400;font-size:11px;color:var(--muted);"></span>
           <button id="adm-new" style="float:right;background:var(--navy);color:#fff;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;font-size:13px;">+ Neuer Berater</button></div>
         <input id="adm-search" placeholder="Suche Name / E-Mail / Slug…" style="width:100%;max-width:340px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;margin:8px 0 10px;">
         <div id="adm-editor"></div>
@@ -726,7 +726,7 @@ async function loadAffil(){
 async function loadOrg(){
   $("tables").classList.remove("hidden");
   $("rank-panel").classList.remove("hidden");
-  document.querySelector("#rank-panel .ptitle").innerHTML='🏆 Berater-Ranking deiner Organisation';
+  document.querySelector("#rank-panel .ptitle").innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v2a3 3 0 0 0 3 3"/><path d="M17 6h3v2a3 3 0 0 1-3 3"/></svg>Berater-Ranking deiner Organisation';
   $("rank-filter").style.display="none";
   const { data } = await sb.rpc("webinar_org_ranking");
   renderRankBoard(data || []);
@@ -858,7 +858,7 @@ function fmtDshort(iso){ try{ return new Date(iso).toLocaleDateString("de-DE",{d
 function renderUnassigned(){
   const q=($("ua-search").value||"").toLowerCase().trim();
   let rows=_unassigned.filter(r=>!q || ((r.attendee_name||"")+" "+(r.attendee_email||"")+" "+(r.webinar_title||"")).toLowerCase().includes(q));
-  if(!rows.length){ $("ua-body").innerHTML='<div class="muted">Keine offenen Zuordnungen 🎉</div>'; return; }
+  if(!rows.length){ $("ua-body").innerHTML='<div class="muted" style="display:flex;align-items:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a7d4b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>Keine offenen Zuordnungen</div>'; return; }
   const active=_admAdv.filter(a=>a.active);
   const optsFor=(answer)=>{ const want=normName(answer);
     return '<option value="">– Berater wählen –</option><option value="__none__">— Ohne Berater (kein) —</option>'+active.map(a=>'<option value="'+a.id+'"'+((want&&normName(a.name)===want)?" selected":"")+'>'+esc(a.name)+'</option>').join(""); };
@@ -908,7 +908,7 @@ async function loadMonthRanking(){
 function monthTable(rows,key,subkey,subword){
   if(!rows.length) return '<div class="muted">Keine Daten für diesen Monat.</div>';
   const max=Math.max(1,...rows.map(r=>Number(r[key])));
-  const medal=i=>i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1)+".";
+  const medal=i=>{const c=["#E3B341","#9AA7B2","#CD7F47"];return i<3?'<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:'+c[i]+';color:#fff;font-weight:700;font-size:11px;">'+(i+1)+'</span>':(i+1)+".";};
   return clampRows("m_"+key,rows.map((r,i)=>{
     const pct=Math.max(4,Math.round(Number(r[key])/max*100));
     return '<div class="lb-row'+(i<3?' top':'')+'"><div class="lb-pos">'+medal(i)+'</div><div class="lb-main"><div class="lb-name">'+esc(r.advisor)+'<span class="lb-n">'+r[key]+'</span></div><div class="lb-bar"><div class="lb-fill" style="width:'+pct+'%;"></div></div><div class="lb-sub">'+(r[subkey]||0)+' '+subword+'</div></div></div>';
@@ -931,7 +931,7 @@ async function loadRanking(){
 function renderRankBoard(rows){
   rows = rows || [];
   const max = Math.max(1, ...rows.map(r=>Number(r.anmeldungen)));
-  const medal=i=> i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1)+".";
+  const medal=i=>{const c=["#E3B341","#9AA7B2","#CD7F47"];return i<3?'<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:'+c[i]+';color:#fff;font-weight:700;font-size:11px;">'+(i+1)+'</span>':(i+1)+".";};
   _rankRows=rows;
   $("rank-board").innerHTML = rows.length ? clampRows("rank",rows.map((r,i)=>{
     const pct=Math.max(4, Math.round(Number(r.anmeldungen)/max*100));
