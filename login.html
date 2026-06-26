@@ -589,6 +589,7 @@ async function init() {
   $("login").style.display="none"; $("app").classList.remove("hidden");
   me = (session.user.email || "").toLowerCase();
   isAdmin = ADMIN.includes(me);
+  try{ const { data: srvAdmin } = await sb.rpc("webinar_is_admin"); if(srvAdmin===true) isAdmin=true; }catch(_){}
   const name = session.user.user_metadata?.full_name || session.user.email || "";
   $("who").textContent = isAdmin ? name + " · Admin" : name;
   $("avatar").textContent = name.split(" ").map(s => s[0]).slice(0,2).join("").toUpperCase();
