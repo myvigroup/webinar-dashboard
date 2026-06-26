@@ -249,10 +249,27 @@
   </div>
 </div>
 
+<style>
+.hmi{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:none;border:none;border-radius:8px;padding:9px 12px;cursor:pointer;font:inherit;font-size:14px;color:#0b2138;}
+.hmi:hover{background:#f3f7fb;}
+.adm-hidden{display:none !important;}
+</style>
 <div id="app" class="hidden">
   <header>
     <div class="hbrand"><img src="/logo.png" alt="mitNORM" style="height:32px;width:auto;display:block;"><span class="happ">Webinar-Anmeldungen</span></div>
-    <div class="huser"><div class="avatar" id="avatar">–</div><span class="muted" id="who"></span><button class="ghost dark" id="btn-logout">Abmelden</button></div>
+    <div class="huser" style="position:relative;">
+      <button id="hmenu-btn" style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 12px 6px 8px;cursor:pointer;font:inherit;">
+        <div class="avatar" id="avatar">–</div><span class="muted" id="who"></span><span style="color:var(--muted);font-size:11px;">▾</span>
+      </button>
+      <div id="hmenu-list" class="hidden" style="position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 34px rgba(0,40,80,.16);min-width:240px;padding:6px;z-index:50;">
+        <button class="hmi" data-sec="uebersicht">📊 Übersicht</button>
+        <button class="hmi adm-only" data-sec="kunden">👥 Unzugeordnete Kunden</button>
+        <button class="hmi adm-only" data-sec="berater">🧑‍💼 Berater verwalten</button>
+        <button class="hmi adm-only" data-sec="monat">📅 Monatsrangliste</button>
+        <div style="border-top:1px solid var(--line);margin:6px 4px;"></div>
+        <button class="hmi" id="btn-logout" style="color:#b03a3a;">⎋ Abmelden</button>
+      </div>
+    </div>
   </header>
   <div class="wrap">
     <div class="toolbar">
@@ -590,6 +607,7 @@ async function init() {
   me = (session.user.email || "").toLowerCase();
   isAdmin = ADMIN.includes(me);
   try{ const { data: srvAdmin } = await sb.rpc("webinar_is_admin"); if(srvAdmin===true) isAdmin=true; }catch(_){}
+  setupHeaderMenu();
   const name = session.user.user_metadata?.full_name || session.user.email || "";
   $("who").textContent = isAdmin ? name + " · Admin" : name;
   $("avatar").textContent = name.split(" ").map(s => s[0]).slice(0,2).join("").toUpperCase();
@@ -733,8 +751,26 @@ async function loadAdmin(){
 // ===== Beraterverwaltung + Unzugeordnete Kunden (Admin) =====
 let _admAdv=[], _unassigned=[];
 function normName(s){ return (s||"").toLowerCase().replace(/[^a-zäöüß ]/g,"").replace(/\s+/g," ").trim(); }
+// Listen auf 5 Einträge klappen (Rest ausklappbar)
+const _expand={}; let _rankRows=[];
+function clampToggle(key,total,open){ return total>5? '<div style="text-align:center;margin-top:10px;"><button class="clamp-toggle" data-key="'+key+'" style="background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 14px;cursor:pointer;font:inherit;font-size:13px;color:var(--navy);font-weight:600;">'+(open?"Weniger anzeigen ▴":("Alle "+total+" anzeigen ▾"))+'</button></div>' : ''; }
+function clampRows(key,arr,total){ const open=_expand[key]; return (open?arr:arr.slice(0,5)).join("")+clampToggle(key,total,open); }
+function wireClamp(el,fn){ if(!el) return; el.querySelectorAll(".clamp-toggle").forEach(b=>b.onclick=()=>{ _expand[b.dataset.key]=!_expand[b.dataset.key]; fn(); }); }
+// Header-Dropdown + Bereichsumschaltung
+const SEC_PANELS={kunden:"unassigned-panel",berater:"advisors-panel",monat:"month-panel"};
+function showSection(name){
+  Object.values(SEC_PANELS).forEach(id=>{ const el=$(id); if(el) el.classList.add("hidden"); });
+  if(SEC_PANELS[name]){ const el=$(SEC_PANELS[name]); if(el){ el.classList.remove("hidden"); el.scrollIntoView({behavior:"smooth",block:"start"}); } }
+  else { window.scrollTo({top:0,behavior:"smooth"}); }
+}
+function setupHeaderMenu(){
+  const btn=$("hmenu-btn"), list=$("hmenu-list"); if(!btn||!list) return;
+  document.querySelectorAll(".adm-only").forEach(el=>el.classList.toggle("adm-hidden", !isAdmin));
+  btn.onclick=(e)=>{ e.stopPropagation(); list.classList.toggle("hidden"); };
+  document.addEventListener("click",(e)=>{ if(!list.classList.contains("hidden") && !list.contains(e.target) && !btn.contains(e.target)) list.classList.add("hidden"); });
+  document.querySelectorAll(".hmi[data-sec]").forEach(b=>b.onclick=()=>{ showSection(b.dataset.sec); list.classList.add("hidden"); });
+}
 async function loadAdvisors(){
-  $("advisors-panel").classList.remove("hidden");
   try{ const { data } = await sb.rpc("webinar_admin_advisors_full"); _admAdv=data||[]; }catch(_){ _admAdv=[]; }
   $("adm-count").textContent="· "+_admAdv.length+" Einträge";
   renderAdvisors();
@@ -745,7 +781,7 @@ function renderAdvisors(){
   if(!rows.length){ $("adm-body").innerHTML='<div class="muted">Keine Treffer.</div>'; return; }
   $("adm-body").innerHTML='<div style="overflow:auto;"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:640px;">'+
     '<tr style="text-align:left;color:var(--muted);font-size:11px;"><th style="padding:6px 8px;">Name</th><th style="padding:6px 8px;">E-Mail</th><th style="padding:6px 8px;">Slug</th><th style="padding:6px 8px;">Anm.</th><th style="padding:6px 8px;">Aktiv</th><th style="padding:6px 8px;">Events</th><th style="padding:6px 8px;">Leads</th><th></th></tr>'+
-    rows.map(a=>{
+    (_expand["adm"]?rows:rows.slice(0,5)).map(a=>{
       const dup=a.dup_count>1?' <span style="background:#fdecea;color:#b03a3a;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;">Dublette</span>':'';
       const ina=a.active?'':'opacity:.5;';
       return '<tr style="border-top:1px solid var(--line);'+ina+'"><td style="padding:6px 8px;font-weight:600;color:var(--navy);">'+esc(a.name)+dup+'</td>'+
@@ -756,9 +792,10 @@ function renderAdvisors(){
         '<td style="padding:6px 8px;">'+(a.can_events?"✓":"–")+'</td>'+
         '<td style="padding:6px 8px;">'+(a.can_leads?"✓":"–")+'</td>'+
         '<td style="padding:6px 8px;white-space:nowrap;"><button class="adm-edit" data-id="'+a.id+'" style="font:inherit;font-size:12px;color:var(--navy);background:none;border:1px solid var(--line);border-radius:6px;padding:4px 8px;cursor:pointer;">Bearbeiten</button> <button class="adm-merge" data-id="'+a.id+'" style="font:inherit;font-size:12px;color:#b03a3a;background:none;border:1px solid #f0c8c2;border-radius:6px;padding:4px 8px;cursor:pointer;">Merge</button></td></tr>';
-    }).join("")+'</table></div>';
+    }).join("")+'</table></div>'+clampToggle("adm",rows.length,_expand["adm"]);
   document.querySelectorAll(".adm-edit").forEach(b=>b.onclick=()=>editAdvisor(b.dataset.id));
   document.querySelectorAll(".adm-merge").forEach(b=>b.onclick=()=>mergeAdvisor(b.dataset.id));
+  wireClamp($("adm-body"),renderAdvisors);
 }
 function editAdvisor(id){
   const a=id?(_admAdv.find(x=>x.id===id)||{}):{};
@@ -812,7 +849,6 @@ function mergeAdvisor(fromId){
   $("adm-editor").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 async function loadUnassigned(){
-  $("unassigned-panel").classList.remove("hidden");
   if(!_admAdv.length){ try{ const {data}=await sb.rpc("webinar_admin_advisors_full"); _admAdv=data||[]; }catch(_){} }
   try{ const { data } = await sb.rpc("webinar_admin_unassigned"); _unassigned=data||[]; }catch(_){ _unassigned=[]; }
   $("ua-count").textContent="· "+_unassigned.length+" offen";
@@ -827,7 +863,7 @@ function renderUnassigned(){
   const optsFor=(answer)=>{ const want=normName(answer);
     return '<option value="">– Berater wählen –</option>'+active.map(a=>'<option value="'+a.id+'"'+((want&&normName(a.name)===want)?" selected":"")+'>'+esc(a.name)+'</option>').join(""); };
   rows=rows.slice(0,300);
-  $("ua-body").innerHTML='<div style="display:flex;flex-direction:column;gap:8px;max-height:560px;overflow:auto;">'+rows.map(r=>{
+  $("ua-body").innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'+clampRows("ua",rows.map(r=>{
     const hint=(r.advisor_answer&&r.advisor_answer.trim())?'<span style="background:#eef7fb;color:var(--navy);font-size:11px;font-weight:600;padding:2px 7px;border-radius:6px;">Hinweis: '+esc(r.advisor_answer)+'</span>':"";
     return '<div class="ua-row" data-id="'+r.id+'" style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'+
       '<div style="flex:1;min-width:200px;"><div style="font-weight:600;color:var(--navy);">'+esc(r.attendee_name||"(ohne Name)")+'</div><div style="font-size:12px;color:var(--muted);">'+esc(r.attendee_email||"")+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">'+esc(r.webinar_title||"")+' · '+fmtDshort(r.starts_at)+'</div></div>'+
@@ -836,8 +872,9 @@ function renderUnassigned(){
       '<label style="font-size:11px;color:var(--muted);"><input type="checkbox" class="ua-all"> alle Termine dieser E-Mail</label>'+
       '<button class="ua-go" style="background:var(--cyan-d);color:#fff;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;font-size:13px;">Zuordnen</button>'+
       '<span class="ua-status muted" style="font-size:12px;"></span></div></div>';
-  }).join("")+'</div>';
+  }),rows.length)+'</div>';
   document.querySelectorAll(".ua-go").forEach(b=>b.onclick=()=>assignRow(b));
+  wireClamp($("ua-body"),renderUnassigned);
 }
 async function assignRow(btn){
   const row=btn.closest(".ua-row"); const id=row.dataset.id;
@@ -856,7 +893,6 @@ async function assignRow(btn){
 }
 const MONTH_NAMES=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
 async function loadMonthRanking(){
-  $("month-panel").classList.remove("hidden");
   const sel=$("month-sel");
   if(!sel.dataset.init){
     let months=[];
@@ -872,10 +908,10 @@ function monthTable(rows,key,subkey,subword){
   if(!rows.length) return '<div class="muted">Keine Daten für diesen Monat.</div>';
   const max=Math.max(1,...rows.map(r=>Number(r[key])));
   const medal=i=>i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1)+".";
-  return rows.map((r,i)=>{
+  return clampRows("m_"+key,rows.map((r,i)=>{
     const pct=Math.max(4,Math.round(Number(r[key])/max*100));
     return '<div class="lb-row'+(i<3?' top':'')+'"><div class="lb-pos">'+medal(i)+'</div><div class="lb-main"><div class="lb-name">'+esc(r.advisor)+'<span class="lb-n">'+r[key]+'</span></div><div class="lb-bar"><div class="lb-fill" style="width:'+pct+'%;"></div></div><div class="lb-sub">'+(r[subkey]||0)+' '+subword+'</div></div></div>';
-  }).join("");
+  }),rows.length);
 }
 async function renderMonth(){
   const v=($("month-sel").value||"").split("-"); if(v.length<2) return;
@@ -885,6 +921,7 @@ async function renderMonth(){
   const rows=data||[];
   $("month-anm").innerHTML=monthTable(rows.slice().sort((a,b)=>Number(b.anmeldungen)-Number(a.anmeldungen)||Number(b.teilgenommen)-Number(a.teilgenommen)),"anmeldungen","teilgenommen","teilgenommen");
   $("month-teil").innerHTML=monthTable(rows.slice().sort((a,b)=>Number(b.teilgenommen)-Number(a.teilgenommen)||Number(b.anmeldungen)-Number(a.anmeldungen)),"teilgenommen","anmeldungen","Anmeldungen");
+  wireClamp($("month-anm"),renderMonth); wireClamp($("month-teil"),renderMonth);
 }
 async function loadRanking(){
   const { data } = await sb.rpc("webinar_admin_ranking_f", { p_period:_rankPeriod });
@@ -894,10 +931,12 @@ function renderRankBoard(rows){
   rows = rows || [];
   const max = Math.max(1, ...rows.map(r=>Number(r.anmeldungen)));
   const medal=i=> i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1)+".";
-  $("rank-board").innerHTML = rows.length ? rows.map((r,i)=>{
+  _rankRows=rows;
+  $("rank-board").innerHTML = rows.length ? clampRows("rank",rows.map((r,i)=>{
     const pct=Math.max(4, Math.round(Number(r.anmeldungen)/max*100));
     return '<div class="lb-row'+(i<3?' top':'')+'"><div class="lb-pos">'+medal(i)+'</div><div class="lb-main"><div class="lb-name">'+esc(r.advisor)+'<span class="lb-n">'+r.anmeldungen+'</span></div><div class="lb-bar"><div class="lb-fill" style="width:'+pct+'%;"></div></div><div class="lb-sub">'+(r.teilgenommen||0)+' teilgenommen</div></div></div>';
-  }).join("") : '<div class="muted">Keine Anmeldungen im gewählten Zeitraum.</div>';
+  }),rows.length) : '<div class="muted">Keine Anmeldungen im gewählten Zeitraum.</div>';
+  wireClamp($("rank-board"),()=>renderRankBoard(_rankRows));
 }
 
 async function loadDelta(){
