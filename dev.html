@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Webinar-Anmeldungen · mitNORM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#004283;--navy-d:#02315f;--cyan:#06BADD;--cyan-d:#0596b3;--brand:#0596b3;--ink:#0b2138;--muted:#5b7088;--line:#e4eaf1;--bg:#eef3f8;--card:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:Inter,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);}
+  h1,h2,h3,.font-display{font-family:Outfit,Inter,sans-serif;}
+  .muted{color:var(--muted);}
+  a{color:var(--cyan-d);text-decoration:none;font-weight:600;}
+  a:hover{text-decoration:underline;}
+  button{font:inherit;cursor:pointer;border-radius:10px;}
+  .ms-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:var(--ink);border:1px solid var(--line);padding:13px 22px;font-weight:600;font-size:15px;box-shadow:0 4px 14px rgba(0,40,90,.08);}
+  .ms-btn:hover{box-shadow:0 6px 20px rgba(0,40,90,.14);}
+  .ghost{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;padding:8px 14px;font-weight:500;}
+  .ghost.dark{border-color:var(--line);color:var(--navy);}
+  .hidden{display:none!important;}
+
+  /* Login */
+  .login{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;}
+  .login-left{background:linear-gradient(0deg,rgba(6,186,221,.04),rgba(6,186,221,.04)),linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:100% 100%,28px 28px,28px 28px;background-color:#f3f7fb;padding:8vh 6vw;display:flex;flex-direction:column;justify-content:center;}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:48px;}
+  .brand .mark{width:46px;height:46px;border-radius:13px;background:linear-gradient(140deg,var(--cyan),var(--navy));display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(0,66,131,.25);}
+  .brand .name{font-family:Outfit;font-weight:800;font-size:22px;color:var(--navy);letter-spacing:-.5px;}
+  .login-left h1{font-size:46px;line-height:1.05;font-weight:800;margin:0 0 18px;color:var(--navy-d);letter-spacing:-1px;}
+  .login-left p{font-size:17px;color:var(--muted);max-width:420px;margin:0 0 32px;}
+  .feat{display:flex;align-items:center;gap:12px;margin:14px 0;font-weight:500;color:var(--navy-d);}
+  .feat .ck{width:24px;height:24px;border-radius:7px;background:rgba(6,186,221,.14);color:var(--cyan-d);display:flex;align-items:center;justify-content:center;font-weight:700;}
+  .login-right{background:radial-gradient(120% 120% at 80% 0%,#0a4f93 0%,var(--navy) 45%,var(--navy-d) 100%);color:#fff;padding:8vh 6vw;display:flex;flex-direction:column;justify-content:center;}
+  .login-right .label{font-family:Outfit;font-weight:700;font-size:12px;letter-spacing:2px;color:var(--cyan);margin-bottom:14px;}
+  .login-right h2{font-size:38px;font-weight:800;margin:0 0 12px;letter-spacing:-.5px;}
+  .login-right .sub{color:#bcd2e8;font-size:16px;max-width:420px;margin:0 0 28px;}
+  .login-right .hint{color:#8fb0d0;font-size:13px;margin-top:18px;max-width:430px;line-height:1.6;}
+  .login-right .foot{color:#5e80a3;font-size:12px;margin-top:40px;}
+  .err{background:rgba(255,90,90,.12);border:1px solid rgba(255,120,120,.4);color:#ffd2d2;padding:12px 14px;border-radius:10px;font-size:14px;margin-bottom:18px;}
+
+  /* App */
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:var(--card);border-bottom:1px solid var(--line);flex-wrap:wrap;gap:12px;}
+  .hbrand{display:flex;align-items:center;gap:11px;}
+  .hbrand .mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(140deg,var(--cyan),var(--navy));}
+  .hbrand .t{font-family:Outfit;font-weight:800;font-size:17px;color:var(--navy);letter-spacing:-.3px;}
+  .hbrand .s{font-size:12px;color:var(--muted);}
+  .mnl-w{font-family:Outfit,sans-serif;font-weight:800;color:var(--navy);letter-spacing:0;display:inline-flex;align-items:center;line-height:1;}
+  .mnl-o{display:inline-block;position:relative;width:.9em;height:.9em;border-radius:50%;background:var(--navy);margin:0 .02em;}
+  .mnl-o::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:.46em;height:.16em;background:#fff;border-radius:1px;}
+  .mnl-o::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:.16em;height:.46em;background:#fff;border-radius:1px;}
+  .mnl-tag{display:block;font-family:Inter,sans-serif;font-weight:600;font-size:8.5px;letter-spacing:2.5px;color:var(--muted);margin-top:4px;}
+  .happ{font-family:Outfit,sans-serif;font-weight:700;font-size:15px;color:var(--muted);padding-left:12px;margin-left:4px;border-left:1px solid var(--line);}
+  .huser{display:flex;align-items:center;gap:10px;}
+  .avatar{width:34px;height:34px;border-radius:50%;background:rgba(6,186,221,.15);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;font-family:Outfit;}
+  .wrap{max-width:1400px;margin:0 auto;padding:22px 24px 56px;}
+  #tables{margin-top:16px;display:flex;flex-direction:column;gap:14px;}
+  .toolbar{display:flex;justify-content:flex-end;margin-bottom:14px;}
+  .seg{display:inline-flex;background:#e3ebf3;border-radius:12px;padding:4px;gap:4px;}
+  .seg button{border:none;background:transparent;color:var(--muted);font-weight:600;padding:9px 18px;border-radius:9px;}
+  .seg button.on{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(0,40,90,.12);}
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start;}
+  #detail{margin-top:16px;}
+  #detail-head{font-family:Outfit;font-weight:700;color:var(--navy);font-size:16px;margin-bottom:12px;line-height:1.3;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 2px 10px rgba(0,40,90,.04);}
+  .panel + .panel{margin-top:14px;}
+  .ptitle{font-family:Outfit;font-weight:700;color:var(--navy);font-size:14px;margin-bottom:12px;}
+  .panel.collapsible > .ptitle{cursor:pointer;display:flex;align-items:center;gap:7px;user-select:none;}
+  .panel.collapsible > .ptitle::before{content:'▾';color:var(--muted);font-size:11px;transition:transform .15s;}
+  .panel.collapsible.collapsed > .ptitle::before{content:'▸';}
+  .panel.collapsible.collapsed > .ptitle{margin-bottom:0;}
+  .panel.collapsible.collapsed > .panel-body{display:none;}
+  .ptitle .cnt{margin-left:auto;font-weight:600;font-size:12px;color:var(--muted);background:var(--bg);padding:1px 9px;border-radius:20px;}
+  tr.more-row td{text-align:center;padding:0;border-bottom:none;}
+  tr.more-row button{width:100%;background:transparent;border:none;color:var(--brand);font:inherit;font-size:12px;font-weight:600;padding:9px;cursor:pointer;border-radius:8px;}
+  tr.more-row button:hover{background:var(--bg);}
+  .detail-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+  .detail-grid.cols2{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;}
+  @media(max-width:1000px){.detail-grid.cols2{grid-template-columns:1fr;}}
+  .tbl-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+  .tbl-filters label{font-size:12px;color:var(--muted);}
+  .tbl-filters select{font:inherit;font-size:13px;padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);}
+  th.sortable{cursor:pointer;user-select:none;white-space:nowrap;}
+  th.sortable:hover{color:var(--cyan-d);}
+  th.sortable .ar{color:var(--cyan-d);font-size:11px;}
+  #mytable tbody tr.clk{cursor:pointer;}
+  #mytable tbody tr.clk:hover{background:rgba(6,186,221,.07);}
+  #row-modal{position:fixed;inset:0;background:rgba(11,33,56,.45);display:none;align-items:center;justify-content:center;z-index:2000;padding:16px;}
+  #row-modal.open{display:flex;}
+  .rm-card{background:#fff;border-radius:16px;max-width:440px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(0,40,90,.3);}
+  .rm-card h3{font-family:Outfit;color:var(--navy);margin:0 0 14px;font-size:18px;}
+  .rm-row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;}
+  .rm-row .k{color:var(--muted);}
+  .rm-row .v{font-weight:600;text-align:right;color:var(--ink);word-break:break-word;}
+  .rm-close{margin-top:16px;width:100%;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:12px;font:inherit;font-weight:600;cursor:pointer;}
+  #table-modal{position:fixed;inset:0;background:rgba(11,33,56,.5);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px;}
+  #table-modal.open{display:flex;}
+  .tm-card{background:#fff;border-radius:16px;width:min(1100px,96vw);max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,40,90,.3);}
+  .tm-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line);flex:0 0 auto;}
+  #tm-title{font-family:Outfit;font-weight:700;color:var(--navy);font-size:16px;}
+  .tm-head button{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1;padding:0 4px;}
+  .tm-body{overflow:auto;padding:6px 20px 20px;}
+  /* Webinar-Detail-Popup */
+  #webinar-modal{position:fixed;inset:0;background:rgba(11,33,56,.5);display:none;align-items:center;justify-content:center;z-index:2100;padding:20px;}
+  #webinar-modal.open{display:flex;}
+  .wm-card{background:#fff;border-radius:16px;width:min(1000px,96vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,40,90,.3);}
+  .wm-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line);flex:0 0 auto;}
+  .wm-title{font-family:Outfit;font-weight:700;color:var(--navy);font-size:17px;line-height:1.25;}
+  .wm-sub{font-size:12px;margin-top:3px;}
+  .wm-x{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1;padding:0 4px;}
+  .wm-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px 22px 4px;flex:0 0 auto;}
+  .wm-kpi{background:#f7fafd;border:1px solid var(--line);border-radius:12px;padding:12px 14px;}
+  .wm-kpi .l{font-size:12px;color:var(--muted);margin-bottom:3px;}
+  .wm-kpi .v{font-size:22px;font-weight:700;color:var(--navy);font-family:Outfit;}
+  .wm-filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 22px;flex:0 0 auto;}
+  .wm-filters label{font-size:12px;color:var(--muted);}
+  .wm-filters select,.wm-filters input{font:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;}
+  .wm-filters input{min-width:180px;}
+  .wm-body2{overflow:auto;padding:0 22px 22px;}
+  .wm-tbl{width:100%;border-collapse:collapse;font-size:14px;}
+  .wm-tbl th,.wm-tbl td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  .wm-tbl th{color:var(--muted);font-weight:600;position:sticky;top:0;background:#fff;}
+  tr.wm-row{cursor:pointer;}
+  tr.wm-row:hover{background:var(--accent-soft,#e6f1fb);}
+  .wm-back{background:#f1f5fa;border:1px solid var(--line);border-radius:9px;padding:7px 13px;font:inherit;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;margin:4px 0 12px;}
+  .wm-deth{font-family:Outfit;font-weight:700;color:var(--navy);font-size:15px;margin-bottom:10px;}
+  .wm-seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-right:6px;}
+  .wm-seg button{border:none;background:#fff;color:var(--navy);font:inherit;font-size:13px;font-weight:600;padding:7px 13px;cursor:pointer;}
+  .wm-seg button.on{background:var(--navy);color:#fff;}
+  select.wm-assign{font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--line);border-radius:7px;background:#fff;max-width:170px;}
+  .affil-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .affil-row label{font-size:13px;color:var(--muted);font-weight:600;}
+  .affil-row select{font:inherit;font-size:13px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;}
+  .affil-row input{flex:1;min-width:240px;font:inherit;font-size:13px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#f3f7fb;color:var(--ink);}
+  .affil-btn{font:inherit;font-size:13px;font-weight:700;padding:9px 16px;border-radius:9px;border:1.5px solid var(--navy);background:var(--navy);color:#fff;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:.15s;}
+  .affil-btn:hover{filter:brightness(1.08);}
+  .affil-btn.ghosty{background:#fff;color:var(--navy);}
+  .affil-btn.ghosty:hover{background:#eef6fb;filter:none;}
+  .cms-tabs{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-bottom:16px;}
+  .cms-tabs button{border:none;background:#fff;color:var(--navy);font:inherit;font-size:13px;font-weight:600;padding:8px 16px;cursor:pointer;}
+  .cms-tabs button.on{background:var(--navy);color:#fff;}
+  .cms-form{display:flex;flex-direction:column;gap:4px;max-width:680px;}
+  .cms-form label{font-size:12px;color:var(--muted);font-weight:600;margin-top:10px;}
+  .cms-form input,.cms-form textarea{font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;width:100%;}
+  .cms-form textarea{resize:vertical;line-height:1.5;}
+  .cms-photo{width:64px;height:64px;border-radius:50%;object-fit:cover;border:1px solid var(--line);}
+  .lb-row{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--line);}
+  .lb-row:last-child{border-bottom:none;}
+  .lb-pos{flex:0 0 34px;text-align:center;font-family:Outfit,sans-serif;font-weight:800;font-size:18px;color:var(--muted);}
+  .lb-main{flex:1;min-width:0;}
+  .lb-name{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:600;color:var(--ink);font-size:15px;}
+  .lb-n{font-family:Outfit,sans-serif;font-weight:800;color:var(--navy);font-size:17px;}
+  .lb-bar{background:#e8eef4;border-radius:6px;height:8px;margin:6px 0 3px;overflow:hidden;}
+  .lb-fill{background:linear-gradient(90deg,var(--cyan),var(--navy));height:8px;border-radius:6px;}
+  .lb-sub{font-size:12px;color:var(--muted);}
+  .lb-row.top .lb-pos{font-size:22px;}
+  #tm-table{width:100%;border-collapse:collapse;font-size:14px;}
+  #tm-table th,#tm-table td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  #tm-table th{color:var(--muted);font-weight:600;position:sticky;top:0;background:#fff;}
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  .stat{background:#f7fafd;border:1px solid var(--line);border-radius:12px;padding:12px 14px;}
+  .stat .label{font-size:12px;color:var(--muted);margin-bottom:4px;}
+  .stat .val{font-family:Outfit;font-size:22px;font-weight:800;color:var(--navy);}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line);}
+  th{color:var(--muted);font-weight:600;font-size:11px;letter-spacing:.3px;text-transform:uppercase;}
+  /* Kalender */
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .cal-title{font-family:Outfit;font-size:18px;font-weight:700;color:var(--navy);text-transform:capitalize;}
+  .cal-nav{display:flex;gap:8px;}
+  .cal-nav button{width:34px;height:34px;border:1px solid var(--line);background:#fff;color:var(--navy);font-size:17px;}
+  .cal-nav button:hover{border-color:var(--cyan);color:var(--cyan-d);}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .cal-dow{font-size:11px;color:var(--muted);text-align:center;padding:3px 0;font-weight:600;}
+  .cal-cell{min-height:58px;border:1px solid var(--line);border-radius:9px;padding:6px;font-size:12px;background:#fff;}
+  .cal-cell.empty{background:transparent;border:none;}
+  .cal-cell.has{cursor:pointer;transition:.12s;}
+  .cal-cell.has:hover{border-color:var(--cyan);background:rgba(6,186,221,.05);}
+  .cal-cell.sel{border:2px solid var(--cyan);background:rgba(6,186,221,.10);}
+  .cal-cell.today{border-color:var(--navy);}
+  .cal-cell.today .cal-daynum{color:var(--navy);font-weight:800;}
+  .cal-daynum{color:var(--muted);font-weight:600;}
+  .cal-badge{margin-top:4px;display:inline-block;background:var(--navy);color:#fff;font-size:9px;font-weight:600;border-radius:5px;padding:1px 6px;white-space:nowrap;letter-spacing:.1px;}
+  .cal-badge.reg{background:#C2410C;}
+  .rbadge{display:inline-block;background:#C2410C;color:#fff;font-size:9px;font-weight:700;border-radius:5px;padding:2px 7px;margin-left:8px;letter-spacing:.3px;text-transform:uppercase;vertical-align:middle;}
+  .witem.reg{border-left:4px solid #C2410C;}
+  .social-grid{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;}
+  .social-card{width:148px;}
+  .social-card img{width:148px;height:auto;max-height:200px;object-fit:cover;border:1px solid var(--line);border-radius:8px;display:block;background:#f3f7fb;}
+  .social-card .sc-l{font-size:12px;color:var(--muted);margin:6px 0 4px;font-weight:600;}
+  .social-card .sc-dl{font-size:12px;padding:6px 10px;}
+  /* Webinar-Items */
+  .wlist{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+  .witem{text-align:left;width:100%;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;display:block;}
+  .witem:hover{border-color:var(--cyan);}
+  .witem.sel{border:1.5px solid var(--cyan);background:rgba(6,186,221,.07);}
+  .witem .top{display:flex;align-items:center;gap:10px;margin-bottom:5px;}
+  .witem .date{background:rgba(0,66,131,.08);color:var(--navy);font-weight:700;font-size:12px;border-radius:8px;padding:3px 9px;font-family:Outfit;white-space:nowrap;}
+  .witem .ttl{font-weight:600;color:var(--ink);}
+  .witem .meta{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:3px;}
+  .witem .cnt{color:var(--cyan-d);font-weight:700;}
+  @media(max-width:1000px){.layout{grid-template-columns:1fr;}}
+  @media(max-width:820px){.login{grid-template-columns:1fr;}.login-left{display:none;}.login-right{min-height:100vh;justify-content:center;}}
+  @media(max-width:600px){
+    .wrap{padding:14px 12px 48px;}
+    header{padding:12px 14px;}
+    .hbrand .t{font-size:15px;} .hbrand .s{font-size:11px;}
+    .toolbar{justify-content:stretch;} .seg{width:100%;display:flex;} .seg button{flex:1;padding:10px 6px;}
+    .panel{padding:12px;border-radius:12px;}
+    .cal-title{font-size:16px;}
+    .cal-grid{gap:4px;}
+    .cal-dow{font-size:10px;padding:2px 0;}
+    .cal-cell{min-height:46px;padding:4px;border-radius:7px;}
+    .cal-daynum{font-size:12px;}
+    .cal-nav button{width:30px;height:30px;font-size:15px;}
+    .cal-badge{font-size:9px;padding:1px 5px;}
+    .cal-badge .blbl{display:none;}
+    .tlbl{display:none;}
+    .cards{gap:8px;}
+    .stat{padding:11px;} .stat .val{font-size:20px;}
+    #detail-head{font-size:15px;}
+    .witem{padding:11px 12px;} .witem .ttl{font-size:14px;}
+    .login-right{padding:7vh 7vw;} .login-right h2{font-size:30px;}
+  }
+</style>
+</head>
+<body>
+<div id="login" class="login">
+  <div class="login-left">
+    <div class="brand"><img src="/logo.png" alt="mitNORM · Finanzplanung DIN 77230" style="height:62px;width:auto;display:block;"></div>
+    <h1>Webinar-<br>Anmeldungen.</h1>
+    <p>Sieh auf einen Blick, wie viele Teilnehmer du für jedes Webinar gewonnen hast – und wie das Team insgesamt performt.</p>
+    <div class="feat"><span class="ck"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M20 6 9 17l-5-5"/></svg></span> Anmeldungen pro Webinar & gesamt</div>
+    <div class="feat"><span class="ck"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M20 6 9 17l-5-5"/></svg></span> Dein Anteil und Rang im Team</div>
+    <div class="feat"><span class="ck"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M20 6 9 17l-5-5"/></svg></span> Kalender & Liste der nächsten Webinare</div>
+  </div>
+  <div class="login-right">
+    <div class="label">WEBINAR-DASHBOARD · BERATER-LOGIN</div>
+    <h2>Willkommen</h2>
+    <div class="sub">Melde dich mit deinem mitNORM-Microsoft-Konto an, um deine Anmeldezahlen zu sehen.</div>
+    <p id="login-err" class="err" style="display:none;"></p>
+    <button class="ms-btn" id="btn-login" style="align-self:flex-start;">
+      <svg width="18" height="18" viewBox="0 0 23 23" aria-hidden="true"><rect width="10" height="10" x="1" y="1" fill="#F25022"/><rect width="10" height="10" x="12" y="1" fill="#7FBA00"/><rect width="10" height="10" x="1" y="12" fill="#00A4EF"/><rect width="10" height="10" x="12" y="12" fill="#FFB900"/></svg>
+      Mit Microsoft anmelden
+    </button>
+    <div class="hint">Melde dich mit deinem mitNORM-Microsoft-Konto (@mitnorm.com oder @myvi.de) an. Dein Konto muss als Berater hinterlegt sein.</div>
+    <div class="foot">mitNORM · Interne Anwendung</div>
+  </div>
+</div>
+
+<style>
+.hmi{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:none;border:none;border-radius:8px;padding:9px 12px;cursor:pointer;font:inherit;font-size:14px;color:#0b2138;}
+.hmi:hover{background:#f3f7fb;}
+.adm-hidden{display:none !important;}
+#app{display:flex;align-items:stretch;min-height:100vh;}
+.sidebar{width:214px;flex:0 0 214px;background:#f6f9fc;border-right:1px solid var(--line);padding:16px 12px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;}
+.sb-brand{margin:2px 8px 16px;}
+.sb-logo{font-family:Outfit,sans-serif;font-weight:800;color:var(--navy);font-size:17px;display:block;letter-spacing:-.3px;}
+.sb-sub{font-size:10.5px;color:var(--muted);letter-spacing:.05em;}
+.sb-nav{display:flex;flex-direction:column;gap:2px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;color:var(--muted);font-weight:600;font-size:13.5px;cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:inherit;transition:background .12s,color .12s;}
+.nav-item>svg{flex:0 0 auto;}
+.nav-item:hover{background:rgba(0,66,131,.05);color:var(--navy);}
+.nav-item.on{background:rgba(0,66,131,.10);color:var(--navy);}
+.nav-badge{margin-left:auto;background:rgba(5,150,179,.15);color:var(--cyan-d);font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:20px;min-width:10px;text-align:center;}
+.sb-user{margin-top:auto;border-top:1px solid var(--line);padding-top:12px;display:flex;align-items:center;gap:9px;}
+.sb-uinfo{flex:1;min-width:0;}
+.sb-uinfo #who{font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;}
+.sb-logout{background:none;border:none;color:var(--muted);cursor:pointer;padding:5px;border-radius:8px;display:flex;}
+.sb-logout:hover{background:rgba(176,58,58,.08);color:#b03a3a;}
+.content{flex:1;min-width:0;display:flex;flex-direction:column;}
+.content .topbar{padding:18px 28px 0;}
+.content .topbar h1{font-family:Outfit,sans-serif;font-weight:700;color:var(--navy);font-size:20px;margin:0;}
+.content .wrap{max-width:1180px;margin:0;padding:14px 28px 56px;}
+.view-section.hidden{display:none!important;}
+@media(max-width:860px){#app{flex-direction:column;}.sidebar{width:auto;flex:none;height:auto;position:static;flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px;border-right:none;border-bottom:1px solid var(--line);}.sb-brand{margin:0 12px 0 4px;}.sb-nav{flex-direction:row;flex-wrap:wrap;}.sb-user{margin:0 0 0 auto;border:none;padding:0;}.content .wrap{padding:14px 16px 48px;}.content .topbar{padding:14px 16px 0;}}
+</style>
+<div id="app" class="hidden">
+  <aside class="sidebar">
+    <div class="sb-brand"><span class="sb-logo">mit<span style="color:var(--cyan-d)">N</span>ORM</span><span class="sb-sub">Webinar-Cockpit</span></div>
+    <nav class="sb-nav">
+      <button class="nav-item on" data-sec="uebersicht"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 16l3-4 3 2 4-6"/></svg>Übersicht</button>
+      <button class="nav-item adm-only" data-sec="kunden"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Unzugeordnete Kunden<span class="nav-badge" id="nav-ua-count"></span></button>
+      <button class="nav-item adm-only" data-sec="berater"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Berater verwalten</button>
+      <button class="nav-item adm-only" data-sec="monat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Monatsrangliste</button>
+    </nav>
+    <div class="sb-user">
+      <div class="avatar" id="avatar">–</div>
+      <div class="sb-uinfo"><span class="muted" id="who"></span></div>
+      <button id="btn-logout" class="sb-logout" title="Abmelden"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+    </div>
+  </aside>
+  <div class="wrap">
+    <div class="toolbar">
+      <div class="seg"><button id="tab-cal" class="on">Kalender</button><button id="tab-list">Nächste Webinare</button></div>
+    </div>
+    <div class="panel hidden" id="affil-panel" style="margin-bottom:14px;">
+      <div class="ptitle">Dein Einladungs-Link <span style="font-weight:400;font-size:11px;color:var(--muted);">· teile ihn mit deinen Kunden – Anmeldungen werden dir zugeordnet</span></div>
+      <div class="affil-row">
+        <label for="affil-topic">Ziel:</label>
+        <select id="affil-topic"></select>
+        <input id="affil-link" readonly onclick="this.select()">
+        <button id="affil-copy" class="affil-btn">Link kopieren</button>
+        <a id="affil-open" class="affil-btn ghosty" target="_blank" rel="noopener">Vorschau ↗</a>
+      </div>
+      <div id="affil-hint" class="muted" style="font-size:12px;margin-top:8px;"></div>
+    </div>
+    <div class="panel hidden" id="sov-panel" style="margin-bottom:14px;">
+      <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Social-Media-Vorlagen <span style="font-weight:400;font-size:11px;color:var(--muted);">· Vorlage wählen, herunterladen &amp; posten</span></div>
+      <div class="affil-row"><label for="sov-sel">Vorlage:</label><select id="sov-sel" style="min-width:260px;"></select></div>
+      <div id="sov-body" class="social-grid" style="margin-top:12px;"></div>
+    </div>
+    <div class="layout">
+      <div class="col-left">
+        <div class="panel" id="cal-panel">
+          <div class="cal-head"><div class="cal-title" id="cal-title">—</div><div class="cal-nav"><button id="cal-prev">‹</button><button id="cal-next">›</button></div></div>
+          <div class="cal-grid" id="cal-grid"></div>
+        </div>
+        <div class="panel hidden" id="list-panel">
+          <div class="ptitle">Nächste Webinare</div>
+          <div class="wlist" id="up-list"></div>
+        </div>
+      </div>
+      <div class="col-right">
+        <div class="panel" id="day-panel">
+          <div class="muted" id="day-title">Wähle einen Tag mit Webinaren im Kalender.</div>
+          <div class="wlist" id="day-list"></div>
+        </div>
+        <div id="detail" class="hidden">
+          <div id="detail-head"></div>
+          <div id="intern-teams" class="hidden" style="margin:-4px 0 12px;font-size:13px;color:var(--muted);"></div>
+          <div id="event-qr" class="panel hidden" style="margin:8px 0 12px;"></div>
+          <div id="admin-edit" class="panel hidden" style="margin:8px 0 12px;">
+            <div class="ptitle">Admin · Webinar bearbeiten</div>
+            <label style="display:block;font-size:13px;color:var(--muted);margin:6px 0 2px;">Teams-Event-Seite (nur interne Anmeldung) <span style="color:var(--cyan-d);">· Kunden buchen automatisch über die Anmeldeseite</span></label>
+            <input id="ae-link" type="url" placeholder="https://events.teams.microsoft.com/event/…" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;">
+            <label style="display:block;font-size:13px;color:var(--muted);margin:8px 0 2px;">Teams-Beitritts-Link (für unsere E-Mails) <span style="color:var(--cyan-d);">· aus Teams „Teilnehmen"-Link kopieren</span></label>
+            <input id="ae-join" type="url" placeholder="https://teams.microsoft.com/l/meetup-join/…" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;">
+            <label style="display:block;font-size:13px;color:var(--muted);margin:8px 0 2px;">Referent(en)</label>
+            <input id="ae-pres" type="text" placeholder="z. B. Karsten Hintsch" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;margin:10px 0;"><input id="ae-all" type="checkbox"> Für alle Termine mit diesem Titel übernehmen</label>
+            <button id="ae-save" style="background:var(--navy);color:#fff;border:none;padding:9px 18px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;">Speichern</button>
+            <button id="ae-del" style="background:#fff;color:#b03a3a;border:1px solid #b03a3a;padding:9px 16px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;margin-left:8px;">Webinar entfernen</button>
+            <span id="ae-status" class="muted" style="margin-left:10px;font-size:13px;"></span>
+            <div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px;">
+              <div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:2px;">Nachbereitung · Anwesenheit &amp; Nachfass</div>
+              <div class="muted" style="font-size:12px;margin-bottom:8px;">1. Teams-Anwesenheitsliste (CSV) hochladen → setzt die Anwesenheit verbindlich. 2. Danach Nachfass-Mails senden.</div>
+              <label style="display:block;font-size:13px;color:var(--muted);margin:2px 0 4px;">Anwesenheitsliste (Teams-CSV)</label>
+              <input type="file" id="att-file" accept=".csv,text/csv" style="font:inherit;font-size:13px;">
+              <span id="att-status" class="muted" style="margin-left:8px;font-size:13px;"></span>
+              <div id="att-actions" style="margin-top:10px;">
+                <button id="att-test" style="background:#fff;color:var(--navy);border:1px solid var(--navy);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;">Testversand an mich</button>
+                <button id="att-send" style="background:var(--cyan-d);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700;font:inherit;margin-left:8px;">Nachfass-Mails jetzt senden</button>
+                <span id="att-send-status" class="muted" style="margin-left:10px;font-size:13px;"></span>
+              </div>
+              <div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px;">
+                <label style="display:block;font-size:13px;color:var(--muted);margin:2px 0 4px;">Handout (PDF) – wird Anwesenden automatisch an die Danke-Mail angehängt</label>
+                <input type="file" id="ho-file" accept="application/pdf,.pdf" style="font:inherit;font-size:13px;">
+                <span id="ho-status" class="muted" style="margin-left:8px;font-size:13px;"></span>
+                <div id="ho-current" style="margin-top:8px;font-size:13px;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="cards" style="margin-bottom:14px;">
+            <div class="stat"><div class="label" id="l-mine">Deine Anmeldungen</div><div class="val" id="s-mine">–</div></div>
+            <div class="stat"><div class="label">Anmeldungen gesamt</div><div class="val" id="s-total">–</div></div>
+            <div class="stat"><div class="label" id="l-share">Dein Anteil</div><div class="val" id="s-share">–</div></div>
+            <div class="stat"><div class="label" id="l-rank">Dein Rang im Team</div><div class="val" id="s-rank">–</div></div>
+          </div>
+          <div id="detail-cancel" class="muted" style="margin:-4px 0 10px;font-size:13px;"></div>
+          <div class="panel" id="chart-panel">
+            <div class="ptitle">Anmeldungen pro Berater</div>
+            <div style="position:relative;height:240px;"><canvas id="chart"></canvas></div>
+          </div>
+          <div class="panel hidden" id="social-panel" style="margin-top:14px;">
+            <div class="ptitle">Social-Media-Vorlagen <span style="font-weight:400;font-size:11px;color:var(--muted);">· für dieses Webinar – herunterladen &amp; posten</span></div>
+            <div id="social-body" class="social-grid"></div>
+            <div id="social-empty" class="muted" style="font-size:13px;display:none;">Für dieses Webinar sind noch keine Vorlagen hinterlegt.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="tables" class="hidden">
+      <div class="panel hidden" id="delta-panel" style="margin-bottom:14px;">
+        <div class="ptitle">Neue Anmeldungen · Veränderung</div>
+        <div id="delta-body" class="muted">Lädt…</div>
+      </div>
+      <div class="panel hidden" id="rank-panel" style="margin-bottom:14px;">
+        <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v2a3 3 0 0 0 3 3"/><path d="M17 6h3v2a3 3 0 0 1-3 3"/></svg>Berater-Ranking <span style="font-weight:400;font-size:11px;color:var(--muted);">· wer hat am meisten eingeladen</span></div>
+        <div class="cms-tabs" id="rank-filter" style="margin-bottom:14px;"><button data-p="all" class="on">Gesamt</button><button data-p="7d">Letzte 7 Tage</button><button data-p="today">Heute</button></div>
+        <div id="rank-board" class="muted">Lädt…</div>
+      </div>
+      <div class="panel hidden" id="month-panel" style="margin-bottom:14px;">
+        <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Monatsrangliste <span style="font-weight:400;font-size:11px;color:var(--muted);">· Berater nach Anmeldungen &amp; Teilnahmen</span></div>
+        <div style="margin-bottom:14px;"><label style="font-size:13px;color:var(--muted);margin-right:6px;">Monat:</label><select id="month-sel" style="font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;min-width:160px;"></select></div>
+        <div id="month-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+          <div><div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v2a3 3 0 0 0 3 3"/><path d="M17 6h3v2a3 3 0 0 1-3 3"/></svg>Meiste Anmeldungen</div><div id="month-anm" class="muted">Lädt…</div></div>
+          <div><div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>Meiste Teilnahmen</div><div id="month-teil" class="muted">Lädt…</div></div>
+        </div>
+      </div>
+      <div class="panel hidden" id="unassigned-panel" style="margin-bottom:14px;">
+        <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Unzugeordnete Kunden <span id="ua-count" style="font-weight:400;font-size:11px;color:var(--muted);"></span></div>
+        <div class="muted" style="font-size:12px;margin-bottom:10px;">Anmeldungen ohne Berater – Berater wählen und zuordnen. „Hinweis" = Antwort aus der Teams-Anmeldung (zur Vorauswahl genutzt).</div>
+        <input id="ua-search" placeholder="Suche Name / E-Mail / Webinar…" style="width:100%;max-width:340px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;margin-bottom:10px;">
+        <div id="ua-body" class="muted">Lädt…</div>
+      </div>
+      <div class="panel hidden" id="advisors-panel" style="margin-bottom:14px;">
+        <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Berater verwalten <span id="adm-count" style="font-weight:400;font-size:11px;color:var(--muted);"></span>
+          <button id="adm-new" style="float:right;background:var(--navy);color:#fff;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;font-size:13px;">+ Neuer Berater</button></div>
+        <input id="adm-search" placeholder="Suche Name / E-Mail / Slug…" style="width:100%;max-width:340px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;margin:8px 0 10px;">
+        <div id="adm-editor"></div>
+        <div id="adm-body" class="muted">Lädt…</div>
+      </div>
+      <div class="panel hidden" id="pe-panel" style="margin-bottom:14px;">
+        <div class="ptitle">ProvenExpert-Bewertungen über Webinar-Mails</div>
+        <div id="pe-body" class="muted">Lädt…</div>
+      </div>
+      <div class="detail-grid" id="detail-grid">
+        <div class="panel" id="reg-panel">
+          <div class="ptitle" id="mytbl-title">Deine Anmeldungen (Teilnehmer)</div>
+          <div id="tbl-filters" class="tbl-filters hidden"></div>
+          <div style="overflow-x:auto"><table id="mytable"></table></div>
+        </div>
+        <div class="panel hidden" id="overview-panel">
+          <div class="ptitle">Übersicht aller Webinare · Admin <span style="font-weight:400;font-size:11px;color:var(--muted);">· Doppelklick = groß</span></div>
+          <div style="overflow-x:auto"><table id="admin-overview-tbl"></table></div>
+        </div>
+      </div>
+      <div id="admin-section" class="hidden"></div>
+      <div class="panel hidden" id="cms-panel" style="margin-top:14px;">
+        <div class="ptitle">Inhalte verwalten · Admin <span style="font-weight:400;font-size:11px;color:var(--muted);">· Texte &amp; Referenten der Landingpage</span></div>
+        <div class="cms-tabs"><button id="cms-t-topics" class="on">Themen-Texte</button><button id="cms-t-ref">Referenten</button><button id="cms-t-events">Veranstalter</button></div>
+        <div id="cms-topics">
+          <div class="affil-row" style="margin-bottom:8px;"><label for="cms-topic-sel">Thema:</label><select id="cms-topic-sel"></select></div>
+          <div class="cms-form">
+            <label>Label (Kurzname)</label><input id="cms-label">
+            <label>Überschrift</label><input id="cms-headline">
+            <label>Untertitel</label><textarea id="cms-sub" rows="2"></textarea>
+            <label>Problem-Text („Kommt dir das bekannt vor?")</label><textarea id="cms-problem" rows="2"></textarea>
+            <label>Schmerzpunkte – eine pro Zeile</label><textarea id="cms-pains" rows="3"></textarea>
+            <label>„Das nimmst du mit" – eine pro Zeile</label><textarea id="cms-benefits" rows="4"></textarea>
+            <button class="affil-btn" id="cms-save-topic">Speichern</button> <span id="cms-topic-msg" class="muted" style="font-size:12px;"></span>
+          </div>
+        </div>
+        <div id="cms-ref" class="hidden">
+          <div class="affil-row" style="margin-bottom:8px;"><label for="cms-ref-sel">Referent:</label><select id="cms-ref-sel"></select></div>
+          <div class="cms-form">
+            <label>Titel / Rolle</label><input id="cms-ref-title" placeholder="z. B. mitNORM · Experte für Baufinanzierung">
+            <label>Kurz-Bio</label><textarea id="cms-ref-bio" rows="3"></textarea>
+            <label>Foto</label>
+            <div class="affil-row"><img id="cms-ref-preview" class="cms-photo" alt="" style="display:none;"><input type="file" id="cms-ref-file" accept="image/*"></div>
+            <button class="affil-btn" id="cms-save-ref">Speichern</button> <span id="cms-ref-msg" class="muted" style="font-size:12px;"></span>
+          </div>
+        </div>
+        <div id="cms-events" class="hidden">
+          <div class="muted" style="font-size:13px;margin-bottom:10px;">Berater freischalten, die eigene Seminare (Teams-Webinare) anlegen dürfen und QR/Anmeldelinks erhalten.</div>
+          <input id="cms-ev-search" placeholder="Berater suchen…" style="font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;width:100%;max-width:360px;margin-bottom:10px;">
+          <div id="cms-ev-list" style="max-width:520px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="webinar-modal"><div class="wm-card">
+  <div class="wm-head"><div><div id="wm-title" class="wm-title"></div><div id="wm-sub" class="wm-sub muted"></div></div><button class="wm-x" onclick="wmClose()" title="Schließen">✕</button></div>
+  <div id="wm-kpis" class="wm-kpis"></div>
+  <div id="wm-filters" class="wm-filters"></div>
+  <div id="wm-body" class="wm-body2"></div>
+</div></div>
+
+<div id="row-modal"><div class="rm-card" id="rm-card"></div></div>
+<div id="table-modal"><div class="tm-card"><div class="tm-head"><span id="tm-title"></span><button onclick="closeTableModal()" title="Schließen">✕</button></div><div class="tm-body"><table id="tm-table"></table></div></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+<script>
+const SUPABASE_URL = "https://umgbtymowqavnmsbgceh.supabase.co";
+const SUPABASE_KEY = "sb_publishable_uwCtealR7TogA86X68-RZg_3FQ1RPT0";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const APP_URL = "https://webinare.mitnorm.de/"; // Basis für Affiliate-Links (Kundenübersicht)
+const LOGIN_URL = "https://webinare.mitnorm.de/dev.html"; // DEV: Rücksprung nach Microsoft-Login
+const $ = (id) => document.getElementById(id);
+const DOW = ["Mo","Di","Mi","Do","Fr","Sa","So"];
+const MONTHS = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+let chart, me = "";
+const ADMIN = ["l.jacob@myvi.de"]; let isAdmin = false; let presenterWids = new Set();
+let orgIds = new Set(); let isOrgLead = false;
+let totals = [], counts = [], mine = [], byDate = {}, viewY, viewM, selectedDate = null, selectedWid = null;
+
+$("btn-login").onclick = async () => {
+  const { error } = await sb.auth.signInWithOAuth({ provider: "azure", options: { scopes: "openid email profile", redirectTo: LOGIN_URL } });
+  if (error){ const e=$("login-err"); e.style.display="block"; e.textContent = error.message; }
+};
+$("btn-logout").onclick = async () => { await sb.auth.signOut(); location.reload(); };
+$("ae-save").onclick = saveMeta;
+if($("att-file")){
+  $("att-file").onchange = handleAttFile;
+  $("att-test").onclick = ()=>sendFollowup(true);
+  $("att-send").onclick = ()=>sendFollowup(false);
+}
+if($("ho-file")){ $("ho-file").onchange = handleHandoutFile; }
+function renderHandoutCurrent(url,name){
+  const el=$("ho-current"); if(!el) return;
+  if(url){ el.innerHTML='<span style="color:#1a7d4b;font-weight:600;">✓ Handout hinterlegt</span> · '
+      +'<a href="'+esc(url)+'" target="_blank" rel="noopener" style="font-weight:600;">ansehen ↗</a>'
+      +' · <button id="ho-del" style="font:inherit;font-size:13px;color:#b03a3a;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;">entfernen</button>';
+    const b=$("ho-del"); if(b) b.onclick=removeHandout;
+  } else { el.innerHTML='<span class="muted">Noch kein Handout hinterlegt.</span>'; }
+}
+function loadHandout(wid){
+  renderHandoutCurrent(null);
+  sb.rpc("webinar_handout_get",{p_webinar_id:wid}).then(({data})=>{ if(selectedWid===wid) renderHandoutCurrent(data||null); });
+}
+async function handleHandoutFile(ev){
+  const f=ev.target.files&&ev.target.files[0]; if(!f||!selectedWid) return;
+  if(f.size>8*1024*1024){ $("ho-status").textContent="PDF zu groß (max 8 MB)."; return; }
+  $("ho-status").textContent="Lade hoch…";
+  try{
+    const buf=await f.arrayBuffer(); const bytes=new Uint8Array(buf);
+    let bin=""; const chunk=0x8000; for(let i=0;i<bytes.length;i+=chunk){ bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk)); }
+    const b64=btoa(bin);
+    const { data, error } = await sb.functions.invoke("webinar-handout-upload",{ body:{ webinar_id:selectedWid, filename:f.name, content_base64:b64 } });
+    if(error){ $("ho-status").textContent="Fehler: "+error.message; return; }
+    if(data&&data.ok){ $("ho-status").innerHTML='<span style="color:#1a7d4b;font-weight:600;">✓ hochgeladen</span>'; renderHandoutCurrent(data.url,f.name); $("ho-file").value=""; }
+    else { $("ho-status").textContent="Fehler: "+((data&&data.error)||"unbekannt"); }
+  }catch(e){ $("ho-status").textContent="Fehler: "+e; }
+}
+async function removeHandout(){
+  if(!selectedWid) return;
+  if(!confirm("Handout für dieses Webinar entfernen?")) return;
+  $("ho-status").textContent="Entferne…";
+  try{
+    const { data, error } = await sb.functions.invoke("webinar-handout-upload",{ body:{ webinar_id:selectedWid, action:"remove" } });
+    if(error){ $("ho-status").textContent="Fehler: "+error.message; return; }
+    $("ho-status").textContent=""; renderHandoutCurrent(null);
+  }catch(e){ $("ho-status").textContent="Fehler: "+e; }
+}
+function durToSecs(s){ s=(s||"").toLowerCase(); let t=0,m; if((m=s.match(/(\d+)\s*h/)))t+=+m[1]*3600; if((m=s.match(/(\d+)\s*m/)))t+=+m[1]*60; if((m=s.match(/(\d+)\s*s/)))t+=+m[1]; return t; }
+async function handleAttFile(ev){
+  const f=ev.target.files&&ev.target.files[0]; if(!f||!selectedWid) return;
+  $("att-status").textContent="Lese Datei…"; $("att-send-status").textContent="";
+  try{
+    const buf=await f.arrayBuffer(); const b=new Uint8Array(buf); let text;
+    if(b[0]===0xFF&&b[1]===0xFE) text=new TextDecoder("utf-16le").decode(buf);
+    else if(b[0]===0xFE&&b[1]===0xFF) text=new TextDecoder("utf-16be").decode(buf);
+    else text=new TextDecoder("utf-8").decode(buf);
+    const lines=text.split(/\r?\n/);
+    let hi=lines.findIndex(l=>/Registrierungs-E-Mail/i.test(l) && l.indexOf("\t")>=0);
+    if(hi<0){ $("att-status").textContent="Teilnehmer-Liste in der Datei nicht gefunden. Bitte den Teams-Anwesenheitsbericht (CSV) hochladen."; return; }
+    const head=lines[hi].split("\t").map(x=>x.trim());
+    const iMail=head.findIndex(h=>/Registrierungs-E-Mail/i.test(h));
+    const iDur=head.findIndex(h=>/Dauer der Besprechung/i.test(h));
+    const map={};
+    for(let i=hi+1;i<lines.length;i++){ const ln=lines[i]; if(!ln.trim()) break; if(/^\d+\.\s/.test(ln.trim())) break;
+      const c=ln.split("\t"); const mail=(c[iMail]||"").trim().toLowerCase(); const dur=iDur>=0?(c[iDur]||"").trim():"";
+      if(mail && dur){ const sec=durToSecs(dur); if(sec>0) map[mail]=sec; } }
+    const n=Object.keys(map).length;
+    if(!n){ $("att-status").textContent="Keine Anwesenden mit Beitrittszeit gefunden – bitte Datei prüfen."; return; }
+    $("att-status").textContent="Setze Anwesenheit ("+n+")…";
+    const { data, error } = await sb.rpc("webinar_confirm_attendance",{p_webinar_id:selectedWid,p_map:map});
+    if(error){ $("att-status").textContent="Fehler: "+error.message; return; }
+    const r=(data&&data[0])||{};
+    $("att-status").innerHTML='<span style="color:#1a7d4b;font-weight:600;">✓ '+(r.anwesend!=null?r.anwesend:n)+' anwesend / '+(r.gesamt!=null?r.gesamt:"?")+' angemeldet verbindlich gesetzt</span>';
+  }catch(e){ $("att-status").textContent="Fehler beim Einlesen: "+e; }
+}
+async function sendFollowup(test){
+  if(!selectedWid) return;
+  if(!test && !confirm("Nachfass-Mails jetzt an alle Teilnehmer dieses Webinars senden (Danke + No-Show + Berater-Impuls)?")) return;
+  $("att-send-status").textContent = test?"Sende Test an dich…":"Sende…";
+  try{
+    const { data, error } = await sb.functions.invoke("webinar-send-followup",{ body:{ webinar_id:selectedWid, test:!!test } });
+    if(error){ $("att-send-status").textContent="Fehler: "+error.message; return; }
+    if(data&&data.ok){ $("att-send-status").innerHTML='<span style="color:#1a7d4b;font-weight:600;">✓ '+(test?"Test an dich gesendet":(data.danke+"× Danke · "+data.noshow+"× No-Show · "+data.berater+" Berater"))+'</span>'; }
+    else { $("att-send-status").textContent="Fehler: "+((data&&data.error)||"unbekannt"); }
+  }catch(e){ $("att-send-status").textContent="Fehler: "+e; }
+}
+$("ae-del").onclick = async () => {
+  if(!selectedWid) return;
+  if(!confirm("Dieses Webinar aus dem Dashboard entfernen? Es bleibt in Teams bestehen und kann später wieder eingeblendet werden.")) return;
+  $("ae-status").textContent = "Entferne…";
+  const { error } = await sb.rpc("webinar_admin_set_hidden", { p_webinar_id: selectedWid, p_hidden: true });
+  if (error){ $("ae-status").textContent = "Fehler: " + error.message; return; }
+  selectedWid = null;
+  await loadData();
+};
+async function saveMeta(){
+  if(!selectedWid){ return; }
+  $("ae-status").textContent = "Speichere…";
+  const { error } = await sb.rpc("webinar_admin_set_meta", { p_webinar_id: selectedWid, p_web_url: $("ae-link").value, p_presenters: $("ae-pres").value, p_apply_all: $("ae-all").checked });
+  if (error){ $("ae-status").textContent = "Fehler: " + error.message; return; }
+  const { error: je } = await sb.rpc("webinar_set_join_url", { p_webinar_id: selectedWid, p_url: $("ae-join").value });
+  if (je){ $("ae-status").textContent = "Beitritts-Link-Fehler: " + je.message; return; }
+  $("ae-status").textContent = "Gespeichert ✓";
+  const keep = selectedWid;
+  await loadData();
+  selectWebinar(keep);
+}
+$("tab-cal").onclick = () => switchView("cal");
+$("tab-list").onclick = () => switchView("list");
+$("cal-prev").onclick = () => { viewM--; if(viewM<0){viewM=11;viewY--;} renderCalendar(); };
+$("cal-next").onclick = () => { viewM++; if(viewM>11){viewM=0;viewY++;} renderCalendar(); };
+
+// Zeiten werden als gespeicherte Wandzeit angezeigt (timeZone UTC), daher Datumsteile in UTC.
+function dateKey(d){ return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0")+"-"+String(d.getUTCDate()).padStart(2,"0"); }
+const TZ = "UTC";
+function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+function presLine(w){ return w.presenters ? '<span><b style="color:var(--navy)">Referent:</b> '+esc(w.presenters)+'</span>' : ''; }
+function linkLine(w){ if(!w||!w.webinar_id) return ''; const u=APP_URL+"?w="+encodeURIComponent(w.webinar_id)+(_affilSlug?"&b="+encodeURIComponent(_affilSlug):""); return '<a href="'+u+'" target="_blank" rel="noopener">Zur Anmeldeseite ↗</a>'; }
+
+function switchView(v){
+  const cal = v==="cal";
+  $("tab-cal").classList.toggle("on",cal); $("tab-list").classList.toggle("on",!cal);
+  $("cal-panel").classList.toggle("hidden",!cal);
+  $("list-panel").classList.toggle("hidden",cal);
+  $("day-panel").classList.toggle("hidden",!cal);
+  if(!cal) renderList();
+  else if(selectedDate) selectDay(selectedDate);
+}
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { $("login").style.display="grid"; $("app").classList.add("hidden"); return; }
+  $("login").style.display="none"; $("app").classList.remove("hidden");
+  me = (session.user.email || "").toLowerCase();
+  isAdmin = ADMIN.includes(me);
+  try{ const { data: srvAdmin } = await sb.rpc("webinar_is_admin"); if(srvAdmin===true) isAdmin=true; }catch(_){}
+  setupHeaderMenu();
+  const name = session.user.user_metadata?.full_name || session.user.email || "";
+  $("who").textContent = isAdmin ? name + " · Admin" : name;
+  $("avatar").textContent = name.split(" ").map(s => s[0]).slice(0,2).join("").toUpperCase();
+  await loadData();
+}
+
+let _canEvents=false;
+async function loadData() {
+  const [t, c, m] = await Promise.all([ sb.rpc("webinar_totals"), sb.rpc("webinar_advisor_counts"), sb.rpc("webinar_my_registrations") ]);
+  totals = t.data || []; counts = c.data || []; mine = m.data || [];
+  try{
+    const [sl, ce] = await Promise.all([ sb.rpc("webinar_my_slug"), sb.rpc("webinar_can_events") ]);
+    const meRow = sl.data && sl.data[0];
+    if(meRow){
+      _affilSlug = meRow.slug || _affilSlug;
+      if(meRow.email && meRow.email.toLowerCase() !== me){
+        me = meRow.email.toLowerCase();
+        if(meRow.name){ $("who").textContent = meRow.name + (isAdmin?" · Admin":""); $("avatar").textContent = meRow.name.split(" ").map(s=>s[0]).slice(0,2).join("").toUpperCase(); }
+      }
+    }
+    _canEvents = ce.data === true;
+  }catch(_){}
+  if (!isAdmin){
+    const [rw, og] = await Promise.all([ sb.rpc("webinar_referent_webinars"), sb.rpc("webinar_org_advisor_ids") ]);
+    presenterWids = new Set((rw.data || []).map(x => x.webinar_id));
+    if (presenterWids.size){ const w0 = $("who"); if(!/Referent/.test(w0.textContent)) w0.textContent += " · Referent"; }
+    orgIds = new Set((og.data || []).map(x => x.advisor_id));
+    isOrgLead = orgIds.size > 0;
+    if (isOrgLead){ const w0 = $("who"); if(!/Organisation/.test(w0.textContent)) w0.textContent += " · Organisation"; }
+  }
+  byDate = {};
+  totals.forEach(w => {
+    if (!w.starts_at) return;
+    const d = new Date(w.starts_at), k = dateKey(d);
+    (byDate[k] = byDate[k] || []).push(w);
+  });
+  // Kalender immer im aktuellen Monat starten
+  const today = new Date();
+  viewY = today.getUTCFullYear(); viewM = today.getUTCMonth();
+  renderCalendar();
+  // Webinar im aktuellen Monat auswählen, das heute am nächsten liegt
+  let pick = null, best = Infinity, now = today.getTime();
+  totals.forEach(w => {
+    if (!w.starts_at) return;
+    const d = new Date(w.starts_at);
+    if (d.getUTCFullYear() === viewY && d.getUTCMonth() === viewM) {
+      const diff = Math.abs(d.getTime() - now);
+      if (diff < best) { best = diff; pick = d; }
+    }
+  });
+  if (pick) selectDay(dateKey(pick));
+  if (isAdmin) loadAdmin();
+  else if (isOrgLead) loadOrg();
+  if (isAdmin || isOrgLead) loadReviewStats();
+  loadAffil();
+  loadSocialOverview();
+  if (isAdmin && !window._liveTimer) window._liveTimer = setInterval(refreshLive, 60000);
+}
+async function refreshLive(){
+  if (document.querySelector("#webinar-modal.open, #table-modal.open, #row-modal.open")) return;
+  try{
+    const [t,c] = await Promise.all([ sb.rpc("webinar_totals"), sb.rpc("webinar_advisor_counts") ]);
+    if(t.data) totals=t.data; if(c.data) counts=c.data;
+    byDate={}; totals.forEach(w=>{ if(!w.starts_at) return; const d=new Date(w.starts_at), k=dateKey(d); (byDate[k]=byDate[k]||[]).push(w); });
+    if(selectedWid) renderWebinar(selectedWid);
+    loadRanking(); loadDelta();
+  }catch(_){}
+}
+
+async function loadReviewStats(){
+  try{
+    const { data } = await sb.rpc("webinar_pe_stats");
+    const s = (data && data[0]) || null;
+    $("pe-panel").classList.remove("hidden");
+    if(!s){ $("pe-body").textContent = "Noch keine Daten."; return; }
+    const since = s.campaign_start ? new Date(s.campaign_start).toLocaleDateString("de-DE",{day:"2-digit",month:"long",year:"numeric"}) : "–";
+    const card=(l,v)=>'<div class="stat"><div class="label">'+l+'</div><div class="val">'+v+'</div></div>';
+    $("pe-body").innerHTML = '<div class="cards" style="margin:0;">'
+      + card("Neue Bewertungen seit "+since, s.neu_seit_start)
+      + card("Davon eindeutig zugeordnet", s.zugeordnet)
+      + card("Gestern dazugekommen", s.gestern)
+      + '</div><div class="muted" style="font-size:12px;margin-top:8px;">Stand: '+(s.updated_at? new Date(s.updated_at).toLocaleString("de-DE",{timeZone:TZ}) : "–")+' · Quelle: ProvenExpert (mitNORM GmbH). Die meisten Bewertungen sind anonym – „eindeutig zugeordnet" zählt nur per E-Mail bestätigte.</div>';
+  }catch(_){ }
+}
+
+const AFFIL_TOPICS=[
+  {k:"",l:"Alle Themen (Übersicht)"},
+  {k:"immobilie",l:"Immobilie als Kapitalanlage"},
+  {k:"ruhestand",l:"Ruhestandsplanung"},
+  {k:"baufi",l:"Baufinanzierung"},
+  {k:"riester",l:"Riester & Altersvorsorge"},
+  {k:"rente",l:"Rente & Rentenreform",u:"https://rente.mitnorm.de/rente-2026.html"},
+  {k:"steuern",l:"Steuern sparen"},
+  {k:"geldanlage",l:"Geldanlage"}
+];
+let _affilSlug=null;
+async function loadAffil(){
+  try{
+    const { data } = await sb.rpc("webinar_my_slug");
+    const r=(data&&data[0])||null;
+    if(!r||!r.slug) return;
+    _affilSlug=r.slug;
+    $("affil-panel").classList.remove("hidden");
+    const sel=$("affil-topic");
+    sel.innerHTML=AFFIL_TOPICS.map(t=>'<option value="'+t.k+'">'+t.l+'</option>').join("");
+    const upd=()=>{ const t=sel.value; const meta=AFFIL_TOPICS.find(x=>x.k===t); let url;
+      if(meta&&meta.u){ url=meta.u+(meta.u.includes("?")?"&":"?")+"b="+encodeURIComponent(_affilSlug); }
+      else { url=APP_URL+"?b="+encodeURIComponent(_affilSlug)+(t?"&t="+t:""); }
+      $("affil-link").value=url; $("affil-open").href=url; };
+    sel.onchange=upd; upd();
+    $("affil-copy").onclick=async()=>{ try{ await navigator.clipboard.writeText($("affil-link").value); }catch(_){ $("affil-link").select(); try{document.execCommand("copy");}catch(e){} } const b=$("affil-copy"); const o=b.textContent; b.textContent="✓ Kopiert"; setTimeout(()=>{b.textContent=o;},1500); };
+    $("affil-hint").textContent="Tipp: Wähle ein Thema, um direkt dorthin zu verlinken – oder „Alle Themen“ für die Übersicht. Anmeldungen über deinen Link werden automatisch dir zugeordnet.";
+  }catch(_){}
+}
+
+async function loadOrg(){
+  $("tables").classList.remove("hidden");
+  $("rank-panel").classList.remove("hidden");
+  document.querySelector("#rank-panel .ptitle").innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v2a3 3 0 0 0 3 3"/><path d="M17 6h3v2a3 3 0 0 1-3 3"/></svg>Berater-Ranking deiner Organisation';
+  $("rank-filter").style.display="none";
+  const { data } = await sb.rpc("webinar_org_ranking");
+  renderRankBoard(data || []);
+}
+
+let _rankPeriod="all";
+async function loadAdmin(){
+  $("tables").classList.remove("hidden");
+  $("rank-panel").classList.remove("hidden");
+  $("rank-filter").querySelectorAll("button").forEach(b=>b.onclick=()=>{ _rankPeriod=b.dataset.p; $("rank-filter").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b)); loadRanking(); });
+  if(!selectedWid){ $("mytbl-title").textContent="Teilnehmer je Berater"; $("tbl-filters").classList.add("hidden"); $("mytable").innerHTML='<tbody><tr><td class="muted" style="padding:14px;">Wähle ein Webinar im Kalender, um die Anmeldungen je Berater zu sehen.</td></tr></tbody>'; }
+  loadRanking();
+  loadMonthRanking();
+  loadDelta();
+  loadCms();
+  loadAdvisors();
+  loadUnassigned();
+  if($("ua-search")) $("ua-search").oninput=renderUnassigned;
+  if($("adm-search")) $("adm-search").oninput=renderAdvisors;
+  if($("adm-new")) $("adm-new").onclick=()=>editAdvisor(null);
+}
+// ===== Beraterverwaltung + Unzugeordnete Kunden (Admin) =====
+let _admAdv=[], _unassigned=[];
+function normName(s){ return (s||"").toLowerCase().replace(/[^a-zäöüß ]/g,"").replace(/\s+/g," ").trim(); }
+// Listen auf 5 Einträge klappen (Rest ausklappbar)
+const _expand={}; let _rankRows=[];
+function clampToggle(key,total,open){ return total>5? '<div style="text-align:center;margin-top:10px;"><button class="clamp-toggle" data-key="'+key+'" style="background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 14px;cursor:pointer;font:inherit;font-size:13px;color:var(--navy);font-weight:600;">'+(open?"Weniger anzeigen ▴":("Alle "+total+" anzeigen ▾"))+'</button></div>' : ''; }
+function clampRows(key,arr,total){ const open=_expand[key]; return (open?arr:arr.slice(0,5)).join("")+clampToggle(key,total,open); }
+function wireClamp(el,fn){ if(!el) return; el.querySelectorAll(".clamp-toggle").forEach(b=>b.onclick=()=>{ _expand[b.dataset.key]=!_expand[b.dataset.key]; fn(); }); }
+// Header-Dropdown + Bereichsumschaltung
+const SEC_TITLES={uebersicht:"Übersicht",kunden:"Unzugeordnete Kunden",berater:"Berater verwalten",monat:"Monatsrangliste"};
+const SEC_VIEWS={uebersicht:"view-overview",kunden:"view-kunden",berater:"view-berater",monat:"view-monat"};
+function buildShell(){
+  const wrap=document.querySelector(".wrap"); if(!wrap||document.getElementById("view-overview")) return;
+  const content=document.createElement("div"); content.className="content";
+  const topbar=document.createElement("div"); topbar.className="topbar"; topbar.innerHTML='<h1 id="sec-title">Übersicht</h1>';
+  wrap.parentNode.insertBefore(content,wrap); content.appendChild(topbar); content.appendChild(wrap);
+  const ov=document.createElement("div"); ov.id="view-overview"; ov.className="view-section";
+  while(wrap.firstChild) ov.appendChild(wrap.firstChild);
+  wrap.appendChild(ov);
+  [["kunden","unassigned-panel"],["berater","advisors-panel"],["monat","month-panel"]].forEach(([sec,id])=>{
+    const v=document.createElement("div"); v.id="view-"+sec; v.className="view-section hidden";
+    const el=document.getElementById(id); if(el){ el.classList.remove("hidden"); v.appendChild(el); }
+    wrap.appendChild(v);
+  });
+}
+function showSection(name){
+  if(!SEC_VIEWS[name]) name="uebersicht";
+  Object.values(SEC_VIEWS).forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.add("hidden"); });
+  const el=document.getElementById(SEC_VIEWS[name]); if(el) el.classList.remove("hidden");
+  const st=document.getElementById("sec-title"); if(st) st.textContent=SEC_TITLES[name];
+  document.querySelectorAll(".nav-item[data-sec]").forEach(b=>b.classList.toggle("on", b.dataset.sec===name));
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function setupHeaderMenu(){
+  buildShell();
+  document.querySelectorAll(".adm-only").forEach(el=>el.classList.toggle("adm-hidden", !isAdmin));
+  document.querySelectorAll(".nav-item[data-sec]").forEach(b=>b.onclick=()=>showSection(b.dataset.sec));
+  showSection("uebersicht");
+}
+async function loadAdvisors(){
+  try{ const { data } = await sb.rpc("webinar_admin_advisors_full"); _admAdv=data||[]; }catch(_){ _admAdv=[]; }
+  $("adm-count").textContent="· "+_admAdv.length+" Einträge";
+  renderAdvisors();
+}
+function renderAdvisors(){
+  const q=($("adm-search").value||"").toLowerCase().trim();
+  const rows=_admAdv.filter(a=>!q || ((a.name||"")+" "+(a.email||"")+" "+(a.slug||"")).toLowerCase().includes(q));
+  if(!rows.length){ $("adm-body").innerHTML='<div class="muted">Keine Treffer.</div>'; return; }
+  $("adm-body").innerHTML='<div style="overflow:auto;"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:640px;">'+
+    '<tr style="text-align:left;color:var(--muted);font-size:11px;"><th style="padding:6px 8px;">Name</th><th style="padding:6px 8px;">E-Mail</th><th style="padding:6px 8px;">Slug</th><th style="padding:6px 8px;">Anm.</th><th style="padding:6px 8px;">Aktiv</th><th style="padding:6px 8px;">Events</th><th style="padding:6px 8px;">Leads</th><th></th></tr>'+
+    (_expand["adm"]?rows:rows.slice(0,5)).map(a=>{
+      const dup=a.dup_count>1?' <span style="background:#fdecea;color:#b03a3a;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;">Dublette</span>':'';
+      const ina=a.active?'':'opacity:.5;';
+      return '<tr style="border-top:1px solid var(--line);'+ina+'"><td style="padding:6px 8px;font-weight:600;color:var(--navy);">'+esc(a.name)+dup+'</td>'+
+        '<td style="padding:6px 8px;color:var(--muted);">'+esc(a.email||"–")+'</td>'+
+        '<td style="padding:6px 8px;color:var(--muted);">'+esc(a.slug||"")+'</td>'+
+        '<td style="padding:6px 8px;">'+a.webinar_regs+'</td>'+
+        '<td style="padding:6px 8px;">'+(a.active?"✓":"–")+'</td>'+
+        '<td style="padding:6px 8px;">'+(a.can_events?"✓":"–")+'</td>'+
+        '<td style="padding:6px 8px;">'+(a.can_leads?"✓":"–")+'</td>'+
+        '<td style="padding:6px 8px;white-space:nowrap;"><button class="adm-edit" data-id="'+a.id+'" style="font:inherit;font-size:12px;color:var(--navy);background:none;border:1px solid var(--line);border-radius:6px;padding:4px 8px;cursor:pointer;">Bearbeiten</button> <button class="adm-merge" data-id="'+a.id+'" style="font:inherit;font-size:12px;color:#b03a3a;background:none;border:1px solid #f0c8c2;border-radius:6px;padding:4px 8px;cursor:pointer;">Merge</button></td></tr>';
+    }).join("")+'</table></div>'+clampToggle("adm",rows.length,_expand["adm"]);
+  document.querySelectorAll(".adm-edit").forEach(b=>b.onclick=()=>editAdvisor(b.dataset.id));
+  document.querySelectorAll(".adm-merge").forEach(b=>b.onclick=()=>mergeAdvisor(b.dataset.id));
+  wireClamp($("adm-body"),renderAdvisors);
+}
+function editAdvisor(id){
+  const a=id?(_admAdv.find(x=>x.id===id)||{}):{};
+  const v=(x)=>esc(x||"");
+  const ck=(b)=>b?"checked":"";
+  $("adm-editor").innerHTML='<div style="background:#f6f9fc;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px;">'+
+    '<div style="font-weight:700;color:var(--navy);margin-bottom:8px;">'+(id?"Berater bearbeiten":"Neuer Berater")+'</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+
+      '<label style="font-size:12px;color:var(--muted);">Vorname<input id="ed-first" value="'+v(a.first_name)+'" style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;"></label>'+
+      '<label style="font-size:12px;color:var(--muted);">Nachname<input id="ed-last" value="'+v(a.last_name)+'" style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;"></label>'+
+      '<label style="font-size:12px;color:var(--muted);">E-Mail<input id="ed-email" value="'+v(a.email)+'" style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;"></label>'+
+      '<label style="font-size:12px;color:var(--muted);">Slug<input id="ed-slug" value="'+v(a.slug)+'" style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;"></label>'+
+      '<label style="font-size:12px;color:var(--muted);">Telefon<input id="ed-phone" value="'+v(a.phone)+'" style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;"></label>'+
+    '</div>'+
+    '<div style="display:flex;gap:16px;margin-top:10px;font-size:13px;">'+
+      '<label><input type="checkbox" id="ed-active" '+ck(id?a.active:true)+'> Aktiv</label>'+
+      '<label><input type="checkbox" id="ed-events" '+ck(a.can_events)+'> Events</label>'+
+      '<label><input type="checkbox" id="ed-leads" '+ck(a.can_leads)+'> Leads</label>'+
+    '</div>'+
+    '<div style="margin-top:12px;"><button id="ed-save" data-id="'+(id||"")+'" style="background:var(--navy);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;">Speichern</button> <button id="ed-cancel" style="background:#fff;border:1px solid var(--line);padding:8px 14px;border-radius:8px;cursor:pointer;font:inherit;">Abbrechen</button> <span id="ed-status" class="muted" style="font-size:13px;margin-left:8px;"></span></div></div>';
+  $("ed-cancel").onclick=()=>{ $("adm-editor").innerHTML=""; };
+  $("ed-save").onclick=saveAdvisor;
+  $("adm-editor").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+async function saveAdvisor(){
+  const id=$("ed-save").dataset.id||null;
+  $("ed-status").textContent="Speichern…";
+  const { error } = await sb.rpc("webinar_admin_advisor_save",{ p_id:id||null, p_first:$("ed-first").value, p_last:$("ed-last").value, p_email:$("ed-email").value, p_slug:$("ed-slug").value, p_phone:$("ed-phone").value, p_active:$("ed-active").checked, p_can_events:$("ed-events").checked, p_can_leads:$("ed-leads").checked });
+  if(error){ $("ed-status").textContent="Fehler: "+error.message; return; }
+  $("adm-editor").innerHTML=""; await loadAdvisors();
+}
+function mergeAdvisor(fromId){
+  const from=_admAdv.find(x=>x.id===fromId); if(!from) return;
+  const others=_admAdv.filter(x=>x.id!==fromId).slice();
+  others.sort((a,b)=> ((normName(b.name)===normName(from.name))-(normName(a.name)===normName(from.name))) || (b.webinar_regs-a.webinar_regs));
+  const opts=others.map(a=>'<option value="'+a.id+'">'+esc(a.name)+(a.email?" · "+esc(a.email):"")+" ("+a.webinar_regs+" Anm.)</option>").join("");
+  $("adm-editor").innerHTML='<div style="background:#fff7f6;border:1px solid #f0c8c2;border-radius:10px;padding:14px;margin-bottom:12px;">'+
+    '<div style="font-weight:700;color:#b03a3a;margin-bottom:6px;">Dublette zusammenführen</div>'+
+    '<div style="font-size:13px;margin-bottom:8px;">Alle Daten von <b>'+esc(from.name)+'</b> ('+from.webinar_regs+' Anm.'+(from.email?", "+esc(from.email):"")+') werden auf den Zielberater übertragen (Webinare, Leads, Termine, Anträge, VLZ). Danach wird <b>'+esc(from.name)+'</b> deaktiviert.</div>'+
+    '<label style="font-size:12px;color:var(--muted);">Zielberater (behalten):</label><br><select id="mg-into" style="min-width:280px;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;margin:4px 0;">'+opts+'</select>'+
+    '<div style="margin-top:10px;"><button id="mg-go" style="background:#b03a3a;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;">Zusammenführen</button> <button id="mg-cancel" style="background:#fff;border:1px solid var(--line);padding:8px 14px;border-radius:8px;cursor:pointer;font:inherit;">Abbrechen</button> <span id="mg-status" class="muted" style="font-size:13px;margin-left:8px;"></span></div></div>';
+  $("mg-cancel").onclick=()=>{ $("adm-editor").innerHTML=""; };
+  $("mg-go").onclick=async()=>{
+    const into=$("mg-into").value; if(!into) return;
+    if(!confirm("Wirklich zusammenführen? "+from.name+" wird deaktiviert und alle Daten auf den Zielberater übertragen.")) return;
+    $("mg-status").textContent="Führe zusammen…";
+    const { error } = await sb.rpc("webinar_admin_advisor_merge",{ p_from:fromId, p_into:into });
+    if(error){ $("mg-status").textContent="Fehler: "+error.message; return; }
+    $("adm-editor").innerHTML=""; await loadAdvisors(); await loadUnassigned();
+  };
+  $("adm-editor").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+async function loadUnassigned(){
+  if(!_admAdv.length){ try{ const {data}=await sb.rpc("webinar_admin_advisors_full"); _admAdv=data||[]; }catch(_){} }
+  try{ const { data } = await sb.rpc("webinar_admin_unassigned"); _unassigned=data||[]; }catch(_){ _unassigned=[]; }
+  $("ua-count").textContent="· "+_unassigned.length+" offen";
+  { const nb=$("nav-ua-count"); if(nb) nb.textContent=_unassigned.length||""; }
+  renderUnassigned();
+}
+function fmtDshort(iso){ try{ return new Date(iso).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric",timeZone:TZ}); }catch(_){ return ""; } }
+function renderUnassigned(){
+  const q=($("ua-search").value||"").toLowerCase().trim();
+  let rows=_unassigned.filter(r=>!q || ((r.attendee_name||"")+" "+(r.attendee_email||"")+" "+(r.webinar_title||"")).toLowerCase().includes(q));
+  if(!rows.length){ $("ua-body").innerHTML='<div class="muted" style="display:flex;align-items:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a7d4b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>Keine offenen Zuordnungen</div>'; return; }
+  const active=_admAdv.filter(a=>a.active);
+  const optsFor=(answer)=>{ const want=normName(answer);
+    return '<option value="">– Berater wählen –</option><option value="__none__">— Ohne Berater (kein) —</option>'+active.map(a=>'<option value="'+a.id+'"'+((want&&normName(a.name)===want)?" selected":"")+'>'+esc(a.name)+'</option>').join(""); };
+  rows=rows.slice(0,300);
+  $("ua-body").innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'+clampRows("ua",rows.map(r=>{
+    const hint=(r.advisor_answer&&r.advisor_answer.trim())?'<span style="background:#eef7fb;color:var(--navy);font-size:11px;font-weight:600;padding:2px 7px;border-radius:6px;">Hinweis: '+esc(r.advisor_answer)+'</span>':"";
+    return '<div class="ua-row" data-id="'+r.id+'" style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'+
+      '<div style="flex:1;min-width:200px;"><div style="font-weight:600;color:var(--navy);">'+esc(r.attendee_name||"(ohne Name)")+'</div><div style="font-size:12px;color:var(--muted);">'+esc(r.attendee_email||"")+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">'+esc(r.webinar_title||"")+' · '+fmtDshort(r.starts_at)+'</div></div>'+
+      '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+hint+
+      '<select class="ua-sel" style="padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;min-width:180px;">'+optsFor(r.advisor_answer)+'</select>'+
+      '<label style="font-size:11px;color:var(--muted);"><input type="checkbox" class="ua-all"> alle Termine dieser E-Mail</label>'+
+      '<button class="ua-go" style="background:var(--cyan-d);color:#fff;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;font-size:13px;">Zuordnen</button>'+
+      '<span class="ua-status muted" style="font-size:12px;"></span></div></div>';
+  }),rows.length)+'</div>';
+  document.querySelectorAll(".ua-go").forEach(b=>b.onclick=()=>assignRow(b));
+  wireClamp($("ua-body"),renderUnassigned);
+}
+async function assignRow(btn){
+  const row=btn.closest(".ua-row"); const id=row.dataset.id;
+  const advisorId=row.querySelector(".ua-sel").value;
+  const all=row.querySelector(".ua-all").checked;
+  const st=row.querySelector(".ua-status");
+  if(!advisorId){ st.textContent="Bitte Berater wählen."; return; }
+  const none = advisorId==="__none__";
+  st.textContent="…";
+  const { error } = await sb.rpc("webinar_admin_assign",{ p_registration_id:id, p_advisor_id: none?null:advisorId, p_all_for_email:all, p_no_advisor:none });
+  if(error){ st.textContent="Fehler: "+error.message; return; }
+  const email=((_unassigned.find(x=>x.id===id)||{}).attendee_email||"").toLowerCase();
+  _unassigned=_unassigned.filter(x=> (all&&email) ? (x.attendee_email||"").toLowerCase()!==email : x.id!==id );
+  $("ua-count").textContent="· "+_unassigned.length+" offen";
+  row.style.transition="opacity .25s"; row.style.opacity=".3";
+  setTimeout(renderUnassigned,260);
+}
+const MONTH_NAMES=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+async function loadMonthRanking(){
+  const sel=$("month-sel");
+  if(!sel.dataset.init){
+    let months=[];
+    try{ const { data } = await sb.rpc("webinar_admin_ranking_months"); months=data||[]; }catch(_){}
+    if(!months.length){ const d=new Date(); months=[{y:d.getFullYear(),m:d.getMonth()+1}]; }
+    sel.innerHTML=months.map(x=>'<option value="'+x.y+'-'+x.m+'">'+MONTH_NAMES[x.m-1]+' '+x.y+'</option>').join("");
+    sel.dataset.init="1";
+    sel.onchange=renderMonth;
+  }
+  renderMonth();
+}
+function monthTable(rows,key,subkey,subword){
+  if(!rows.length) return '<div class="muted">Keine Daten für diesen Monat.</div>';
+  const max=Math.max(1,...rows.map(r=>Number(r[key])));
+  const medal=i=>{const c=["#E3B341","#9AA7B2","#CD7F47"];return i<3?'<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:'+c[i]+';color:#fff;font-weight:700;font-size:11px;">'+(i+1)+'</span>':(i+1)+".";};
+  return clampRows("m_"+key,rows.map((r,i)=>{
+    const pct=Math.max(4,Math.round(Number(r[key])/max*100));
+    return '<div class="lb-row'+(i<3?' top':'')+'"><div class="lb-pos">'+medal(i)+'</div><div class="lb-main"><div class="lb-name">'+esc(r.advisor)+'<span class="lb-n">'+r[key]+'</span></div><div class="lb-bar"><div class="lb-fill" style="width:'+pct+'%;"></div></div><div class="lb-sub">'+(r[subkey]||0)+' '+subword+'</div></div></div>';
+  }),rows.length);
+}
+async function renderMonth(){
+  const v=($("month-sel").value||"").split("-"); if(v.length<2) return;
+  const y=+v[0], m=+v[1];
+  $("month-anm").innerHTML='<span class="muted">Lädt…</span>'; $("month-teil").innerHTML='<span class="muted">Lädt…</span>';
+  const { data } = await sb.rpc("webinar_admin_month_ranking",{p_year:y,p_month:m});
+  const rows=data||[];
+  $("month-anm").innerHTML=monthTable(rows.slice().sort((a,b)=>Number(b.anmeldungen)-Number(a.anmeldungen)||Number(b.teilgenommen)-Number(a.teilgenommen)),"anmeldungen","teilgenommen","teilgenommen");
+  $("month-teil").innerHTML=monthTable(rows.slice().sort((a,b)=>Number(b.teilgenommen)-Number(a.teilgenommen)||Number(b.anmeldungen)-Number(a.anmeldungen)),"teilgenommen","anmeldungen","Anmeldungen");
+  wireClamp($("month-anm"),renderMonth); wireClamp($("month-teil"),renderMonth);
+}
+async function loadRanking(){
+  const { data } = await sb.rpc("webinar_admin_ranking_f", { p_period:_rankPeriod });
+  renderRankBoard(data || []);
+}
+function renderRankBoard(rows){
+  rows = rows || [];
+  const max = Math.max(1, ...rows.map(r=>Number(r.anmeldungen)));
+  const medal=i=>{const c=["#E3B341","#9AA7B2","#CD7F47"];return i<3?'<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:'+c[i]+';color:#fff;font-weight:700;font-size:11px;">'+(i+1)+'</span>':(i+1)+".";};
+  _rankRows=rows;
+  $("rank-board").innerHTML = rows.length ? clampRows("rank",rows.map((r,i)=>{
+    const pct=Math.max(4, Math.round(Number(r.anmeldungen)/max*100));
+    return '<div class="lb-row'+(i<3?' top':'')+'"><div class="lb-pos">'+medal(i)+'</div><div class="lb-main"><div class="lb-name">'+esc(r.advisor)+'<span class="lb-n">'+r.anmeldungen+'</span></div><div class="lb-bar"><div class="lb-fill" style="width:'+pct+'%;"></div></div><div class="lb-sub">'+(r.teilgenommen||0)+' teilgenommen</div></div></div>';
+  }),rows.length) : '<div class="muted">Keine Anmeldungen im gewählten Zeitraum.</div>';
+  wireClamp($("rank-board"),()=>renderRankBoard(_rankRows));
+}
+
+async function loadDelta(){
+  try{
+    const { data } = await sb.rpc("webinar_admin_daily_delta");
+    const s = (data && data[0]) || {heute:0,gestern:0,vorgestern:0};
+    $("delta-panel").classList.remove("hidden");
+    const delta = (s.gestern||0) - (s.vorgestern||0);
+    const dCol = delta>0 ? "#1a7d4b" : (delta<0 ? "#b03a3a" : "var(--muted)");
+    const dTxt = (delta>0?"+":"")+delta+" zum Vortag";
+    const card=(l,v,off,extra)=>'<div class="stat dstat" data-off="'+off+'" data-label="'+l+'" style="cursor:pointer;">'+'<div class="label">'+l+'</div><div class="val">'+v+'</div>'+(extra||"")+'<div style="font-size:11px;font-weight:600;color:var(--cyan-d);margin-top:6px;">Details ansehen ›</div></div>';
+    $("delta-body").innerHTML='<div class="cards" style="margin:0;">'
+      + card("Gestern", (s.gestern||0), 1, '<div style="font-size:12px;font-weight:700;color:'+dCol+';margin-top:4px;">'+dTxt+'</div>')
+      + card("Heute (bisher)", (s.heute||0), 0)
+      + card("Vorgestern", (s.vorgestern||0), 2)
+      + '</div><div class="muted" style="font-size:12px;margin-top:8px;">Kachel anklicken zeigt die Anmeldungen des Tags inkl. Berater. Eingangstag Europe/Berlin, ohne Storno.</div>';
+    $("delta-body").querySelectorAll(".dstat").forEach(c=>c.onclick=()=>openDeltaDay(Number(c.dataset.off), c.dataset.label));
+  }catch(_){}
+}
+async function openDeltaDay(off, label){
+  const { data } = await sb.rpc("webinar_admin_registrations_for_day", {p_offset:off});
+  const rows = data || [];
+  const head='<thead><tr><th>Uhrzeit</th><th>Kunde</th><th>E-Mail</th><th>Webinar</th><th>Berater</th></tr></thead>';
+  const body=rows.length? rows.map(r=>'<tr><td>'+new Date(r.registered_at).toLocaleTimeString("de-DE",{timeZone:"Europe/Berlin",hour:"2-digit",minute:"2-digit"})+' Uhr</td><td>'+(esc(r.attendee_name)||"–")+'</td><td>'+(esc(r.attendee_email)||"–")+'</td><td>'+esc(r.webinar_title)+'</td><td>'+(esc(r.advisor)||"–")+'</td></tr>').join("") : '<tr><td colspan="5" class="muted">Keine neuen Anmeldungen an diesem Tag.</td></tr>';
+  openBigTable("Neue Anmeldungen · "+label+" ("+rows.length+")", head+'<tbody>'+body+'</tbody>');
+}
+
+let _cmsTopics=[], _cmsRefOv={}, _cmsPhotoUrl=null;
+async function loadCms(){
+  $("cms-panel").classList.remove("hidden");
+  $("cms-t-topics").onclick=()=>cmsTab("topics");
+  $("cms-t-ref").onclick=()=>cmsTab("ref");
+  $("cms-t-events").onclick=()=>{ cmsTab("events"); loadCmsEvents(); };
+  $("cms-save-topic").onclick=cmsSaveTopic;
+  $("cms-save-ref").onclick=cmsSaveRef;
+  $("cms-ref-file").onchange=cmsUploadPhoto;
+  const [tp, names, ovs] = await Promise.all([ sb.rpc("webinar_landing_topics"), sb.rpc("webinar_admin_referent_names"), sb.rpc("webinar_referent_overrides") ]);
+  _cmsTopics = tp.data || [];
+  const sel=$("cms-topic-sel");
+  sel.innerHTML=_cmsTopics.map(t=>'<option value="'+t.key+'">'+esc(t.label)+'</option>').join("");
+  sel.onchange=()=>cmsLoadTopic(sel.value);
+  if(_cmsTopics.length) cmsLoadTopic(_cmsTopics[0].key);
+  _cmsRefOv={}; (ovs.data||[]).forEach(o=>{ _cmsRefOv[o.name_key]=o; });
+  const nm=(names.data||[]).map(x=>x.name);
+  const rs=$("cms-ref-sel");
+  rs.innerHTML=nm.length?nm.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join(""):'<option value="">Keine Referenten gefunden</option>';
+  rs.onchange=()=>cmsLoadRef(rs.value);
+  if(nm.length) cmsLoadRef(nm[0]);
+}
+function cmsTab(which){
+  $("cms-topics").classList.toggle("hidden", which!=="topics");
+  $("cms-ref").classList.toggle("hidden", which!=="ref");
+  $("cms-events").classList.toggle("hidden", which!=="events");
+  $("cms-t-topics").classList.toggle("on", which==="topics");
+  $("cms-t-ref").classList.toggle("on", which==="ref");
+  $("cms-t-events").classList.toggle("on", which==="events");
+}
+let _evAdvisors=[];
+async function loadCmsEvents(){
+  const { data } = await sb.rpc("webinar_admin_event_advisors");
+  _evAdvisors = data || [];
+  renderCmsEvents("");
+  const s=$("cms-ev-search"); if(s) s.oninput=()=>renderCmsEvents((s.value||"").toLowerCase());
+}
+function renderCmsEvents(q){
+  const rows=_evAdvisors.filter(a=>!q || (a.name||"").toLowerCase().includes(q) || (a.email||"").toLowerCase().includes(q));
+  $("cms-ev-list").innerHTML = rows.length ? rows.map(a=>'<label style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-bottom:1px solid var(--line);font-size:14px;cursor:pointer;"><input type="checkbox" class="ev-cb" data-email="'+esc(a.email)+'"'+(a.can_events?' checked':'')+'><span style="flex:1;">'+esc(a.name)+' <span class="muted" style="font-size:12px;">'+esc(a.email)+'</span></span></label>').join("") : '<div class="muted">Keine Treffer.</div>';
+  $("cms-ev-list").querySelectorAll(".ev-cb").forEach(cb=>cb.onchange=async()=>{ cb.disabled=true; const { error }=await sb.rpc("webinar_admin_set_can_events",{p_email:cb.dataset.email,p_on:cb.checked}); cb.disabled=false; const a=_evAdvisors.find(x=>x.email===cb.dataset.email); if(a&&!error) a.can_events=cb.checked; });
+}
+function cmsLoadTopic(key){ const t=_cmsTopics.find(x=>x.key===key); if(!t) return; $("cms-label").value=t.label||""; $("cms-headline").value=t.headline||""; $("cms-sub").value=t.sub||""; $("cms-problem").value=t.problem||""; $("cms-pains").value=(t.pains||[]).join("\n"); $("cms-benefits").value=(t.benefits||[]).join("\n"); $("cms-topic-msg").textContent=""; }
+async function cmsSaveTopic(){
+  const key=$("cms-topic-sel").value; const t=_cmsTopics.find(x=>x.key===key); if(!t) return;
+  const pains=$("cms-pains").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  const benefits=$("cms-benefits").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  $("cms-topic-msg").textContent="Speichert…";
+  const { error }=await sb.rpc("webinar_admin_save_topic",{p_key:key,p_label:$("cms-label").value,p_icon:t.icon||null,p_headline:$("cms-headline").value,p_sub:$("cms-sub").value,p_problem:$("cms-problem").value,p_pains:pains,p_benefits:benefits});
+  if(!error){ t.label=$("cms-label").value; t.headline=$("cms-headline").value; t.sub=$("cms-sub").value; t.problem=$("cms-problem").value; t.pains=pains; t.benefits=benefits; }
+  $("cms-topic-msg").textContent=error?("Fehler: "+error.message):"✓ Gespeichert – live auf der Seite.";
+}
+function cmsLoadRef(name){ const ov=_cmsRefOv[(name||"").toLowerCase()]||{}; $("cms-ref-title").value=ov.title||""; $("cms-ref-bio").value=ov.bio||""; _cmsPhotoUrl=ov.photo_url||null; const img=$("cms-ref-preview"); if(_cmsPhotoUrl){ img.src=_cmsPhotoUrl; img.style.display="block"; } else { img.style.display="none"; img.removeAttribute("src"); } $("cms-ref-msg").textContent=""; $("cms-ref-file").value=""; }
+async function cmsUploadPhoto(e){
+  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  $("cms-ref-msg").textContent="Lädt hoch…";
+  const ext=((f.name.split(".").pop())||"jpg").toLowerCase();
+  const path=Date.now()+"-"+Math.random().toString(36).slice(2,8)+"."+ext;
+  const { error }=await sb.storage.from("referenten").upload(path,f,{upsert:true,contentType:f.type});
+  if(error){ $("cms-ref-msg").textContent="Upload-Fehler: "+error.message; return; }
+  const { data }=sb.storage.from("referenten").getPublicUrl(path);
+  _cmsPhotoUrl=data.publicUrl; const img=$("cms-ref-preview"); img.src=_cmsPhotoUrl; img.style.display="block";
+  $("cms-ref-msg").textContent="✓ Foto hochgeladen – bitte noch „Speichern“.";
+}
+async function cmsSaveRef(){
+  const name=$("cms-ref-sel").value; if(!name){ $("cms-ref-msg").textContent="Kein Referent gewählt."; return; }
+  $("cms-ref-msg").textContent="Speichert…";
+  const { error }=await sb.rpc("webinar_admin_save_referent",{p_name:name,p_photo_url:_cmsPhotoUrl||"",p_title:$("cms-ref-title").value,p_bio:$("cms-ref-bio").value});
+  if(!error){ _cmsRefOv[name.toLowerCase()]={name_key:name.toLowerCase(),display_name:name,photo_url:_cmsPhotoUrl,title:$("cms-ref-title").value,bio:$("cms-ref-bio").value}; }
+  $("cms-ref-msg").textContent=error?("Fehler: "+error.message):"✓ Gespeichert – live auf der Seite.";
+}
+function fmtD(s){ return s ? new Date(s).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"2-digit",timeZone:TZ}) : "–"; }
+function renderAdminOverview(rows){
+  const head = '<thead><tr><th>Datum</th><th>Webinar</th><th>Angem.</th><th>Anwesend</th><th>Quote</th><th>Storno</th><th>Ø Dauer</th><th>TN-Mails</th><th>NoShow</th></tr></thead>';
+  const body = rows.length ? rows.map(w=>{
+    const q = (w.attended!=null && Number(w.registered)>0) ? Math.round(w.attended/w.registered*100)+' %' : '–';
+    const dur = w.avg_seconds ? Math.round(w.avg_seconds/60)+' Min' : '–';
+    return `<tr><td>${fmtD(w.starts_at)}</td><td>${esc(w.title)}</td><td>${w.registered}</td><td>${w.attended??'–'}</td><td>${q}</td><td>${w.canceled||0}</td><td>${dur}</td><td>${w.teilnehmer_mails||0}</td><td>${w.noshow_mails||0}</td></tr>`;
+  }).join("") : '<tr><td colspan="9" class="muted">Keine Daten.</td></tr>';
+  $("admin-overview-tbl").innerHTML = head + '<tbody>'+body+'</tbody>';
+  $("admin-overview-tbl").ondblclick = ()=> openBigTable("Übersicht aller Webinare", $("admin-overview-tbl").innerHTML);
+  limitRows($("admin-overview-tbl"),5);
+}
+function renderAdminRanking(rows){
+  const head = '<thead><tr><th>Berater</th><th>Anmeldungen</th><th>Teilgenommen</th></tr></thead>';
+  const body = rows.length ? rows.map((r,i)=>`<tr><td>${i+1}. ${esc(r.advisor)}</td><td>${r.anmeldungen}</td><td>${r.teilgenommen}</td></tr>`).join("") : '<tr><td colspan="3" class="muted">Keine Daten.</td></tr>';
+  $("admin-rank-tbl").innerHTML = head + '<tbody>'+body+'</tbody>';
+  $("admin-rank-tbl").ondblclick = ()=> openBigTable("Berater-Ranking gesamt", $("admin-rank-tbl").innerHTML);
+  limitRows($("admin-rank-tbl"),5);
+}
+
+function renderCalendar() {
+  $("cal-title").textContent = MONTHS[viewM] + " " + viewY;
+  const todayKey = dateKey(new Date());
+  const grid = $("cal-grid"); grid.innerHTML = "";
+  DOW.forEach(d => { const e=document.createElement("div"); e.className="cal-dow"; e.textContent=d; grid.appendChild(e); });
+  const first = new Date(viewY, viewM, 1); let lead = (first.getDay() + 6) % 7;
+  for (let i=0;i<lead;i++){ const e=document.createElement("div"); e.className="cal-cell empty"; grid.appendChild(e); }
+  const days = new Date(viewY, viewM+1, 0).getDate();
+  for (let day=1; day<=days; day++){
+    const k = viewY+"-"+String(viewM+1).padStart(2,"0")+"-"+String(day).padStart(2,"0");
+    const list = byDate[k];
+    const e = document.createElement("div");
+    e.className = "cal-cell" + (list ? " has" : "") + (k===selectedDate ? " sel" : "") + (k===todayKey ? " today" : "");
+    e.innerHTML = '<span class="cal-daynum">'+day+(k===todayKey?'<span class="tlbl"> · heute</span>':'')+'</span>';
+    if (list){ const hasReg = list.some(x=>x.is_regional); e.innerHTML += '<br><span class="cal-badge'+(hasReg?' reg':'')+'">'+list.length+'<span class="blbl"> '+(list.length>1?'Webinare':'Webinar')+'</span></span>'; e.onclick = () => selectDay(k); }
+    grid.appendChild(e);
+  }
+}
+
+function webinarItem(w, withDate){
+  const d = new Date(w.starts_at);
+  const dateStr = withDate ? d.toLocaleDateString("de-DE",{day:"2-digit",month:"short",timeZone:TZ}) : d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ});
+  const cancelStr = Number(w.canceled)>0 ? '<span style="color:#b03a3a;">'+w.canceled+' storniert</span>' : '';
+  const attStr = (w.attended!=null) ? '<span style="color:#0596b3;font-weight:700;">'+w.attended+' anwesend</span>' : '';
+  const meta = [presLine(w), '<span class="cnt">'+w.total_registrations+' Anmeldungen</span>', attStr, cancelStr, linkLine(w)].filter(Boolean).join("");
+  const b = document.createElement("div");
+  b.className = "witem" + (w.webinar_id===selectedWid ? " sel" : "") + (w.is_regional ? " reg" : "");
+  b.dataset.wid = w.webinar_id;
+  const rbadge = w.is_regional ? '<span class="rbadge">Regional'+(w.region_advisor?' · '+esc(w.region_advisor):'')+'</span>' : '';
+  b.innerHTML = '<div class="top"><span class="date">'+dateStr+'</span><span class="ttl">'+esc(w.title)+rbadge+'</span></div><div class="meta">'+meta+'</div>';
+  b.addEventListener("click",(ev)=>{ if(ev.target.tagName==="A") return; selectWebinar(w.webinar_id); if(wmEligible(w.webinar_id)) openWebinarModal(w.webinar_id); });
+  return b;
+}
+
+function markSelection(){ document.querySelectorAll(".witem").forEach(c=>c.classList.toggle("sel", c.dataset.wid===selectedWid)); }
+
+function selectDay(k){
+  selectedDate = k; renderCalendar();
+  const list = (byDate[k]||[]).slice().sort((a,b)=> new Date(a.starts_at)-new Date(b.starts_at));
+  const dl = $("day-list"); dl.innerHTML = "";
+  const d = new Date(k+"T00:00:00");
+  $("day-title").textContent = "Webinare am " + d.toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  list.forEach(w => dl.appendChild(webinarItem(w,false)));
+  if (list.length){ selectWebinar(list[0].webinar_id); }
+}
+
+function renderList(){
+  const now = Date.now();
+  const up = totals.filter(w=>w.starts_at && new Date(w.starts_at).getTime() >= now - 36e5*12).sort((a,b)=> new Date(a.starts_at)-new Date(b.starts_at));
+  const ordered = up; // nur kommende Webinare; vergangene bleiben im Kalender + Admin-Übersicht
+  const el = $("up-list"); el.innerHTML = "";
+  if(!ordered.length){ el.innerHTML='<div class="muted">Keine kommenden Webinare.</div>'; }
+  else ordered.forEach(w => el.appendChild(webinarItem(w,true)));
+  // Standardansicht: Summe über alle anstehenden Webinare
+  renderAggregate(up);
+}
+
+function selectWebinar(wid){ selectedWid = wid; markSelection(); renderWebinar(wid); }
+
+function drawChart(labels,data,colors){
+  if (chart) chart.destroy();
+  chart = new Chart($("chart"), { type: "bar",
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 5 }] },
+    options: { indexAxis: "y", responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks:{ font:{ family:"Inter", size:12 } } } } } });
+}
+function durStr(s){ s = Number(s||0); if(!s) return ''; const m = Math.round(s/60); return m>=60 ? `${Math.floor(m/60)} Std ${m%60} Min` : `${m} Min`; }
+function regRow(r, withAdv, i){
+  const cancel = r.status==='canceled' ? ' <span style="color:#b03a3a;font-size:11px;font-weight:600;">storniert</span>' : '';
+  let anw = '<span class="muted">–</span>', dauer = '<span class="muted">–</span>';
+  if (r.status !== 'canceled') {
+    if (r.attended === true) { anw = '<span style="color:#1a7d4b;font-weight:600;">✓ anwesend</span>'; const d = durStr(r.attended_seconds); if (d) dauer = d; }
+    else if (r.attended === false) { anw = '<span style="color:#b03a3a;font-weight:600;">nicht dabei</span>'; }
+  }
+  const adv = withAdv ? `<td>${esc(r.advisor)||"–"}</td>` : '';
+  return `<tr class="clk" data-i="${i}"><td>${esc(r.attendee_name)||"–"}${cancel}</td><td>${esc(r.attendee_email)||"–"}</td>${adv}<td>${r.registered_at ? new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}) : "–"}</td><td>${anw}</td><td>${dauer}</td></tr>`;
+}
+let _rows=[], _withAdv=false, _fStatus='alle', _fBerater='alle', _fSort='attendee_name', _fDir=1, _shownRows=[], _clickTimer=null;
+function fillTable(rows, withAdv){
+  _rows = rows || []; _withAdv = !!withAdv; _fBerater='alle';
+  buildFilters(); renderRows();
+}
+function buildFilters(){
+  const f = $("tbl-filters");
+  if(!_rows.length){ f.classList.add("hidden"); f.innerHTML=""; return; }
+  f.classList.remove("hidden");
+  let ber = "";
+  if(_withAdv){
+    const names = [...new Set(_rows.map(r=>r.advisor).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+    ber = '<label>Berater:</label><select id="f-berater"><option value="alle">Alle</option>'+names.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('')+'</select>';
+  }
+  f.innerHTML = '<label>Status:</label><select id="f-status"><option value="alle">Alle</option><option value="ja">Teilgenommen</option><option value="nein">Nicht teilgenommen</option><option value="storno">Storniert</option></select>' + ber + '<span style="font-size:12px;color:var(--muted);">Spalten klicken zum Sortieren ↑↓</span>';
+  $("f-status").value=_fStatus;
+  $("f-status").onchange=e=>{_fStatus=e.target.value;renderRows();};
+  const b=$("f-berater"); if(b){ b.value=_fBerater; b.onchange=e=>{_fBerater=e.target.value;renderRows();}; }
+}
+function _cols(){ return [
+  {k:'attendee_name',l:'Teilnehmer',t:'s'},
+  {k:'attendee_email',l:'E-Mail',t:'s'},
+  ...(_withAdv?[{k:'advisor',l:'Berater',t:'s'}]:[]),
+  {k:'registered_at',l:'Angemeldet',t:'d'},
+  {k:'attended',l:'Anwesend',t:'b'},
+  {k:'attended_seconds',l:'Dauer',t:'n'},
+];}
+function _val(r,k,t){ if(t==='d') return new Date(r[k]||0).getTime(); if(t==='n') return Number(r[k]||0); if(t==='b') return r.attended===true?2:(r.attended===false?1:0); return (r[k]||'').toString().toLowerCase(); }
+function renderRows(){
+  let rows=_rows.slice();
+  if(_fStatus==='ja') rows=rows.filter(r=>r.attended===true);
+  else if(_fStatus==='nein') rows=rows.filter(r=>r.attended===false && r.status!=='canceled');
+  else if(_fStatus==='storno') rows=rows.filter(r=>r.status==='canceled');
+  if(_withAdv && _fBerater!=='alle') rows=rows.filter(r=>(r.advisor||'')===_fBerater);
+  const cols=_cols(); const col=cols.find(c=>c.k===_fSort)||cols[0];
+  rows.sort((a,b)=>{ const va=_val(a,col.k,col.t), vb=_val(b,col.k,col.t); if(va<vb) return -_fDir; if(va>vb) return _fDir; return 0; });
+  _shownRows=rows;
+  const head = '<thead><tr>'+cols.map(c=>{ const act=c.k===_fSort; const ar=act?(_fDir===1?' ▲':' ▼'):''; return '<th class="sortable" data-k="'+c.k+'">'+c.l+'<span class="ar">'+ar+'</span></th>'; }).join('')+'</tr></thead>';
+  const body = rows.length ? rows.map((r,i)=>regRow(r,_withAdv,i)).join("") : `<tr><td colspan="${cols.length}" class="muted">Keine Treffer.</td></tr>`;
+  $("mytable").innerHTML = head + '<tbody>'+body+'</tbody>';
+  const mt=$("mytable");
+  mt.querySelectorAll("th.sortable").forEach(th=>th.onclick=()=>{ const k=th.dataset.k; if(_fSort===k) _fDir=-_fDir; else { _fSort=k; _fDir=1; } renderRows(); });
+  mt.querySelectorAll("tbody tr.clk").forEach(tr=>tr.onclick=()=>{ clearTimeout(_clickTimer); const idx=Number(tr.dataset.i); _clickTimer=setTimeout(()=>openRowModal(_shownRows[idx]),230); });
+  mt.ondblclick=()=>{ clearTimeout(_clickTimer); openTableModal(); };
+  limitRows(mt,5);
+}
+// Leiter-/Org-Ansicht: Zusammenfassung je Berater, Klick = Teilnehmer dieses Beraters
+let _orgRows=[];
+function _advKey(r){ return (r.advisor && r.advisor!=='–' && r.advisor.trim()) ? r.advisor : '– ohne Berater'; }
+function fillOrgSummary(rows){
+  _orgRows = rows || [];
+  $("tbl-filters").classList.add("hidden"); $("tbl-filters").innerHTML="";
+  const tracked = _orgRows.some(r=>r.attended!==null && r.status!=='canceled');
+  const g={};
+  _orgRows.forEach(r=>{ const a=_advKey(r); if(!g[a]) g[a]={advisor:a,ang:0,teil:0};
+    if(r.status!=='canceled'){ g[a].ang++; if(r.attended===true) g[a].teil++; } });
+  const arr=Object.values(g).filter(x=>x.ang>0).sort((x,y)=> y.ang-x.ang || x.advisor.localeCompare(y.advisor));
+  const note = tracked ? '' : ' <span style="font-weight:400;font-size:11px;color:var(--muted);">· Anwesenheit für dieses Webinar technisch nicht erfasst</span>';
+  const head='<thead><tr><th>Berater</th><th>Angemeldet</th><th>Teilgenommen</th><th>Quote</th><th></th></tr></thead>';
+  const body=arr.length?arr.map((r,i)=>{
+    const teil = tracked ? r.teil : '<span class="muted">n. erf.</span>';
+    const q = tracked ? (r.ang? Math.round(r.teil/r.ang*100)+' %':'–') : '<span class="muted">–</span>';
+    return `<tr class="clk" data-adv="${esc(r.advisor)}"><td>${i+1}. ${esc(r.advisor)}</td><td>${r.ang}</td><td>${teil}</td><td>${q}</td><td style="color:var(--brand);font-size:12px;">Details ›</td></tr>`;
+  }).join(''):'<tr><td colspan="5" class="muted">Keine Anmeldungen.</td></tr>';
+  $("mytable").innerHTML=head+'<tbody>'+body+'</tbody>';
+  const mt=$("mytable");
+  mt.querySelectorAll("tbody tr.clk").forEach(tr=>tr.onclick=()=>openOrgDetail(tr.dataset.adv));
+  mt.ondblclick=null;
+  limitRows(mt,5);
+  const t=$("mytbl-title"); if(t && note && !/nicht erfasst/.test(t.innerHTML)) t.innerHTML += note;
+}
+function orgSummaryHint(msg){
+  _orgRows=[]; $("tbl-filters").classList.add("hidden"); $("tbl-filters").innerHTML="";
+  $("mytable").innerHTML='<tbody><tr><td class="muted" style="padding:14px;">'+(msg||'Bitte ein Webinar im Kalender wählen.')+'</td></tr></tbody>';
+  $("mytable").ondblclick=null;
+}
+function openOrgDetail(adv){
+  const list=_orgRows.filter(r=>_advKey(r)===adv);
+  const angem=list.filter(r=>r.status!=='canceled').length;
+  const head='<thead><tr><th>Teilnehmer</th><th>E-Mail</th><th>Angemeldet</th><th>Anwesend</th><th>Dauer</th></tr></thead>';
+  const body=list.length?list.map(r=>{
+    let anw;
+    if(r.status==='canceled') anw='<span style="color:#b03a3a;">storniert</span>';
+    else if(r.attended===true) anw='<span style="color:#1a7d4b;font-weight:600;">✓ anwesend</span>';
+    else if(r.attended===false) anw='<span style="color:#b03a3a;font-weight:600;">nicht dabei</span>';
+    else anw='<span class="muted">nicht erfasst</span>';
+    const d=durStr(r.attended_seconds)||'–';
+    return `<tr><td>${esc(r.attendee_name)||'–'}</td><td>${esc(r.attendee_email)||'–'}</td><td>${r.registered_at?new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}):'–'}</td><td>${anw}</td><td>${d}</td></tr>`;
+  }).join(''):'<tr><td colspan="5" class="muted">Keine Teilnehmer.</td></tr>';
+  openBigTable(adv+' · '+angem+' angemeldet', head+'<tbody>'+body+'</tbody>');
+}
+// Zeigt nur die ersten N Zeilen, Rest per "mehr anzeigen" ausklappbar
+function limitRows(tableEl, limit){
+  limit = limit || 5;
+  if(!tableEl) return;
+  const tb = tableEl.querySelector("tbody"); if(!tb) return;
+  const rows = Array.from(tb.querySelectorAll("tr")).filter(r=>!r.classList.contains("more-row"));
+  if(rows.length <= limit) return;
+  const cols = (tableEl.querySelector("thead tr") && tableEl.querySelector("thead tr").children.length) || (rows[0] && rows[0].children.length) || 1;
+  const hidden = rows.slice(limit);
+  hidden.forEach(r=> r.style.display="none");
+  const tr=document.createElement("tr"); tr.className="more-row";
+  const td=document.createElement("td"); td.colSpan=cols;
+  const btn=document.createElement("button");
+  let open=false;
+  const lbl=()=> open ? "Weniger anzeigen" : ("▾ "+hidden.length+" weitere anzeigen");
+  btn.textContent=lbl();
+  btn.onclick=(e)=>{ e.stopPropagation(); open=!open; hidden.forEach(r=> r.style.display=open?"":"none"); btn.textContent=lbl(); };
+  td.appendChild(btn); tr.appendChild(td); tb.appendChild(tr);
+}
+function openBigTable(title, innerHTML){
+  $("tm-title").textContent = title || "Tabelle";
+  $("tm-table").innerHTML = innerHTML;
+  $("table-modal").classList.add("open");
+}
+function openTableModal(){
+  const cols=_cols();
+  const head='<thead><tr>'+cols.map(c=>'<th>'+c.l+'</th>').join('')+'</tr></thead>';
+  const body=_shownRows.length?_shownRows.map((r,i)=>regRow(r,_withAdv,i)).join(''):`<tr><td colspan="${cols.length}" class="muted">Keine Treffer.</td></tr>`;
+  openBigTable($("mytbl-title").textContent || "Alle Anmeldungen", head+'<tbody>'+body+'</tbody>');
+}
+function closeTableModal(){ $("table-modal").classList.remove("open"); }
+
+// ===== Webinar-Detail-Popup: Berater-KPIs + Drill-down zu Kunden =====
+let _wm = {wid:null, rows:[], view:'list', adv:null, fStatus:'alle', fBerater:'alle', q:''};
+let _advisors = [];
+function wmEligible(wid){ return isAdmin || presenterWids.has(wid) || isOrgLead; }
+async function openWebinarModal(wid){
+  _wm = {wid, rows:[], view:'list', adv:null, fStatus:'alle', fBerater:'alle', q:''};
+  if(isAdmin && !_advisors.length){ try{ const {data}=await sb.rpc("webinar_advisors_list"); _advisors=data||[]; }catch(_){} }
+  const w = totals.find(x=>x.webinar_id===wid);
+  $("wm-title").textContent = w ? w.title : "Webinar";
+  $("wm-sub").textContent = (w && w.starts_at) ? (new Date(w.starts_at).toLocaleDateString("de-DE",{weekday:'long',day:'2-digit',month:'long',year:'numeric',timeZone:TZ})+', '+new Date(w.starts_at).toLocaleTimeString("de-DE",{hour:'2-digit',minute:'2-digit',timeZone:TZ})+' Uhr') : "";
+  $("wm-kpis").innerHTML=''; $("wm-filters").innerHTML='';
+  $("wm-body").innerHTML = '<div class="muted" style="padding:20px;">Lädt…</div>';
+  $("webinar-modal").classList.add("open");
+  const rpc = isAdmin ? "webinar_admin_registrations" : (presenterWids.has(wid) ? "webinar_referent_registrations" : "webinar_org_registrations");
+  const { data } = await sb.rpc(rpc, { p_webinar_id: wid });
+  if(_wm.wid!==wid) return;
+  _wm.rows = data || [];
+  wmRender();
+}
+function wmClose(){ $("webinar-modal").classList.remove("open"); }
+function _wmStatusSearch(rows){
+  if(_wm.fStatus==='ja') rows=rows.filter(r=>r.attended===true);
+  else if(_wm.fStatus==='nein') rows=rows.filter(r=>r.attended===false && r.status!=='canceled');
+  else if(_wm.fStatus==='storno') rows=rows.filter(r=>r.status==='canceled');
+  if(_wm.q){ const q=_wm.q.toLowerCase(); rows=rows.filter(r=>(((r.attendee_name||'')+' '+(r.attendee_email||'')).toLowerCase().includes(q))); }
+  return rows;
+}
+function wmKpi(l,v){ return '<div class="wm-kpi"><div class="l">'+l+'</div><div class="v">'+v+'</div></div>'; }
+function wmRender(){
+  const all=_wm.rows;
+  const ang = all.filter(r=>r.status!=='canceled').length;
+  const tracked = all.some(r=>r.attended!==null && r.status!=='canceled');
+  const anw = all.filter(r=>r.attended===true).length;
+  const storno = all.filter(r=>r.status==='canceled').length;
+  $("wm-kpis").innerHTML = wmKpi('Angemeldet',ang)+wmKpi('Teilgenommen', tracked? anw : '<span class="muted">n. erf.</span>')+wmKpi('Quote', (tracked&&ang)? Math.round(anw/ang*100)+' %':'–')+wmKpi('Storniert',storno);
+  const names=[...new Set(all.map(_advKey))].sort((a,b)=>a.localeCompare(b));
+  const showBer = _wm.view==='list' || _wm.view==='all';
+  const berSel = showBer ? ('<label>Berater:</label><select id="wm-fb"><option value="alle">Alle</option>'+names.map(n=>'<option value="'+esc(n)+'"'+(_wm.fBerater===n?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select>') : '';
+  const segActive = _wm.view==='all' ? 'all' : 'list';
+  const seg = '<span class="wm-seg"><button data-v="list" class="'+(segActive==='list'?'on':'')+'">Je Berater</button><button data-v="all" class="'+(segActive==='all'?'on':'')+'">Alle Teilnehmer</button></span>';
+  $("wm-filters").innerHTML = seg + '<label>Status:</label><select id="wm-fs">'
+    +['alle:Alle','ja:Teilgenommen','nein:Nicht teilgenommen','storno:Storniert'].map(o=>{const[v,l]=o.split(':');return '<option value="'+v+'"'+(_wm.fStatus===v?' selected':'')+'>'+l+'</option>';}).join('')
+    +'</select>'+berSel+'<input id="wm-q" type="search" placeholder="Name oder E-Mail suchen…" value="'+esc(_wm.q)+'">';
+  $("wm-filters").querySelectorAll('.wm-seg button').forEach(b=>b.onclick=()=>{ _wm.view=b.dataset.v; _wm.adv=null; wmRender(); });
+  $("wm-fs").onchange=e=>{_wm.fStatus=e.target.value; wmRenderBody();};
+  if($("wm-fb")) $("wm-fb").onchange=e=>{_wm.fBerater=e.target.value; wmRenderBody();};
+  $("wm-q").oninput=e=>{_wm.q=e.target.value; wmRenderBody();};
+  wmRenderBody();
+}
+function wmRenderBody(){ if(_wm.view==='detail') wmRenderDetail(); else if(_wm.view==='all') wmRenderAll(); else wmRenderList(); }
+function _anwCell(r){
+  if(r.status==='canceled') return '<span style="color:#b03a3a;">storniert</span>';
+  if(r.attended===true) return '<span style="color:#1a7d4b;font-weight:600;">✓ ja</span>';
+  if(r.attended===false) return '<span style="color:#b03a3a;font-weight:600;">nein</span>';
+  return '<span class="muted">n. erf.</span>';
+}
+function wmRenderAll(){
+  let rows=_wmStatusSearch(_wm.rows.slice());
+  if(_wm.fBerater!=='alle') rows=rows.filter(r=>_advKey(r)===_wm.fBerater);
+  rows.sort((a,b)=> (a.attendee_name||'').localeCompare(b.attendee_name||''));
+  const canAssign = isAdmin && _advisors.length;
+  let html='<table class="wm-tbl"><thead><tr><th>Kunde</th><th>E-Mail</th><th>Berater</th><th>Angemeldet</th><th>Gekommen</th><th>Dauer</th></tr></thead><tbody>';
+  html+= rows.length ? rows.map((r,i)=>{
+    let ber;
+    if(canAssign){
+      const cur=r.advisor_id||'';
+      ber='<select class="wm-assign" data-reg="'+esc(r.reg_id||'')+'"><option value="">— ohne —</option>'+_advisors.map(a=>'<option value="'+a.id+'"'+(a.id===cur?' selected':'')+'>'+esc(a.name)+'</option>').join('')+'</select>';
+    } else { ber=esc(r.advisor)||'–'; }
+    return '<tr><td>'+(esc(r.attendee_name)||'–')+'</td><td>'+(esc(r.attendee_email)||'–')+'</td><td>'+ber+'</td><td>'+(r.registered_at?new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}):'–')+'</td><td>'+_anwCell(r)+'</td><td>'+(durStr(r.attended_seconds)||'–')+'</td></tr>';
+  }).join('') : '<tr><td colspan="6" class="muted">Keine Treffer.</td></tr>';
+  html+='</tbody></table>';
+  $("wm-body").innerHTML=html;
+  $("wm-body").querySelectorAll('.wm-assign').forEach(sel=>sel.onchange=async()=>{
+    const regId=sel.dataset.reg, advId=sel.value||null;
+    sel.disabled=true;
+    const { error } = await sb.rpc("webinar_admin_set_advisor",{p_reg_id:regId, p_advisor_id:advId});
+    sel.disabled=false;
+    if(!error){ const row=_wm.rows.find(x=>x.reg_id===regId); if(row){ row.advisor_id=advId; const a=_advisors.find(x=>x.id===advId); row.advisor=a?a.name:'–'; } }
+  });
+}
+function wmRenderList(){
+  let rows=_wmStatusSearch(_wm.rows.slice());
+  if(_wm.fBerater!=='alle') rows=rows.filter(r=>_advKey(r)===_wm.fBerater);
+  const tracked=_wm.rows.some(r=>r.attended!==null && r.status!=='canceled');
+  const g={};
+  rows.forEach(r=>{const a=_advKey(r); if(!g[a])g[a]={a,ang:0,teil:0}; if(r.status!=='canceled'){g[a].ang++; if(r.attended===true)g[a].teil++;}});
+  const arr=Object.values(g).filter(x=>x.ang>0).sort((x,y)=>y.ang-x.ang||x.a.localeCompare(y.a));
+  let html='<table class="wm-tbl"><thead><tr><th>Berater</th><th>Angemeldet</th><th>Teilgenommen</th><th>Quote</th><th></th></tr></thead><tbody>';
+  html+= arr.length ? arr.map((r,i)=>'<tr class="wm-row" data-adv="'+esc(r.a)+'"><td>'+(i+1)+'. '+esc(r.a)+'</td><td>'+r.ang+'</td><td>'+(tracked?r.teil:'<span class="muted">n. erf.</span>')+'</td><td>'+((tracked&&r.ang)?Math.round(r.teil/r.ang*100)+' %':'<span class="muted">–</span>')+'</td><td style="color:var(--brand);font-size:12px;">Kunden ›</td></tr>').join('') : '<tr><td colspan="5" class="muted">Keine Treffer.</td></tr>';
+  html+='</tbody></table>';
+  $("wm-body").innerHTML=html;
+  $("wm-body").querySelectorAll(".wm-row").forEach(tr=>tr.onclick=()=>{ _wm.adv=tr.dataset.adv; _wm.view='detail'; wmRender(); });
+}
+function wmRenderDetail(){
+  const adv=_wm.adv;
+  const base=_wm.rows.filter(r=>_advKey(r)===adv);
+  const rows=_wmStatusSearch(base.slice());
+  const ang=base.filter(r=>r.status!=='canceled').length;
+  const anw=base.filter(r=>r.attended===true).length;
+  let html='<button class="wm-back" onclick="wmBack()">← Zurück zu Beratern</button>';
+  html+='<div class="wm-deth">'+esc(adv)+' · '+ang+' eingeladen · '+anw+' gekommen</div>';
+  html+='<table class="wm-tbl"><thead><tr><th>Kunde</th><th>E-Mail</th><th>Angemeldet</th><th>Gekommen</th><th>Dauer</th></tr></thead><tbody>';
+  html+= rows.length ? rows.map(r=>{
+    let anwc; if(r.status==='canceled') anwc='<span style="color:#b03a3a;">storniert</span>';
+    else if(r.attended===true) anwc='<span style="color:#1a7d4b;font-weight:600;">✓ ja</span>';
+    else if(r.attended===false) anwc='<span style="color:#b03a3a;font-weight:600;">nein</span>';
+    else anwc='<span class="muted">n. erf.</span>';
+    return '<tr><td>'+(esc(r.attendee_name)||'–')+'</td><td>'+(esc(r.attendee_email)||'–')+'</td><td>'+(r.registered_at?new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}):'–')+'</td><td>'+anwc+'</td><td>'+(durStr(r.attended_seconds)||'–')+'</td></tr>';
+  }).join('') : '<tr><td colspan="5" class="muted">Keine Treffer.</td></tr>';
+  html+='</tbody></table>';
+  $("wm-body").innerHTML=html;
+}
+function wmBack(){ _wm.view='list'; _wm.adv=null; wmRender(); }
+
+function openRowModal(r){
+  if(!r) return;
+  let anw='–'; if(r.status==='canceled') anw='<span style="color:#b03a3a;">Storniert</span>';
+  else if(r.attended===true) anw='<span style="color:#1a7d4b;font-weight:700;">✓ Teilgenommen</span>';
+  else if(r.attended===false) anw='<span style="color:#b03a3a;">Nicht teilgenommen</span>';
+  const dauer = durStr(r.attended_seconds)||'–';
+  const row=(k,v)=>'<div class="rm-row"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>';
+  $("rm-card").innerHTML='<h3>Teilnehmer-Details</h3>'
+    + row('Teilnehmer', esc(r.attendee_name)||'–')
+    + row('E-Mail', esc(r.attendee_email)||'–')
+    + (_withAdv?row('Berater', esc(r.advisor)||'–'):'')
+    + row('Angemeldet am', r.registered_at?new Date(r.registered_at).toLocaleString("de-DE",{timeZone:TZ}):'–')
+    + row('Status', anw)
+    + row('Anwesenheitsdauer', dauer)
+    + '<button class="rm-close" onclick="closeRowModal()">Schließen</button>';
+  $("row-modal").classList.add("open");
+}
+function closeRowModal(){ $("row-modal").classList.remove("open"); }
+
+const SOCIAL_BASE = SUPABASE_URL + "/storage/v1/object/public/social/social-vorlagen/";
+const SOCIAL_PUBLIC = SUPABASE_URL + "/storage/v1/object/public/social/";
+// Themen, die KEIN Standard-3er-Schema nutzen, sondern alle vorhandenen Story-Grafiken zeigen:
+const STORY_ONLY = new Set(["rentenreform"]);
+// Pro Story-Thema: welche Dateien sind Webinar-Promos (kommen zuerst), Rest = allgemeine Stories.
+const STORY_META = { rentenreform: { promo: ["01","03"] } };
+function storyBase(full){ return (full.split("/").pop()||"").replace(/\.png$/i,""); }
+async function renderStorySet(body, topic, date, onResult){
+  const token = (Date.now()+"-"+Math.random()); body.dataset.rsToken = token;
+  let files=[];
+  try{ const { data } = await sb.rpc("webinar_social_files",{p_topic:topic,p_date:date}); files=(data||[]).map(r=>r.name); }catch(_){}
+  if(body.dataset.rsToken!==token) return; // neuerer Aufruf hat übernommen
+  files=files.filter(n=>/\.png$/i.test(n) && !/\(\d+\)\.png$/i.test(n));
+  if(!files.length){ body.innerHTML=""; if(onResult) onResult(false); return; }
+  const promoList=(STORY_META[topic]&&STORY_META[topic].promo)||[];
+  const promos=files.filter(f=>promoList.includes(storyBase(f))).sort((a,b)=>promoList.indexOf(storyBase(a))-promoList.indexOf(storyBase(b)));
+  const general=files.filter(f=>!promoList.includes(storyBase(f))).sort();
+  let pi=0, gi=0;
+  const html=promos.concat(general).map((full)=>{
+    const isPromo=promoList.includes(storyBase(full));
+    const n=isPromo?(++pi):(++gi);
+    const label=isPromo?("Webinar-Promo "+n):("Allgemeine Story "+n);
+    const url=SOCIAL_PUBLIC+full;
+    const fname="mitnorm_"+topic+"_"+date+"_"+(isPromo?"promo":"story")+"_"+n+".png";
+    const lblStyle=isPromo?' style="color:var(--navy);font-weight:700;"':'';
+    return '<div class="social-card"><a href="'+esc(url)+'" target="_blank" rel="noopener"><img src="'+esc(url)+'" alt=""></a><div class="sc-l"'+lblStyle+'>'+label+' (9:16)</div><button class="affil-btn ghosty sc-dl" data-url="'+esc(url)+'" data-fn="'+esc(fname)+'">Herunterladen</button></div>';
+  }).join("");
+  body.innerHTML=html;
+  body.querySelectorAll(".sc-dl").forEach(b=>b.onclick=()=>dlImage(b.dataset.url,b.dataset.fn));
+  if(onResult) onResult(true);
+}
+function socialTopic(title){ const t=(title||"").toLowerCase();
+  if(/baufinanz/.test(t)) return "baufi";
+  if(/geldanlage/.test(t)) return "geldanlage";
+  if(/immobilie/.test(t)) return "immobilie";
+  if(/ruhestand/.test(t)) return "ruhestand";
+  if(/steuer/.test(t)) return "steuern";
+  if(/riester|altersvorsorgedepot/.test(t)) return "riester";
+  if(/rentenkommission|rente 2026|gesetzliche rente|rentenreform/.test(t)) return "rentenreform";
+  return null; }
+function socialDate(d){ const p=n=>String(n).padStart(2,"0"); return d.getUTCFullYear()+"-"+p(d.getUTCMonth()+1)+"-"+p(d.getUTCDate()); }
+async function dlImage(url,name){ try{ const r=await fetch(url); if(!r.ok) throw 0; const b=await r.blob(); const u=URL.createObjectURL(b); const a=document.createElement("a"); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); }catch(_){ window.open(url,"_blank"); } }
+const SOC_TOPIC_LABEL={baufi:"Baufinanzierung",geldanlage:"Geldanlage",immobilie:"Immobilie",ruhestand:"Ruhestand",steuern:"Steuern",riester:"Riester",rentenreform:"Rente & Rentenreform"};
+function fmtSetDate(d){ const p=(d||"").split("-"); return p.length===3? p[2]+"."+p[1]+"."+p[0] : d; }
+function renderSovCards(topic,date){
+  const body=$("sov-body"); body.innerHTML="";
+  if(STORY_ONLY.has(topic)){ renderStorySet(body,topic,date); return; }
+  const note=document.createElement("div"); note.className="muted"; note.style.cssText="font-size:13px;display:none;"; note.textContent="Für dieses Thema sind die Vorlagen noch nicht im Standard-Format (Beitrag/Story/LinkedIn) hinterlegt.";
+  let pending=3, anyOk=false;
+  const done=()=>{ if(--pending<=0 && !anyOk) note.style.display=""; };
+  [{k:"beitrag",l:"Beitrag (4:5)"},{k:"story",l:"Story (9:16)"},{k:"linkedin",l:"LinkedIn"}].forEach(v=>{
+    const url=SOCIAL_BASE+topic+"/"+date+"/"+v.k+".png"; const fname="mitnorm_"+topic+"_"+date+"_"+v.k+".png";
+    const card=document.createElement("div"); card.className="social-card"; card.style.display="none";
+    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img alt=""></a><div class="sc-l">'+v.l+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
+    const img=card.querySelector("img");
+    img.onload=()=>{ card.style.display=""; anyOk=true; done(); };
+    img.onerror=()=>{ card.remove(); done(); };
+    img.src=url;
+    card.querySelector(".sc-dl").onclick=()=>dlImage(url,fname);
+    body.appendChild(card);
+  });
+  body.appendChild(note);
+}
+async function loadSocialOverview(){
+  try{
+    const { data } = await sb.rpc("webinar_social_sets"); const rows=data||[];
+    if(!rows.length){ $("sov-panel").classList.add("hidden"); return; }
+    $("sov-panel").classList.remove("hidden");
+    const sel=$("sov-sel");
+    sel.innerHTML=rows.map(r=>'<option value="'+r.topic+'|'+r.set_date+'">'+esc((SOC_TOPIC_LABEL[r.topic]||r.topic)+' · '+fmtSetDate(r.set_date))+'</option>').join("");
+    sel.onchange=()=>{ const v=sel.value.split("|"); renderSovCards(v[0],v[1]); };
+    const today=new Date().toISOString().slice(0,10);
+    const up=rows.find(r=>r.set_date>=today)||rows[0];
+    sel.value=up.topic+"|"+up.set_date; renderSovCards(up.topic,up.set_date);
+  }catch(_){ $("sov-panel").classList.add("hidden"); }
+}
+function fillSocial(w){
+  const panel=$("social-panel"), body=$("social-body"), empty=$("social-empty");
+  if(!w || !w.starts_at){ panel.classList.add("hidden"); return; }
+  const topic=socialTopic(w.title);
+  if(!topic){ panel.classList.add("hidden"); return; }
+  const date=socialDate(new Date(w.starts_at));
+  panel.classList.remove("hidden"); empty.style.display="none"; body.innerHTML="";
+  if(STORY_ONLY.has(topic)){ renderStorySet(body,topic,date,(ok)=>{ if(!ok) empty.style.display=""; }); return; }
+  const variants=[{k:"beitrag",l:"Beitrag (4:5)"},{k:"story",l:"Story (9:16)"},{k:"linkedin",l:"LinkedIn"}];
+  let pending=variants.length, anyOk=false;
+  const done=()=>{ if(--pending<=0 && !anyOk) empty.style.display=""; };
+  variants.forEach(v=>{
+    const url=SOCIAL_BASE+topic+"/"+date+"/"+v.k+".png";
+    const fname="mitnorm_"+topic+"_"+date+"_"+v.k+".png";
+    const card=document.createElement("div"); card.className="social-card"; card.style.display="none";
+    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img alt=""></a>'
+      +'<div class="sc-l">'+v.l+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
+    const img=card.querySelector("img");
+    img.onload=()=>{ card.style.display=""; anyOk=true; done(); };
+    img.onerror=()=>{ card.remove(); done(); };
+    img.src=url;
+    card.querySelector(".sc-dl").onclick=()=>dlImage(url,fname);
+    body.appendChild(card);
+  });
+}
+function renderWebinar(wid) {
+  $("detail").classList.remove("hidden"); $("tables").classList.remove("hidden");
+  const w = totals.find(x => x.webinar_id === wid);
+  if (w){ const d = w.starts_at ? new Date(w.starts_at) : null;
+    $("detail-head").textContent = w.title + (d ? " · " + d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"long",year:"numeric",timeZone:TZ}) + ", " + d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ}) + " Uhr" : ""); }
+  if (isAdmin && w){ $("admin-edit").classList.remove("hidden"); $("ae-link").value = w.web_url||""; $("ae-pres").value = w.presenters||""; $("ae-join").value=""; $("ae-all").checked=false; $("ae-status").textContent="";
+    sb.rpc("webinar_join_url_get",{p_webinar_id:wid}).then(({data})=>{ if(selectedWid===wid) $("ae-join").value = data||""; });
+    $("att-file").value=""; $("att-status").textContent=""; $("att-send-status").textContent="";
+    if($("ho-file")) $("ho-file").value=""; if($("ho-status")) $("ho-status").textContent=""; loadHandout(wid); }
+  else { $("admin-edit").classList.add("hidden"); }
+  { const it=$("intern-teams"); if (w && w.web_url){ it.classList.remove("hidden");
+      it.innerHTML='<b style="color:var(--navy);">Interne Teilnahme:</b> Als mitNORM-Mitarbeiter über Teams (eigenes Konto) – '
+        +'<a href="'+esc(w.web_url)+'" target="_blank" rel="noopener" style="font-weight:600;">Teams öffnen ↗</a>'
+        +' · <button id="it-copy" style="font:inherit;font-size:13px;font-weight:600;color:var(--navy);background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;">Teams-Link kopieren</button>';
+      const b=$("it-copy"); if(b) b.onclick=()=>{ navigator.clipboard.writeText(w.web_url).then(()=>{ b.textContent="Kopiert ✓"; setTimeout(()=>{b.textContent="Teams-Link kopieren";},1500); }).catch(()=>{}); };
+    } else { it.classList.add("hidden"); it.innerHTML=""; } }
+  fillSocial(w);
+  { const eq=$("event-qr");
+    if(_canEvents && w){
+      eq.classList.remove("hidden");
+      const link = APP_URL + "?w=" + w.webinar_id + (_affilSlug ? ("&b="+encodeURIComponent(_affilSlug)) : "");
+      eq.innerHTML='<div class="ptitle">Anmelde-QR &amp; Link für dieses Seminar</div>'
+        +'<div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;">'
+        +'<div id="eqr-box" style="background:#fff;padding:8px;border:1px solid var(--line);border-radius:10px;"></div>'
+        +'<div style="flex:1;min-width:240px;">'
+        +'<div class="affil-row"><input id="eqr-link" readonly value="'+esc(link)+'" onclick="this.select()"><button id="eqr-copy" class="affil-btn">Link kopieren</button></div>'
+        +'<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;"><button id="eqr-dl" class="affil-btn ghosty">QR herunterladen</button><a class="affil-btn ghosty" href="'+esc(link)+'" target="_blank" rel="noopener">Vorschau ↗</a></div>'
+        +'<div class="muted" style="font-size:12px;margin-top:8px;">Teile QR/Link auf Social Media oder vor Ort – Anmeldungen werden dir zugeordnet.</div>'
+        +'</div></div>';
+      const box=$("eqr-box"); box.innerHTML="";
+      try{ new QRCode(box,{text:link,width:150,height:150,colorDark:"#004283",colorLight:"#ffffff"}); }catch(_){ box.innerHTML='<span class="muted" style="font-size:12px;">QR nicht verfügbar.</span>'; }
+      $("eqr-copy").onclick=()=>{ navigator.clipboard.writeText(link).then(()=>{ $("eqr-copy").textContent="Kopiert ✓"; setTimeout(()=>{$("eqr-copy").textContent="Link kopieren";},1500); }); };
+      $("eqr-dl").onclick=()=>{ const cv=box.querySelector("canvas"); const img=box.querySelector("img"); const url=cv?cv.toDataURL("image/png"):(img?img.src:null); if(url){ const a=document.createElement("a"); a.href=url; a.download="anmelde-qr.png"; a.click(); } };
+    } else { eq.classList.add("hidden"); eq.innerHTML=""; } }
+  const total = w?.total_registrations || 0;
+  { const ex=[]; if (w && w.attended!=null) ex.push("Teilnehmer anwesend: "+w.attended); if (w && Number(w.canceled)>0) ex.push("Davon storniert: "+w.canceled); $("detail-cancel").textContent = ex.join("   ·   "); }
+  const rows = counts.filter(c => c.webinar_id === wid && Number(c.registrations) > 0).sort((a,b) => b.registrations - a.registrations);
+  const mineRow = counts.find(c => c.webinar_id === wid && (c.email||"").toLowerCase() === me);
+  const mineCount = mineRow ? Number(mineRow.registrations) : 0;
+  const rank = mineRow && mineCount>0 ? rows.findIndex(r => r.advisor_id === mineRow.advisor_id) + 1 : "–";
+  $("s-mine").textContent = mineCount;
+  $("s-total").textContent = total;
+  $("s-share").textContent = total ? Math.round(mineCount/total*100) + " %" : "–";
+  $("s-rank").textContent = (mineCount>0) ? rank + " / " + rows.length : "–";
+  const isPres = presenterWids.has(wid);
+  const orgRows = isOrgLead ? rows.filter(r => orgIds.has(r.advisor_id)) : [];
+  if (isAdmin && w){
+    $("l-mine").textContent = "Anwesend"; $("s-mine").textContent = (w.attended!=null) ? w.attended : "–";
+    $("l-share").textContent = "Anwesenheitsquote"; $("s-share").textContent = (w.attended!=null && total) ? Math.round(w.attended/total*100)+" %" : "–";
+    $("l-rank").textContent = "Storniert"; $("s-rank").textContent = w.canceled || 0;
+  } else if (isOrgLead && !isPres){
+    const orgCount = orgRows.reduce((s,r)=> s+Number(r.registrations), 0);
+    $("l-mine").textContent = "Anmeldungen (Org)"; $("s-mine").textContent = orgCount;
+    $("l-share").textContent = "Anteil deiner Org"; $("s-share").textContent = total ? Math.round(orgCount/total*100)+" %" : "–";
+    $("l-rank").textContent = "Aktive Berater (Org)"; $("s-rank").textContent = orgRows.length;
+  }
+  const fullBd = isAdmin || isPres;
+  const canBd = fullBd || (isOrgLead && orgRows.length>0);
+  $("chart-panel").style.display = canBd ? "" : "none";
+  if (canBd){ const src = fullBd ? rows : orgRows;
+    const cL=src.map(r=>r.advisor_name), cD=src.map(r=>Number(r.registrations)), cC=src.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9");
+    if (fullBd){ const assigned=cD.reduce((s,n)=>s+n,0), un=total-assigned; if(un>0){ cL.push("Nicht zugeordnet"); cD.push(un); cC.push("#c8d2dd"); } }
+    drawChart(cL,cD,cC); }
+  if (isAdmin){ $("mytbl-title").innerHTML = "Teilnehmer je Berater <span style=\"font-weight:400;font-size:11px;color:var(--muted);\">· Berater anklicken für Teilnehmer</span>"; sb.rpc("webinar_admin_registrations",{p_webinar_id:wid}).then(({data})=>fillOrgSummary(data||[])); }
+  else if (isPres){ $("mytbl-title").innerHTML = "Teilnehmer je Berater · dein Webinar <span style=\"font-weight:400;font-size:11px;color:var(--muted);\">· Berater anklicken für Teilnehmer</span>"; sb.rpc("webinar_referent_registrations",{p_webinar_id:wid}).then(({data})=>fillOrgSummary(data||[])); }
+  else if (isOrgLead){ $("mytbl-title").innerHTML = "Teilnehmer je Berater · deine Organisation <span style=\"font-weight:400;font-size:11px;color:var(--muted);\">· Berater anklicken für Teilnehmer</span>"; sb.rpc("webinar_org_registrations",{p_webinar_id:wid}).then(({data})=>fillOrgSummary(data||[])); }
+  else { $("mytbl-title").textContent = "Deine Anmeldungen (Teilnehmer)"; fillTable(mine.filter(r => r.webinar_id === wid), false); }
+}
+
+// Summe über mehrere Webinare (z. B. alle anstehenden)
+function renderAggregate(list){
+  $("detail").classList.remove("hidden"); $("tables").classList.remove("hidden");
+  $("admin-edit").classList.add("hidden");
+  selectedWid = null; markSelection();
+  const ids = new Set(list.map(w=>w.webinar_id));
+  const total = list.reduce((s,w)=> s + Number(w.total_registrations||0), 0);
+  const canceled = list.reduce((s,w)=> s + Number(w.canceled||0), 0);
+  const attendedSum = list.reduce((s,w)=> s + (w.attended!=null?Number(w.attended):0), 0);
+  { const ex=[]; if (list.some(w=>w.attended!=null)) ex.push("Teilnehmer anwesend (gesamt): "+attendedSum); if (canceled>0) ex.push("Davon storniert: "+canceled); $("detail-cancel").textContent = ex.join("   ·   "); }
+  const byAdv = {};
+  counts.forEach(c => { if (ids.has(c.webinar_id) && Number(c.registrations)>0){ const k=c.advisor_id||c.advisor_name; if(!byAdv[k]) byAdv[k]={advisor_id:c.advisor_id,name:c.advisor_name,email:c.email,n:0}; byAdv[k].n += Number(c.registrations); } });
+  const rows = Object.values(byAdv).sort((a,b)=> b.n - a.n);
+  const mineCount = rows.filter(r=>(r.email||"").toLowerCase()===me).reduce((s,r)=> s+r.n, 0);
+  const myRank = rows.findIndex(r=>(r.email||"").toLowerCase()===me) + 1;
+  $("detail-head").textContent = "Alle anstehenden Webinare · " + list.length + (list.length===1?" Termin":" Termine");
+  $("social-panel").classList.add("hidden");
+  $("s-mine").textContent = mineCount;
+  $("s-total").textContent = total;
+  $("s-share").textContent = total ? Math.round(mineCount/total*100) + " %" : "–";
+  $("s-rank").textContent = (mineCount>0 && myRank>0) ? myRank + " / " + rows.length : "–";
+  const orgRows = isOrgLead ? rows.filter(r => orgIds.has(r.advisor_id)) : [];
+  if (isAdmin){
+    $("l-mine").textContent = "Anwesend gesamt"; $("s-mine").textContent = attendedSum;
+    $("l-share").textContent = "Anwesenheitsquote"; $("s-share").textContent = (attendedSum>0 && total) ? Math.round(attendedSum/total*100)+" %" : "–";
+    $("l-rank").textContent = "Storniert"; $("s-rank").textContent = canceled;
+  } else if (isOrgLead){
+    const orgCount = orgRows.reduce((s,r)=> s+r.n, 0);
+    $("l-mine").textContent = "Anmeldungen (Org)"; $("s-mine").textContent = orgCount;
+    $("l-share").textContent = "Anteil deiner Org"; $("s-share").textContent = total ? Math.round(orgCount/total*100)+" %" : "–";
+    $("l-rank").textContent = "Aktive Berater (Org)"; $("s-rank").textContent = orgRows.length;
+  }
+  const aggBd = isAdmin || (isOrgLead && orgRows.length>0);
+  $("chart-panel").style.display = aggBd ? "" : "none";
+  if (aggBd){ const src = isAdmin ? rows : orgRows;
+    const cL=src.map(r=>r.name), cD=src.map(r=>r.n), cC=src.map(r=>(r.email||"").toLowerCase()===me?"#06BADD":"#9db4c9");
+    if (isAdmin){ const assigned=cD.reduce((s,n)=>s+n,0), un=total-assigned; if(un>0){ cL.push("Nicht zugeordnet"); cD.push(un); cC.push("#c8d2dd"); } }
+    drawChart(cL,cD,cC); }
+  if (isAdmin){ $("mytbl-title").textContent = "Teilnehmer je Berater"; orgSummaryHint("Bitte ein Webinar im Kalender wählen, um die Berater-Auswertung zu sehen."); }
+  else if (isOrgLead){ $("mytbl-title").textContent = "Teilnehmer je Berater · deine Organisation"; orgSummaryHint("Bitte ein Webinar im Kalender wählen, um die Berater-Auswertung zu sehen."); }
+  else { $("mytbl-title").textContent = presenterWids.size ? "Deine Anmeldungen — für die Gesamtübersicht ein Webinar wählen" : "Deine Anmeldungen (Teilnehmer)"; fillTable(mine.filter(r => ids.has(r.webinar_id)), false); }
+}
+
+$("row-modal").addEventListener("click", e=>{ if(e.target.id==="row-modal") closeRowModal(); });
+$("table-modal").addEventListener("click", e=>{ if(e.target.id==="table-modal") closeTableModal(); });
+$("webinar-modal").addEventListener("click", e=>{ if(e.target.id==="webinar-modal") wmClose(); });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape"){ closeRowModal(); closeTableModal(); wmClose(); } });
+
+// Einklappbare Panels: Titel anklicken zum Auf-/Zuklappen
+function makeCollapsible(panelId, collapsed){
+  const p=$(panelId); if(!p || p.dataset.coll) return;
+  const title=p.querySelector(":scope > .ptitle"); if(!title) return;
+  const body=document.createElement("div"); body.className="panel-body";
+  while(title.nextSibling) body.appendChild(title.nextSibling);
+  p.appendChild(body);
+  p.classList.add("collapsible"); if(collapsed) p.classList.add("collapsed");
+  title.addEventListener("click", ()=> p.classList.toggle("collapsed"));
+  p.dataset.coll="1";
+}
+makeCollapsible("reg-panel", false);
+makeCollapsible("overview-panel", false);
+
+sb.auth.onAuthStateChange(() => init());
+init();
+</script>
+</body>
+</html>
