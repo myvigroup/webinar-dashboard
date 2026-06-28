@@ -284,6 +284,12 @@
 .lt-copy{align-self:flex-start;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:7px 14px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;transition:transform .08s,background .12s;}
 .lt-copy:active{transform:scale(.97);}
 .lt-copy.ok{background:#1a7d4b;}
+.link-tile.lp{border-color:var(--cyan);background:linear-gradient(180deg,#eefafd,#fff);}
+.link-tile.lp .lt-label{color:var(--cyan-d);}
+.link-tile.lp .lt-url{background:#e3f6fb;}
+.link-tile.lp .lt-copy{background:var(--cyan-d);}
+.link-tile.lp .lt-open:hover{color:var(--cyan-d);}
+.lt-badge{display:inline-block;font-family:Inter,sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--cyan-d);background:#d6f1f8;border-radius:5px;padding:2px 6px;margin-left:6px;vertical-align:middle;}
 @media(max-width:860px){#app{flex-direction:column;}.sidebar{width:auto;flex:none;height:auto;position:static;flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px;border-right:none;border-bottom:1px solid var(--line);}.sb-brand{margin:0 12px 0 4px;}.sb-nav{flex-direction:row;flex-wrap:wrap;}.sb-user{margin:0 0 0 auto;border:none;padding:0;}.content .wrap{padding:14px 16px 48px;}.content .topbar{padding:14px 16px 0;}}
 </style>
 <div id="app" class="hidden">
@@ -752,8 +758,10 @@ let _affilSlug=null;
 function renderLinkTiles(){
   const el=$("affil-tiles"); if(!el||!_affilSlug) return;
   el.innerHTML=AFFIL_TOPICS.map(t=>{
-    const url=(t.u)?(t.u+(t.u.includes("?")?"&":"?")+"b="+encodeURIComponent(_affilSlug)):(APP_URL+"?b="+encodeURIComponent(_affilSlug)+(t.k?"&t="+t.k:""));
-    return '<div class="link-tile"><div class="lt-top"><span class="lt-label">'+esc(t.l)+'</span><a class="lt-open" href="'+esc(url)+'" target="_blank" rel="noopener" title="Vorschau">↗</a></div><div class="lt-url">'+esc(url)+'</div><button class="lt-copy" data-url="'+esc(url)+'">Link kopieren</button></div>';
+    const isLp=!!t.u;
+    const url=isLp?(t.u+(t.u.includes("?")?"&":"?")+"b="+encodeURIComponent(_affilSlug)):(APP_URL+"?b="+encodeURIComponent(_affilSlug)+(t.k?"&t="+t.k:""));
+    const badge=isLp?'<span class="lt-badge">Landingpage</span>':'';
+    return '<div class="link-tile'+(isLp?' lp':'')+'"><div class="lt-top"><span class="lt-label">'+esc(t.l)+badge+'</span><a class="lt-open" href="'+esc(url)+'" target="_blank" rel="noopener" title="Vorschau">↗</a></div><div class="lt-url">'+esc(url)+'</div><button class="lt-copy" data-url="'+esc(url)+'">Link kopieren</button></div>';
   }).join("");
   el.querySelectorAll(".lt-copy").forEach(b=>b.onclick=()=>{ navigator.clipboard.writeText(b.dataset.url).then(()=>{ const o=b.textContent; b.textContent="Kopiert ✓"; b.classList.add("ok"); setTimeout(()=>{b.textContent=o;b.classList.remove("ok");},1500); }).catch(()=>{}); });
 }
