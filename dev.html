@@ -281,6 +281,10 @@
     <div class="sb-brand"><span class="sb-logo">mit<span style="color:var(--cyan-d)">N</span>ORM</span><span class="sb-sub">Webinar-Cockpit</span></div>
     <nav class="sb-nav">
       <button class="nav-item on" data-sec="uebersicht"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 16l3-4 3 2 4-6"/></svg>Übersicht</button>
+      <button class="nav-item" data-sec="webinare"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Nächste Webinare</button>
+      <button class="nav-item" data-sec="anmeldungen"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M16 11l2 2 4-4"/></svg>Meine Anmeldungen</button>
+      <button class="nav-item" data-sec="link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M11 6l.5-.5a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-.5.5a4 4 0 0 1-6-6l2-2"/></svg>Mein Link</button>
+      <button class="nav-item" data-sec="social"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Social-Media-Vorlagen</button>
       <button class="nav-item adm-only" data-sec="kunden"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Unzugeordnete Kunden<span class="nav-badge" id="nav-ua-count"></span></button>
       <button class="nav-item adm-only" data-sec="berater"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Berater verwalten</button>
       <button class="nav-item adm-only" data-sec="monat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Monatsrangliste</button>
@@ -292,6 +296,12 @@
     </div>
   </aside>
   <div class="wrap">
+    <div class="hidden" id="ov-summary"></div>
+    <div class="panel hidden" id="my-reg-panel" style="margin-bottom:14px;">
+      <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M16 11l2 2 4-4"/></svg>Meine Anmeldungen <span style="font-weight:400;font-size:11px;color:var(--muted);">· deine eingeladenen Kunden &amp; ihr Status</span></div>
+      <div id="myreg-chips" style="display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;"></div>
+      <div id="myreg-body" class="muted">Lädt…</div>
+    </div>
     <div class="toolbar">
       <div class="seg"><button id="tab-cal" class="on">Kalender</button><button id="tab-list">Nächste Webinare</button></div>
     </div>
@@ -684,6 +694,8 @@ async function loadData() {
   if (isAdmin || isOrgLead) loadReviewStats();
   loadAffil();
   loadSocialOverview();
+  renderMyReg();
+  renderOverviewSummary();
   if (isAdmin && !window._liveTimer) window._liveTimer = setInterval(refreshLive, 60000);
 }
 async function refreshLive(){
@@ -777,21 +789,27 @@ function clampToggle(key,total,open){ return total>5? '<div style="text-align:ce
 function clampRows(key,arr,total){ const open=_expand[key]; return (open?arr:arr.slice(0,5)).join("")+clampToggle(key,total,open); }
 function wireClamp(el,fn){ if(!el) return; el.querySelectorAll(".clamp-toggle").forEach(b=>b.onclick=()=>{ _expand[b.dataset.key]=!_expand[b.dataset.key]; fn(); }); }
 // Header-Dropdown + Bereichsumschaltung
-const SEC_TITLES={uebersicht:"Übersicht",kunden:"Unzugeordnete Kunden",berater:"Berater verwalten",monat:"Monatsrangliste"};
-const SEC_VIEWS={uebersicht:"view-overview",kunden:"view-kunden",berater:"view-berater",monat:"view-monat"};
+const SEC_TITLES={uebersicht:"Übersicht",webinare:"Nächste Webinare",anmeldungen:"Meine Anmeldungen",link:"Mein Einladungs-Link",social:"Social-Media-Vorlagen",kunden:"Unzugeordnete Kunden",berater:"Berater verwalten",monat:"Monatsrangliste"};
+const SEC_VIEWS={uebersicht:"view-overview",webinare:"view-webinare",anmeldungen:"view-anmeldungen",link:"view-link",social:"view-social",kunden:"view-kunden",berater:"view-berater",monat:"view-monat"};
 function buildShell(){
   const wrap=document.querySelector(".wrap"); if(!wrap||document.getElementById("view-overview")) return;
   const content=document.createElement("div"); content.className="content";
   const topbar=document.createElement("div"); topbar.className="topbar"; topbar.innerHTML='<h1 id="sec-title">Übersicht</h1>';
   wrap.parentNode.insertBefore(content,wrap); content.appendChild(topbar); content.appendChild(wrap);
-  const ov=document.createElement("div"); ov.id="view-overview"; ov.className="view-section";
-  while(wrap.firstChild) ov.appendChild(wrap.firstChild);
-  wrap.appendChild(ov);
-  [["kunden","unassigned-panel"],["berater","advisors-panel"],["monat","month-panel"]].forEach(([sec,id])=>{
-    const v=document.createElement("div"); v.id="view-"+sec; v.className="view-section hidden";
-    const el=document.getElementById(id); if(el){ el.classList.remove("hidden"); v.appendChild(el); }
-    wrap.appendChild(v);
-  });
+  const secs=["overview","webinare","anmeldungen","link","social","kunden","berater","monat"];
+  const V={}; secs.forEach(s=>{ const v=document.createElement("div"); v.id="view-"+s; v.className="view-section hidden"; V[s]=v; });
+  const place=(sel,sec,show)=>{ const el=document.querySelector(sel); if(el){ if(show) el.classList.remove("hidden"); V[sec].appendChild(el); } };
+  place("#unassigned-panel","kunden",true);
+  place("#advisors-panel","berater",true);
+  place("#month-panel","monat",true);
+  place("#ov-summary","overview",true);
+  place("#my-reg-panel","anmeldungen",true);
+  place("#affil-panel","link",false);
+  place("#sov-panel","social",false);
+  place(".toolbar","webinare",false);
+  place(".layout","webinare",false);
+  place("#tables","overview",false);
+  secs.forEach(s=>wrap.appendChild(V[s]));
 }
 function showSection(name){
   if(!SEC_VIEWS[name]) name="uebersicht";
@@ -806,6 +824,48 @@ function setupHeaderMenu(){
   document.querySelectorAll(".adm-only").forEach(el=>el.classList.toggle("adm-hidden", !isAdmin));
   document.querySelectorAll(".nav-item[data-sec]").forEach(b=>b.onclick=()=>showSection(b.dataset.sec));
   showSection("uebersicht");
+}
+function fmtWhen(iso){ try{ const d=new Date(iso); return d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"long",timeZone:TZ})+", "+d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ})+" Uhr"; }catch(_){ return ""; } }
+function mrIcon(n){ const s='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;">'; if(n==="check") return s+'<path d="M20 6 9 17l-5-5"/></svg>'; if(n==="x") return s+'<path d="M18 6 6 18M6 6l12 12"/></svg>'; return s+'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'; }
+function myRegRows(){
+  const tmap={}; (totals||[]).forEach(w=>{ tmap[w.webinar_id]=w.starts_at; });
+  const now=Date.now();
+  return (mine||[]).map(r=>{
+    const st=tmap[r.webinar_id]; const future=st&&new Date(st).getTime()>now;
+    let cls,label; if(future){cls="plan";label="Geplant";} else if(r.attended===true){cls="done";label="Teilgenommen";} else {cls="no";label="Nicht teilgenommen";}
+    return Object.assign({},r,{_cls:cls,_label:label,_st:st});
+  });
+}
+let _myRegFilter="all";
+function renderMyReg(){
+  const body=$("myreg-body"), chips=$("myreg-chips"); if(!body) return;
+  const rows=myRegRows();
+  const c={all:rows.length,done:rows.filter(r=>r._cls==="done").length,no:rows.filter(r=>r._cls==="no").length,plan:rows.filter(r=>r._cls==="plan").length};
+  if(chips){ const chip=(k,l,col)=>'<button class="myreg-chip" data-f="'+k+'" style="background:'+(_myRegFilter===k?"var(--navy)":"#fff")+';color:'+(_myRegFilter===k?"#fff":(col||"var(--ink)"))+';border:1px solid '+(_myRegFilter===k?"var(--navy)":"var(--line)")+';font:inherit;font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;cursor:pointer;">'+l+' '+c[k]+'</button>';
+    chips.innerHTML=chip("all","Alle")+chip("done","Teilgenommen","#1a7d4b")+chip("no","Nicht teilgenommen","#b03a3a")+chip("plan","Geplant","var(--muted)");
+    chips.querySelectorAll(".myreg-chip").forEach(b=>b.onclick=()=>{ _myRegFilter=b.dataset.f; renderMyReg(); });
+  }
+  const f=rows.filter(r=>_myRegFilter==="all"||r._cls===_myRegFilter);
+  if(!f.length){ body.innerHTML='<div class="muted" style="padding:6px 2px;">Keine Anmeldungen in dieser Auswahl.</div>'; return; }
+  const badge=(r)=>{ const m={done:["#1a7d4b","rgba(26,125,75,.12)","check"],no:["#b03a3a","rgba(176,58,58,.10)","x"],plan:["#5b7088","rgba(91,112,136,.12)","clock"]}[r._cls]; return '<span style="display:inline-flex;align-items:center;background:'+m[1]+';color:'+m[0]+';font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:7px;white-space:nowrap;">'+mrIcon(m[2])+r._label+'</span>'; };
+  const rowHtml=f.map(r=>'<div style="display:grid;grid-template-columns:1.4fr 1.1fr auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;"><div style="min-width:0;"><div style="font-weight:600;font-size:13.5px;color:var(--ink);">'+esc(r.attendee_name||"—")+'</div><div style="font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;">'+esc(r.attendee_email||"")+'</div></div><div style="font-size:12.5px;color:var(--muted);">'+esc(r.title||"")+'</div><div style="text-align:right;">'+badge(r)+'</div></div>');
+  body.innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'+clampRows("myreg",rowHtml,f.length)+'</div>';
+  wireClamp(body,renderMyReg);
+}
+function renderOverviewSummary(){
+  const el=$("ov-summary"); if(!el) return;
+  const rows=myRegRows();
+  const total=rows.length, done=rows.filter(r=>r._cls==="done").length, plan=rows.filter(r=>r._cls==="plan").length;
+  const rated=rows.filter(r=>r._cls!=="plan").length; const quote=rated?Math.round(done/rated*100):0;
+  const now=Date.now();
+  const nx=(totals||[]).filter(w=>w.starts_at&&new Date(w.starts_at).getTime()>=now-7200000).sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at))[0]||null;
+  const card=(l,v,col)=>'<div class="stat"><div class="label">'+l+'</div><div class="val" style="color:'+(col||"var(--navy)")+';font-variant-numeric:tabular-nums;">'+v+'</div></div>';
+  const nxHtml = nx ? '<div style="font-weight:600;font-size:13px;line-height:1.35;color:var(--ink);">'+esc(nx.title)+'</div><div style="font-size:12px;color:var(--muted);margin-top:5px;">'+fmtWhen(nx.starts_at)+(nx.total_registrations!=null?' · '+nx.total_registrations+' Anmeldungen':'')+'</div>' : '<div class="muted" style="font-size:13px;">Aktuell kein kommendes Webinar.</div>';
+  const ql=(sec,label)=>'<button class="ov-ql" data-sec="'+sec+'" style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,66,131,.06);color:var(--navy);font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:9px;border:none;cursor:pointer;font-family:inherit;">'+label+'</button>';
+  el.classList.remove("hidden");
+  el.innerHTML='<div class="cards" style="margin-bottom:14px;">'+card("Deine Anmeldungen",total)+card("Teilgenommen",done,"#1a7d4b")+card("Quote",quote+"%")+card("Geplant",plan,"var(--cyan-d)")+'</div>'+
+    '<div class="layout"><div class="panel"><div class="ptitle">Nächstes Webinar</div>'+nxHtml+'</div><div class="panel"><div class="ptitle">Schnellzugriff</div><div style="display:flex;flex-wrap:wrap;gap:8px;">'+ql("webinare","Nächste Webinare")+ql("anmeldungen","Meine Anmeldungen")+ql("link","Mein Link")+ql("social","Vorlagen")+'</div></div></div>';
+  el.querySelectorAll(".ov-ql").forEach(b=>b.onclick=()=>showSection(b.dataset.sec));
 }
 async function loadAdvisors(){
   try{ const { data } = await sb.rpc("webinar_admin_advisors_full"); _admAdv=data||[]; }catch(_){ _admAdv=[]; }
