@@ -450,6 +450,10 @@
         <div class="cms-tabs" id="rank-filter" style="margin-bottom:14px;"><button data-p="all" class="on">Gesamt</button><button data-p="7d">Letzte 7 Tage</button><button data-p="today">Heute</button></div>
         <div id="rank-board" class="muted">Lädt…</div>
       </div>
+      <div class="panel hidden" id="monthtrend-panel" style="margin-bottom:14px;">
+        <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Monatsauswertung <span style="font-weight:400;font-size:11px;color:var(--muted);">· Anmeldungen &amp; Teilnahmen je Monat</span></div>
+        <div id="monthtrend-body" class="muted">Lädt…</div>
+      </div>
       <div class="panel hidden" id="month-panel" style="margin-bottom:14px;">
         <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Monatsrangliste <span style="font-weight:400;font-size:11px;color:var(--muted);">· Berater nach Anmeldungen &amp; Teilnahmen</span></div>
         <div style="margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><div><label style="font-size:13px;color:var(--muted);margin-right:6px;">Monat:</label><select id="month-sel" style="font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;min-width:160px;"></select></div><button id="pres-start" style="display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--navy),var(--cyan-d));color:#fff;border:none;font:inherit;font-size:13px;font-weight:700;padding:9px 16px;border-radius:10px;cursor:pointer;box-shadow:0 2px 8px rgba(0,66,131,.18);"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Präsentationsmodus</button><button id="pres-hide" class="mtab" title="Ergebnisse verdecken – ideal beim Teilen des Bildschirms"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg><span id="pres-hide-lbl">Ergebnisse verbergen</span></button></div>
@@ -835,6 +839,7 @@ async function loadAdmin(){
   if(!selectedWid){ $("mytbl-title").textContent="Teilnehmer je Berater"; $("tbl-filters").classList.add("hidden"); $("mytable").innerHTML='<tbody><tr><td class="muted" style="padding:14px;">Wähle ein Webinar im Kalender, um die Anmeldungen je Berater zu sehen.</td></tr></tbody>'; }
   loadRanking();
   loadMonthRanking();
+  renderMonthlyTrend();
   loadDelta();
   loadCms();
   loadAdvisors();
@@ -864,6 +869,7 @@ function buildShell(){
   const place=(sel,sec,show)=>{ const el=document.querySelector(sel); if(el){ if(show) el.classList.remove("hidden"); V[sec].appendChild(el); } };
   place("#unassigned-panel","kunden",true);
   place("#advisors-panel","berater",true);
+  place("#monthtrend-panel","monat",true);
   place("#month-panel","monat",true);
   place("#ov-summary","overview",true);
   place("#my-reg-panel","anmeldungen",true);
@@ -1097,9 +1103,11 @@ function startPresentation(){
   const subkey=_monthTab==="teil"?"anmeldungen":"teilgenommen";
   const subword=_monthTab==="teil"?"Anmeldungen":"teilgenommen";
   _presMetricLabel=_monthTab==="teil"?"Meiste Teilnahmen":"Meiste Anmeldungen";
-  const rows=(_monthRows||[]).slice().filter(r=>Number(r[metric])>0)
-    .sort((a,b)=>Number(b[metric])-Number(a[metric])||Number(b[subkey])-Number(a[subkey]))
-    .slice(0,10);
+  const sorted=(_monthRows||[]).slice().filter(r=>Number(r[metric])>0)
+    .sort((a,b)=>Number(b[metric])-Number(a[metric])||Number(b[subkey])-Number(a[subkey]));
+  // Top 10 PLÄTZE – bei Gleichstand am Rand alle Geteilten mitnehmen (z. B. drei auf Platz 10)
+  const pl=rankPlaces(sorted,metric);
+  const rows=sorted.filter((r,i)=>pl[i]<=10);
   if(!rows.length){ alert("Für diesen Monat liegen keine Daten vor."); return; }
   buildPresOverlay(rows,metric,subkey,subword);
 }
@@ -1149,17 +1157,54 @@ function applyMonthTab(){
 }
 // Platz mit Gleichstand (Standard-Wettkampf-Ranking: 1,2,2,4 …)
 function rankPlaces(rows,key){ let pl=[],rk=0,prev=null; rows.forEach((r,i)=>{ const v=Number(r[key]); if(prev===null||v!==prev){ rk=i+1; prev=v; } pl[i]=rk; }); return pl; }
+const MONTH_SHORT=["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+async function renderMonthlyTrend(){
+  const el=$("monthtrend-body"); if(!el) return;
+  el.innerHTML='<span class="muted">Lädt…</span>';
+  let rows=[];
+  try{ const { data } = await sb.rpc("webinar_admin_monthly_totals"); rows=data||[]; }
+  catch(e){ el.innerHTML='<div class="muted">Konnte nicht geladen werden.</div>'; return; }
+  if(!rows.length){ el.innerHTML='<div class="muted">Noch keine Daten.</div>'; return; }
+  const lbl=ym=>{ const p=String(ym).split('-'); return MONTH_SHORT[(+p[1])-1]+' '+p[0].slice(2); };
+  const sumA=rows.reduce((s,r)=>s+Number(r.anmeldungen),0);
+  const sumT=rows.reduce((s,r)=>s+Number(r.teilgenommen),0);
+  const best=rows.reduce((b,r)=>Number(r.anmeldungen)>Number(b.anmeldungen)?r:b,rows[0]);
+  const last=rows[rows.length-1], prev=rows.length>1?rows[rows.length-2]:null;
+  let deltaTxt='—', deltaUp=true;
+  if(prev){ const d=Number(last.anmeldungen)-Number(prev.anmeldungen); const pct=Number(prev.anmeldungen)>0?Math.round(d/Number(prev.anmeldungen)*100):null; deltaUp=d>=0; deltaTxt=(d>=0?'+':'')+d+(pct!=null?' ('+(d>=0?'+':'')+pct+'%)':''); }
+  const stat=(l,v,col)=>'<div class="stat"><div class="label">'+l+'</div><div class="val" style="color:'+(col||'var(--navy)')+';font-variant-numeric:tabular-nums;">'+v+'</div></div>';
+  const cards='<div class="cards" style="margin-bottom:18px;">'+stat('Anmeldungen gesamt',sumA)+stat('Teilnahmen gesamt',sumT,'#1a7d4b')+stat('Bester Monat',lbl(best.ym)+' · '+best.anmeldungen,'var(--cyan-d)')+stat(lbl(last.ym)+' vs. Vormonat',deltaTxt,deltaUp?'#1a7d4b':'#b03a3a')+'</div>';
+  const n=rows.length, slotW=64, padL=52, padR=20, top=28, H=320, baseline=H-46, plotH=baseline-top;
+  const W=padL+n*slotW+padR;
+  const max=Math.max(1,...rows.map(r=>Number(r.anmeldungen)));
+  const step=max>200?50:(max>80?25:(max>20?10:5));
+  const niceMax=Math.max(step,Math.ceil(max/step)*step);
+  const y=v=>baseline-(v/niceMax)*plotH;
+  let svg='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="display:block;font-family:Inter,sans-serif;" preserveAspectRatio="xMinYMid meet">';
+  for(let g=0;g<=4;g++){ const val=Math.round(niceMax*g/4); const yy=y(val); svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#e4eaf1" stroke-width="1"/><text x="'+(padL-8)+'" y="'+(yy+4)+'" text-anchor="end" font-size="11" fill="#5b7088">'+val+'</text>'; }
+  rows.forEach((r,i)=>{ const cx=padL+i*slotW+slotW/2; const aV=Number(r.anmeldungen), tV=Number(r.teilgenommen);
+    const aw=22, tw=22, ax=cx-23, tx=cx+1, ay=y(aV), ty=y(tV), isLast=i===n-1;
+    svg+='<rect x="'+ax+'" y="'+ay+'" width="'+aw+'" height="'+(baseline-ay)+'" rx="3" fill="'+(isLast?'#004283':'#1565a8')+'"/>';
+    svg+='<rect x="'+tx+'" y="'+ty+'" width="'+tw+'" height="'+(baseline-ty)+'" rx="3" fill="#06BADD"/>';
+    svg+='<text x="'+(ax+aw/2)+'" y="'+(ay-6)+'" text-anchor="middle" font-size="11" font-weight="700" fill="#0b2138">'+aV+'</text>';
+    svg+='<text x="'+cx+'" y="'+(baseline+18)+'" text-anchor="middle" font-size="11" fill="'+(isLast?'#004283':'#5b7088')+'" font-weight="'+(isLast?'700':'400')+'">'+lbl(r.ym)+'</text>';
+  });
+  svg+='<line x1="'+padL+'" y1="'+baseline+'" x2="'+(W-padR)+'" y2="'+baseline+'" stroke="#c7d2de" stroke-width="1"/></svg>';
+  const legend='<div style="display:flex;gap:18px;margin-top:8px;font-size:12.5px;color:var(--muted);"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:#1565a8;display:inline-block;"></span>Anmeldungen</span><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:#06BADD;display:inline-block;"></span>Teilnahmen</span></div>';
+  el.innerHTML=cards+'<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">'+svg+'</div>'+legend;
+}
 function monthTable(rows,key,subkey,subword){
   if(!rows.length) return '<div class="muted">Keine Daten für diesen Monat.</div>';
   const max=Math.max(1,...rows.map(r=>Number(r[key])));
   const c=["#E3B341","#9AA7B2","#CD7F47"];
   const medal=pl=>pl<=3?'<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:'+c[pl-1]+';color:#fff;font-weight:700;font-size:11px;">'+pl+'</span>':pl+".";
   const places=rankPlaces(rows,key);
+  const lim=places.filter(p=>p<=10).length||10;
   return clampRows("m_"+key,rows.map((r,i)=>{
     const pl=places[i];
     const pct=Math.max(4,Math.round(Number(r[key])/max*100));
     return '<div class="lb-row'+(pl<=3?' top':'')+'"><div class="lb-pos">'+medal(pl)+'</div><div class="lb-main"><div class="lb-name">'+esc(r.advisor)+'<span class="lb-n">'+r[key]+'</span></div><div class="lb-bar"><div class="lb-fill" style="width:'+pct+'%;"></div></div><div class="lb-sub">'+(r[subkey]||0)+' '+subword+'</div></div></div>';
-  }),rows.length,10);
+  }),rows.length,lim);
 }
 async function renderMonth(){
   const v=($("month-sel").value||"").split("-"); if(v.length<2) return;
