@@ -294,6 +294,30 @@
 .mtab svg{stroke:currentColor;}
 .mtab:hover{border-color:var(--navy);}
 .mtab.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+.pres-overlay{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#02315f,#004283 55%,#0596b3);display:none;color:#fff;cursor:pointer;}
+.pres-overlay.show{display:flex;}
+.pres-inner{position:relative;margin:auto;width:min(840px,93vw);max-height:94vh;display:flex;flex-direction:column;padding:30px 26px;}
+.pres-close{position:absolute;top:-6px;right:0;background:rgba(255,255,255,.14);border:none;color:#fff;width:40px;height:40px;border-radius:50%;font-size:17px;cursor:pointer;line-height:1;}
+.pres-close:hover{background:rgba(255,255,255,.26);}
+.pres-head{text-align:center;margin-bottom:24px;}
+.pres-kicker{font-family:Inter,sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.72);}
+.pres-title{font-family:Outfit,sans-serif;font-weight:800;font-size:clamp(26px,4vw,38px);margin-top:6px;}
+.pres-list{display:flex;flex-direction:column;gap:10px;overflow:auto;padding:4px;}
+.pres-row{display:flex;align-items:center;gap:18px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:14px;padding:14px 22px;transition:transform .4s,background .4s,border-color .4s;}
+.pres-pos{font-family:Outfit,sans-serif;font-weight:800;font-size:clamp(22px,3vw,32px);width:56px;text-align:center;color:rgba(255,255,255,.85);transition:opacity .3s;}
+.pres-row:not(.reveal) .pres-pos{opacity:.28;}
+.pres-mid{flex:1;min-width:0;}
+.pres-name{font-family:Outfit,sans-serif;font-weight:700;font-size:clamp(18px,2.4vw,25px);opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pres-sub{font-size:13px;color:rgba(255,255,255,.62);opacity:0;transition:opacity .5s .12s;margin-top:3px;}
+.pres-val{font-family:Outfit,sans-serif;font-weight:800;font-size:clamp(22px,3vw,32px);opacity:0;transform:scale(.6);transition:opacity .5s,transform .5s;}
+.pres-row.reveal{background:rgba(255,255,255,.14);}
+.pres-row.reveal .pres-name,.pres-row.reveal .pres-sub,.pres-row.reveal .pres-val{opacity:1;transform:none;}
+.pres-row.winner{background:linear-gradient(120deg,rgba(227,179,65,.32),rgba(255,255,255,.12));border-color:#E3B341;transform:scale(1.03);}
+.pres-row.winner .pres-pos,.pres-row.winner .pres-val{color:#F5D77E;}
+.pres-foot{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:24px;flex-wrap:wrap;}
+.pres-hint{font-size:13px;color:rgba(255,255,255,.6);}
+.pres-next{background:#fff;color:var(--navy);border:none;font:inherit;font-weight:700;font-size:15px;padding:12px 22px;border-radius:12px;cursor:pointer;}
+.pres-next:hover{background:#eaf4fb;}
 @media(max-width:860px){#app{flex-direction:column;}.sidebar{width:auto;flex:none;height:auto;position:static;flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px;border-right:none;border-bottom:1px solid var(--line);}.sb-brand{margin:0 12px 0 4px;}.sb-nav{flex-direction:row;flex-wrap:wrap;}.sb-user{margin:0 0 0 auto;border:none;padding:0;}.content .wrap{padding:14px 16px 48px;}.content .topbar{padding:14px 16px 0;}}
 </style>
 <div id="app" class="hidden">
@@ -425,7 +449,7 @@
       </div>
       <div class="panel hidden" id="month-panel" style="margin-bottom:14px;">
         <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Monatsrangliste <span style="font-weight:400;font-size:11px;color:var(--muted);">· Berater nach Anmeldungen &amp; Teilnahmen</span></div>
-        <div style="margin-bottom:14px;"><label style="font-size:13px;color:var(--muted);margin-right:6px;">Monat:</label><select id="month-sel" style="font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;min-width:160px;"></select></div>
+        <div style="margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><div><label style="font-size:13px;color:var(--muted);margin-right:6px;">Monat:</label><select id="month-sel" style="font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;min-width:160px;"></select></div><button id="pres-start" style="display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--navy),var(--cyan-d));color:#fff;border:none;font:inherit;font-size:13px;font-weight:700;padding:9px 16px;border-radius:10px;cursor:pointer;box-shadow:0 2px 8px rgba(0,66,131,.18);"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Präsentationsmodus</button></div>
         <div id="month-tabs" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
           <button class="mtab on" data-t="anm"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v2a3 3 0 0 0 3 3"/><path d="M17 6h3v2a3 3 0 0 1-3 3"/></svg>Meiste Anmeldungen</button>
           <button class="mtab" data-t="teil"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>Meiste Teilnahmen</button>
@@ -1049,8 +1073,58 @@ async function loadMonthRanking(){
     sel.dataset.init="1";
     sel.onchange=renderMonth;
     document.querySelectorAll("#month-tabs .mtab").forEach(b=>b.onclick=()=>{ _monthTab=b.dataset.t; applyMonthTab(); });
+    if($("pres-start")) $("pres-start").onclick=startPresentation;
   }
   renderMonth();
+}
+let _monthRows=[], _monthLabel="";
+let _presOrder=[], _presIdx=0, _presMetricLabel="";
+function startPresentation(){
+  const metric=_monthTab==="teil"?"teilgenommen":"anmeldungen";
+  const subkey=_monthTab==="teil"?"anmeldungen":"teilgenommen";
+  const subword=_monthTab==="teil"?"Anmeldungen":"teilgenommen";
+  _presMetricLabel=_monthTab==="teil"?"Meiste Teilnahmen":"Meiste Anmeldungen";
+  const rows=(_monthRows||[]).slice().filter(r=>Number(r[metric])>0)
+    .sort((a,b)=>Number(b[metric])-Number(a[metric])||Number(b[subkey])-Number(a[subkey]))
+    .slice(0,10);
+  if(!rows.length){ alert("Für diesen Monat liegen keine Daten vor."); return; }
+  buildPresOverlay(rows,metric,subkey,subword);
+}
+function buildPresOverlay(rows,metric,subkey,subword){
+  let ov=$("pres-overlay");
+  if(!ov){ ov=document.createElement("div"); ov.id="pres-overlay"; ov.className="pres-overlay"; document.body.appendChild(ov); }
+  const n=rows.length;
+  const slot=(r,i)=>{ const rank=i+1; return '<div class="pres-row" id="pres-row-'+rank+'" data-rank="'+rank+'"><div class="pres-pos">'+rank+'</div><div class="pres-mid"><div class="pres-name">'+esc(r.advisor)+'</div><div class="pres-sub">'+(r[subkey]||0)+' '+subword+'</div></div><div class="pres-val">'+r[metric]+'</div></div>'; };
+  ov.innerHTML='<div class="pres-inner"><button class="pres-close" id="pres-close" title="Schließen (Esc)">✕</button>'
+    +'<div class="pres-head"><div class="pres-kicker">Monatsrangliste · '+esc(_monthLabel)+'</div><div class="pres-title">'+esc(_presMetricLabel)+'</div></div>'
+    +'<div class="pres-list" id="pres-list">'+rows.map(slot).join("")+'</div>'
+    +'<div class="pres-foot"><div class="pres-hint" id="pres-hint">Klick / Leertaste: nächsten Platz aufdecken · Esc: schließen</div><button class="pres-next" id="pres-next">Platz '+n+' aufdecken ▾</button></div></div>';
+  ov.classList.add("show");
+  document.documentElement.style.overflow="hidden";
+  _presOrder=[]; for(let r=n;r>=1;r--) _presOrder.push(r);
+  _presIdx=0;
+  $("pres-close").onclick=(e)=>{ e.stopPropagation(); closePresentation(); };
+  $("pres-next").onclick=(e)=>{ e.stopPropagation(); presReveal(); };
+  ov.onclick=(e)=>{ if(e.target.closest(".pres-close")||e.target.closest(".pres-next")) return; presReveal(); };
+  document.addEventListener("keydown",presKey);
+}
+function presKey(e){
+  if(e.key==="Escape"){ closePresentation(); }
+  else if(e.key===" "||e.key==="Enter"||e.key==="ArrowDown"||e.key==="ArrowRight"){ e.preventDefault(); presReveal(); }
+}
+function presReveal(){
+  if(_presIdx>=_presOrder.length){ closePresentation(); return; }
+  const rank=_presOrder[_presIdx]; const row=$("pres-row-"+rank);
+  if(row){ row.classList.add("reveal"); if(rank===1) row.classList.add("winner"); try{ row.scrollIntoView({behavior:"smooth",block:"center"}); }catch(_){} }
+  _presIdx++;
+  const nb=$("pres-next"), hint=$("pres-hint");
+  if(_presIdx>=_presOrder.length){ if(nb) nb.textContent="Fertig – schließen ✓"; if(hint) hint.textContent="Alle Plätze aufgedeckt."; }
+  else if(nb){ nb.textContent="Platz "+_presOrder[_presIdx]+" aufdecken ▾"; }
+}
+function closePresentation(){
+  const ov=$("pres-overlay"); if(ov) ov.classList.remove("show");
+  document.documentElement.style.overflow="";
+  document.removeEventListener("keydown",presKey);
 }
 let _monthTab="anm";
 function applyMonthTab(){
@@ -1074,6 +1148,7 @@ async function renderMonth(){
   $("month-anm").innerHTML='<span class="muted">Lädt…</span>'; $("month-teil").innerHTML='<span class="muted">Lädt…</span>';
   const { data } = await sb.rpc("webinar_admin_month_ranking",{p_year:y,p_month:m});
   const rows=data||[];
+  _monthRows=rows; _monthLabel=(MONTH_NAMES[m-1]||"")+" "+y;
   $("month-anm").innerHTML=monthTable(rows.slice().sort((a,b)=>Number(b.anmeldungen)-Number(a.anmeldungen)||Number(b.teilgenommen)-Number(a.teilgenommen)),"anmeldungen","teilgenommen","teilgenommen");
   $("month-teil").innerHTML=monthTable(rows.slice().sort((a,b)=>Number(b.teilgenommen)-Number(a.teilgenommen)||Number(b.anmeldungen)-Number(a.anmeldungen)),"teilgenommen","anmeldungen","Anmeldungen");
   wireClamp($("month-anm"),renderMonth); wireClamp($("month-teil"),renderMonth);
