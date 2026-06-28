@@ -274,11 +274,21 @@
 .content .topbar h1{font-family:Outfit,sans-serif;font-weight:700;color:var(--navy);font-size:20px;margin:0;}
 .content .wrap{max-width:1180px;margin:0;padding:14px 28px 56px;}
 .view-section.hidden{display:none!important;}
+.affil-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:11px;}
+.link-tile{border:1px solid var(--line);border-radius:12px;padding:13px 14px;background:#fff;display:flex;flex-direction:column;gap:9px;box-shadow:0 1px 2px rgba(0,40,90,.03);}
+.lt-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.lt-label{font-family:Outfit,sans-serif;font-weight:700;color:var(--navy);font-size:13.5px;}
+.lt-open{color:var(--muted);text-decoration:none;font-size:14px;line-height:1;padding:2px;}
+.lt-open:hover{color:var(--cyan-d);}
+.lt-url{font-size:11.5px;color:var(--muted);word-break:break-all;background:#f6f9fc;border-radius:8px;padding:7px 9px;line-height:1.45;}
+.lt-copy{align-self:flex-start;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:7px 14px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;transition:transform .08s,background .12s;}
+.lt-copy:active{transform:scale(.97);}
+.lt-copy.ok{background:#1a7d4b;}
 @media(max-width:860px){#app{flex-direction:column;}.sidebar{width:auto;flex:none;height:auto;position:static;flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px;border-right:none;border-bottom:1px solid var(--line);}.sb-brand{margin:0 12px 0 4px;}.sb-nav{flex-direction:row;flex-wrap:wrap;}.sb-user{margin:0 0 0 auto;border:none;padding:0;}.content .wrap{padding:14px 16px 48px;}.content .topbar{padding:14px 16px 0;}}
 </style>
 <div id="app" class="hidden">
   <aside class="sidebar">
-    <div class="sb-brand"><span class="sb-logo">mit<span style="color:var(--cyan-d)">N</span>ORM</span><span class="sb-sub">Webinar-Cockpit</span></div>
+    <div class="sb-brand"><img src="/logo.png" alt="mitNORM" style="height:26px;width:auto;display:block;margin:0 0 5px 2px;"><span class="sb-sub" style="margin-left:2px;">Webinar-Cockpit</span></div>
     <nav class="sb-nav">
       <button class="nav-item on" data-sec="uebersicht"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 16l3-4 3 2 4-6"/></svg>Übersicht</button>
       <button class="nav-item" data-sec="webinare"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Nächste Webinare</button>
@@ -306,15 +316,16 @@
       <div class="seg"><button id="tab-cal" class="on">Kalender</button><button id="tab-list">Nächste Webinare</button></div>
     </div>
     <div class="panel hidden" id="affil-panel" style="margin-bottom:14px;">
-      <div class="ptitle">Dein Einladungs-Link <span style="font-weight:400;font-size:11px;color:var(--muted);">· teile ihn mit deinen Kunden – Anmeldungen werden dir zugeordnet</span></div>
-      <div class="affil-row">
+      <div class="ptitle">Deine Einladungs-Links <span style="font-weight:400;font-size:11px;color:var(--muted);">· Link zum jeweiligen Thema kopieren – Anmeldungen werden dir zugeordnet</span></div>
+      <div class="affil-row" style="display:none;">
         <label for="affil-topic">Ziel:</label>
         <select id="affil-topic"></select>
         <input id="affil-link" readonly onclick="this.select()">
         <button id="affil-copy" class="affil-btn">Link kopieren</button>
         <a id="affil-open" class="affil-btn ghosty" target="_blank" rel="noopener">Vorschau ↗</a>
       </div>
-      <div id="affil-hint" class="muted" style="font-size:12px;margin-top:8px;"></div>
+      <div id="affil-tiles" class="affil-tiles"></div>
+      <div id="affil-hint" class="muted" style="font-size:12px;margin-top:10px;"></div>
     </div>
     <div class="panel hidden" id="sov-panel" style="margin-bottom:14px;">
       <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Social-Media-Vorlagen <span style="font-weight:400;font-size:11px;color:var(--muted);">· Vorlage wählen, herunterladen &amp; posten</span></div>
@@ -736,6 +747,14 @@ const AFFIL_TOPICS=[
   {k:"geldanlage",l:"Geldanlage"}
 ];
 let _affilSlug=null;
+function renderLinkTiles(){
+  const el=$("affil-tiles"); if(!el||!_affilSlug) return;
+  el.innerHTML=AFFIL_TOPICS.map(t=>{
+    const url=(t.u)?(t.u+(t.u.includes("?")?"&":"?")+"b="+encodeURIComponent(_affilSlug)):(APP_URL+"?b="+encodeURIComponent(_affilSlug)+(t.k?"&t="+t.k:""));
+    return '<div class="link-tile"><div class="lt-top"><span class="lt-label">'+esc(t.l)+'</span><a class="lt-open" href="'+esc(url)+'" target="_blank" rel="noopener" title="Vorschau">↗</a></div><div class="lt-url">'+esc(url)+'</div><button class="lt-copy" data-url="'+esc(url)+'">Link kopieren</button></div>';
+  }).join("");
+  el.querySelectorAll(".lt-copy").forEach(b=>b.onclick=()=>{ navigator.clipboard.writeText(b.dataset.url).then(()=>{ const o=b.textContent; b.textContent="Kopiert ✓"; b.classList.add("ok"); setTimeout(()=>{b.textContent=o;b.classList.remove("ok");},1500); }).catch(()=>{}); });
+}
 async function loadAffil(){
   try{
     const { data } = await sb.rpc("webinar_my_slug");
@@ -751,7 +770,7 @@ async function loadAffil(){
       $("affil-link").value=url; $("affil-open").href=url; };
     sel.onchange=upd; upd();
     $("affil-copy").onclick=async()=>{ try{ await navigator.clipboard.writeText($("affil-link").value); }catch(_){ $("affil-link").select(); try{document.execCommand("copy");}catch(e){} } const b=$("affil-copy"); const o=b.textContent; b.textContent="✓ Kopiert"; setTimeout(()=>{b.textContent=o;},1500); };
-    $("affil-hint").textContent="Tipp: Wähle ein Thema, um direkt dorthin zu verlinken – oder „Alle Themen“ für die Übersicht. Anmeldungen über deinen Link werden automatisch dir zugeordnet.";
+    $("affil-hint").textContent="Kopiere den passenden Link zum Thema und teile ihn – Anmeldungen darüber werden automatisch dir zugeordnet.";
   }catch(_){}
 }
 
