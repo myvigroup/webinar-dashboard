@@ -454,6 +454,7 @@
             <div class="ptitle">Social-Media-Vorlagen <span style="font-weight:400;font-size:11px;color:var(--muted);">· für dieses Webinar – herunterladen &amp; posten</span></div>
             <div id="social-body" class="social-grid"></div>
             <div id="social-empty" class="muted" style="font-size:13px;display:none;">Für dieses Webinar sind noch keine Vorlagen hinterlegt.</div>
+            <div id="social-admin" class="adm-only" style="display:none;"></div>
           </div>
         </div>
       </div>
@@ -1900,19 +1901,21 @@ async function sovDelete(slot){
     sovMsg("Gelöscht ✓",true); renderSovCurrent(topic,date); loadSocialOverview();
   }catch(e){ sovMsg("Fehler: "+String(e),false); }
 }
+let _socBust=0;
 function fillSocial(w){
   const panel=$("social-panel"), body=$("social-body"), empty=$("social-empty");
-  if(!w || !w.starts_at){ panel.classList.add("hidden"); return; }
+  if(!w || !w.starts_at){ panel.classList.add("hidden"); renderWebinarSocialAdmin(null); return; }
   const topic=socialTopic(w.title);
-  if(!topic){ panel.classList.add("hidden"); return; }
+  if(!topic){ panel.classList.add("hidden"); renderWebinarSocialAdmin(null); return; }
   const date=socialDate(new Date(w.starts_at));
   panel.classList.remove("hidden"); empty.style.display="none"; body.innerHTML="";
-  if(STORY_ONLY.has(topic)){ renderStorySet(body,topic,date,(ok)=>{ if(!ok) empty.style.display=""; }); return; }
+  if(STORY_ONLY.has(topic)){ renderStorySet(body,topic,date,(ok)=>{ if(!ok) empty.style.display=""; }); renderWebinarSocialAdmin(w,topic,date); return; }
+  renderWebinarSocialAdmin(w,topic,date);
   const variants=[{k:"beitrag",l:"Beitrag (4:5)"},{k:"story",l:"Story (9:16)"},{k:"linkedin",l:"LinkedIn"}];
   let pending=variants.length, anyOk=false;
   const done=()=>{ if(--pending<=0 && !anyOk) empty.style.display=""; };
   variants.forEach(v=>{
-    const url=SOCIAL_BASE+topic+"/"+date+"/"+v.k+".png";
+    const url=SOCIAL_BASE+topic+"/"+date+"/"+v.k+".png"+(_socBust?("?v="+_socBust):"");
     const fname="mitnorm_"+topic+"_"+date+"_"+v.k+".png";
     const card=document.createElement("div"); card.className="social-card"; card.style.display="none";
     card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img alt=""></a>'
@@ -1924,6 +1927,32 @@ function fillSocial(w){
     card.querySelector(".sc-dl").onclick=()=>dlImage(url,fname);
     body.appendChild(card);
   });
+}
+function renderWebinarSocialAdmin(w, topic, date){
+  const el=$("social-admin"); if(!el) return;
+  if(!isAdmin || !w || !topic || STORY_ONLY.has(topic)){ el.style.display="none"; el.innerHTML=""; return; }
+  el.style.display="";
+  const slots=[["beitrag","Beitrag (4:5)"],["story","Story (9:16)"],["linkedin","LinkedIn (quer)"]];
+  el.innerHTML='<div style="border-top:1px solid var(--line);margin-top:14px;padding-top:14px;">'
+    +'<div style="font-size:12px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Admin: Vorlagen für dieses Webinar hochladen ('+esc(SOC_TOPIC_LABEL[topic]||topic)+' · '+esc(fmtSetDate(date))+')</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;">'
+    + slots.map(s=>'<div style="border:1px solid var(--line);border-radius:9px;padding:10px;"><div style="font-weight:700;font-size:12.5px;color:var(--navy);margin-bottom:6px;">'+s[1]+'</div><input type="file" accept="image/png,image/jpeg" data-slot="'+s[0]+'" class="ws-file" style="font:inherit;font-size:12px;width:100%;"></div>').join("")
+    +'</div><div id="ws-msg" style="margin-top:8px;font-size:12.5px;"></div></div>';
+  el.querySelectorAll(".ws-file").forEach(inp=>inp.onchange=()=>wsUpload(inp,w,topic,date));
+}
+async function wsUpload(inp,w,topic,date){
+  const f=inp.files&&inp.files[0]; if(!f) return;
+  const slot=inp.dataset.slot, m=$("ws-msg");
+  const msg=(t,ok)=>{ if(m){ m.textContent=t; m.style.color=ok?"#1a7d4b":"#b03a3a"; } };
+  if(f.size>15*1024*1024){ msg("Datei zu groß (max 15 MB).",false); inp.value=""; return; }
+  msg("Lade "+slot+" hoch …",true);
+  try{
+    const b64=await fileToB64(f);
+    const { data, error } = await sb.functions.invoke("webinar-social-upload",{ body:{ topic, date, slot, content_base64:b64, content_type:f.type||"image/png" } });
+    if(error||!data||!data.ok){ msg("Fehler: "+((data&&data.error)||(error&&error.message)||"unbekannt"),false); return; }
+    _socBust=Date.now(); fillSocial(w); loadSocialOverview();
+    const m2=$("ws-msg"); if(m2){ m2.textContent=slot+" hochgeladen ✓"; m2.style.color="#1a7d4b"; }
+  }catch(e){ msg("Fehler: "+String(e),false); }
 }
 function renderWebinar(wid) {
   $("detail").classList.remove("hidden"); $("tables").classList.remove("hidden");
