@@ -377,6 +377,17 @@
       <div class="affil-row"><label for="sov-sel">Vorlage:</label><select id="sov-sel" style="min-width:260px;"></select></div>
       <div id="sov-body" class="social-grid" style="margin-top:12px;"></div>
     </div>
+    <div class="panel hidden adm-only" id="sov-admin-panel" style="margin-bottom:14px;">
+      <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Vorlagen verwalten <span style="font-weight:400;font-size:11px;color:var(--muted);">· neue Social-Media-Vorlagen hochladen</span></div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;">
+        <div><label style="display:block;font-size:12px;color:var(--muted);margin-bottom:4px;">Webinar (übernimmt Thema + Datum)</label><select id="sov-adm-wsel" style="font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;min-width:300px;"></select></div>
+        <div><label style="display:block;font-size:12px;color:var(--muted);margin-bottom:4px;">Thema</label><select id="sov-adm-topic" style="font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;"></select></div>
+        <div><label style="display:block;font-size:12px;color:var(--muted);margin-bottom:4px;">Datum</label><input id="sov-adm-date" type="date" style="font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;"></div>
+      </div>
+      <div id="sov-adm-slots" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;"></div>
+      <div id="sov-adm-msg" style="margin-top:12px;font-size:13px;"></div>
+      <div style="margin-top:14px;"><div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Aktuell hinterlegt für diese Auswahl:</div><div id="sov-adm-current" class="social-grid">—</div></div>
+    </div>
     <div class="layout">
       <div class="col-left">
         <div class="panel" id="cal-panel">
@@ -756,6 +767,7 @@ async function loadData() {
   if (isAdmin || isOrgLead) loadReviewStats();
   loadAffil();
   loadSocialOverview();
+  if (isAdmin) loadSovAdmin();
   renderMyReg();
   renderOverviewSummary();
   if (isAdmin && !window._liveTimer) window._liveTimer = setInterval(refreshLive, 60000);
@@ -882,6 +894,7 @@ function buildShell(){
   place("#my-reg-panel","anmeldungen",true);
   place("#affil-panel","link",false);
   place("#sov-panel","social",false);
+  place("#sov-admin-panel","social",false);
   place(".toolbar","webinare",false);
   place(".layout","webinare",false);
   place("#tables","overview",false);
@@ -1819,6 +1832,73 @@ async function loadSocialOverview(){
     const up=rows.find(r=>r.set_date>=today)||rows[0];
     sel.value=up.topic+"|"+up.set_date; renderSovCards(up.topic,up.set_date);
   }catch(_){ $("sov-panel").classList.add("hidden"); }
+}
+// ===== Admin: Social-Vorlagen hochladen =====
+const ADM_TOPICS=[["immobilie","Immobilie"],["baufi","Baufinanzierung"],["ruhestand","Ruhestand"],["riester","Riester"],["geldanlage","Geldanlage"],["steuern","Steuern"],["rentenreform","Rente & Rentenreform"]];
+const ADM_SLOTS=[["beitrag","Beitrag (4:5)"],["story","Story (9:16)"],["linkedin","LinkedIn (quer)"]];
+let _sovAdmInit=false;
+function fileToB64(f){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>{ const s=String(r.result||""); res(s.slice(s.indexOf(",")+1)); }; r.onerror=rej; r.readAsDataURL(f); }); }
+function sovAdmSel(){ return { topic:($("sov-adm-topic")||{}).value||"", date:($("sov-adm-date")||{}).value||"" }; }
+function sovMsg(t,ok){ const m=$("sov-adm-msg"); if(m){ m.textContent=t; m.style.color=ok?"#1a7d4b":"#b03a3a"; } }
+function loadSovAdmin(){
+  const panel=$("sov-admin-panel"); if(!panel) return;
+  const tsel=$("sov-adm-topic"); if(tsel && !tsel.options.length) tsel.innerHTML=ADM_TOPICS.map(t=>'<option value="'+t[0]+'">'+esc(t[1])+'</option>').join("");
+  const wsel=$("sov-adm-wsel");
+  const now=Date.now();
+  const ws=(totals||[]).filter(w=>w.starts_at).slice().sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+  if(wsel){ wsel.innerHTML='<option value="">– manuell wählen –</option>'+ws.map(w=>{ const tp=socialTopic(w.title)||""; const d=socialDate(new Date(w.starts_at)); return '<option value="'+tp+'|'+d+'">'+esc(fmtSetDate(d)+' · '+(w.title||''))+'</option>'; }).join("");
+    wsel.onchange=()=>{ const v=wsel.value.split("|"); if(v[0]) tsel.value=v[0]; if(v[1]) $("sov-adm-date").value=v[1]; renderSovAdmin(); };
+  }
+  if(!_sovAdmInit){
+    const up=ws.find(w=>new Date(w.starts_at).getTime()>=now)||ws[ws.length-1];
+    if(up){ const tp=socialTopic(up.title); const d=socialDate(new Date(up.starts_at)); if(tp&&tsel) tsel.value=tp; if($("sov-adm-date")) $("sov-adm-date").value=d; if(wsel) wsel.value=(tp||"")+"|"+d; }
+    if(tsel) tsel.onchange=renderSovAdmin;
+    if($("sov-adm-date")) $("sov-adm-date").onchange=renderSovAdmin;
+    _sovAdmInit=true;
+  }
+  renderSovAdmin();
+}
+function renderSovAdmin(){
+  const {topic,date}=sovAdmSel();
+  const slotsEl=$("sov-adm-slots"); if(slotsEl){
+    slotsEl.innerHTML=ADM_SLOTS.map(s=>'<div style="border:1px solid var(--line);border-radius:10px;padding:12px;"><div style="font-weight:700;font-size:13px;color:var(--navy);margin-bottom:8px;">'+s[1]+'</div><input type="file" accept="image/png,image/jpeg" data-slot="'+s[0]+'" class="sov-adm-file" style="font:inherit;font-size:12px;width:100%;"></div>').join("");
+    slotsEl.querySelectorAll(".sov-adm-file").forEach(inp=>inp.onchange=()=>sovUpload(inp));
+  }
+  renderSovCurrent(topic,date);
+}
+async function renderSovCurrent(topic,date){
+  const el=$("sov-adm-current"); if(!el) return;
+  if(!topic||!date){ el.innerHTML='<span class="muted">Thema & Datum wählen.</span>'; return; }
+  let files=[];
+  try{ const {data}=await sb.rpc("webinar_social_files",{p_topic:topic,p_date:date}); files=(data||[]).map(r=>r.name); }catch(_){}
+  files=files.filter(n=>/\.(png|jpe?g)$/i.test(n));
+  if(!files.length){ el.innerHTML='<span class="muted">Noch keine Vorlagen für '+esc(fmtSetDate(date))+' hinterlegt.</span>'; return; }
+  el.innerHTML=files.map(full=>{ const slot=(full.split("/").pop()||"").replace(/\.(png|jpe?g)$/i,""); const url=SOCIAL_PUBLIC+full+"?v="+Date.now(); return '<div class="social-card"><a href="'+esc(url)+'" target="_blank" rel="noopener"><img src="'+esc(url)+'" alt=""></a><div class="sc-l">'+esc(slot)+'</div><button class="affil-btn ghosty sov-del" data-slot="'+esc(slot)+'">Löschen</button></div>'; }).join("");
+  el.querySelectorAll(".sov-del").forEach(b=>b.onclick=()=>sovDelete(b.dataset.slot));
+}
+async function sovUpload(inp){
+  const f=inp.files&&inp.files[0]; if(!f) return;
+  const {topic,date}=sovAdmSel(); const slot=inp.dataset.slot;
+  if(!topic||!date){ sovMsg("Bitte Thema und Datum wählen.",false); inp.value=""; return; }
+  if(f.size>15*1024*1024){ sovMsg("Datei zu groß (max 15 MB).",false); inp.value=""; return; }
+  sovMsg("Lade "+slot+" hoch …",true);
+  try{
+    const b64=await fileToB64(f);
+    const { data, error } = await sb.functions.invoke("webinar-social-upload",{ body:{ topic, date, slot, content_base64:b64, content_type:f.type||"image/png" } });
+    if(error||!data||!data.ok){ sovMsg("Fehler: "+((data&&data.error)||(error&&error.message)||"unbekannt"),false); return; }
+    sovMsg(slot+" hochgeladen ✓",true); inp.value="";
+    renderSovCurrent(topic,date); loadSocialOverview();
+  }catch(e){ sovMsg("Fehler: "+String(e),false); }
+}
+async function sovDelete(slot){
+  const {topic,date}=sovAdmSel(); if(!topic||!date) return;
+  if(!confirm("Vorlage „"+slot+"“ wirklich löschen?")) return;
+  sovMsg("Lösche …",true);
+  try{
+    const { data, error } = await sb.functions.invoke("webinar-social-upload",{ body:{ action:"remove", topic, date, slot } });
+    if(error||!data||!data.ok){ sovMsg("Fehler: "+((data&&data.error)||(error&&error.message)||"unbekannt"),false); return; }
+    sovMsg("Gelöscht ✓",true); renderSovCurrent(topic,date); loadSocialOverview();
+  }catch(e){ sovMsg("Fehler: "+String(e),false); }
 }
 function fillSocial(w){
   const panel=$("social-panel"), body=$("social-body"), empty=$("social-empty");
