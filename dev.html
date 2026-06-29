@@ -763,6 +763,7 @@ async function loadData() {
     }
   });
   if (pick) selectDay(dateKey(pick));
+  try{ const sw=localStorage.getItem("mn_wid"); if(sw){ const w=totals.find(x=>x.webinar_id===sw); if(w){ if(w.starts_at) selectDay(dateKey(new Date(w.starts_at))); selectWebinar(sw); } } }catch(_){}
   if (isAdmin) loadAdmin();
   else if (isOrgLead) loadOrg();
   if (isAdmin || isOrgLead) loadReviewStats();
@@ -901,19 +902,24 @@ function buildShell(){
   place("#tables","overview",false);
   secs.forEach(s=>wrap.appendChild(V[s]));
 }
-function showSection(name){
+const ADMIN_SECTIONS=new Set(["kunden","berater","monat"]);
+function showSection(name,noScroll){
   if(!SEC_VIEWS[name]) name="uebersicht";
+  if(ADMIN_SECTIONS.has(name) && !isAdmin) name="uebersicht";
+  try{ localStorage.setItem("mn_section",name); }catch(_){}
   Object.values(SEC_VIEWS).forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.add("hidden"); });
   const el=document.getElementById(SEC_VIEWS[name]); if(el) el.classList.remove("hidden");
   const st=document.getElementById("sec-title"); if(st) st.textContent=SEC_TITLES[name];
   document.querySelectorAll(".nav-item[data-sec]").forEach(b=>b.classList.toggle("on", b.dataset.sec===name));
-  window.scrollTo({top:0,behavior:"smooth"});
+  if(!noScroll) window.scrollTo({top:0,behavior:"smooth"});
 }
 function setupHeaderMenu(){
   buildShell();
   document.querySelectorAll(".adm-only").forEach(el=>el.classList.toggle("adm-hidden", !isAdmin));
   document.querySelectorAll(".nav-item[data-sec]").forEach(b=>b.onclick=()=>showSection(b.dataset.sec));
-  showSection("uebersicht");
+  let init="uebersicht";
+  try{ const s=localStorage.getItem("mn_section"); if(s && SEC_VIEWS[s] && !(ADMIN_SECTIONS.has(s)&&!isAdmin)) init=s; }catch(_){}
+  showSection(init,true);
 }
 function fmtWhen(iso){ try{ const d=new Date(iso); return d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"long",timeZone:TZ})+", "+d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ})+" Uhr"; }catch(_){ return ""; } }
 function mrIcon(n){ const s='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;">'; if(n==="check") return s+'<path d="M20 6 9 17l-5-5"/></svg>'; if(n==="x") return s+'<path d="M18 6 6 18M6 6l12 12"/></svg>'; return s+'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'; }
@@ -1482,7 +1488,7 @@ function renderList(){
   renderAggregate(up);
 }
 
-function selectWebinar(wid){ selectedWid = wid; markSelection(); renderWebinar(wid); }
+function selectWebinar(wid){ selectedWid = wid; try{ localStorage.setItem("mn_wid",wid); }catch(_){} markSelection(); renderWebinar(wid); }
 
 function drawChart(labels,data,colors){
   if (chart) chart.destroy();
