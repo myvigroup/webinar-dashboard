@@ -748,22 +748,19 @@ async function loadData() {
     const d = new Date(w.starts_at), k = dateKey(d);
     (byDate[k] = byDate[k] || []).push(w);
   });
-  // Kalender immer im aktuellen Monat starten
-  const today = new Date();
-  viewY = today.getUTCFullYear(); viewM = today.getUTCMonth();
+  // Fokus-Webinar bestimmen: zuletzt geöffnetes (falls noch vorhanden), sonst das nächste kommende, sonst das jüngste vergangene.
+  const today = new Date(); const now = today.getTime();
+  let focusW = null;
+  try{ const sw=localStorage.getItem("mn_wid"); if(sw) focusW=totals.find(x=>x.webinar_id===sw && x.starts_at)||null; }catch(_){}
+  if(!focusW){
+    const sorted = totals.filter(w=>w.starts_at).slice().sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+    focusW = sorted.find(w=>new Date(w.starts_at).getTime() >= now-3600000) || sorted[sorted.length-1] || null;
+  }
+  // Kalender auf den Monat des Fokus-Webinars stellen (sonst auf den aktuellen Monat).
+  const focusDate = (focusW && focusW.starts_at) ? new Date(focusW.starts_at) : today;
+  viewY = focusDate.getUTCFullYear(); viewM = focusDate.getUTCMonth();
   renderCalendar();
-  // Webinar im aktuellen Monat auswählen, das heute am nächsten liegt
-  let pick = null, best = Infinity, now = today.getTime();
-  totals.forEach(w => {
-    if (!w.starts_at) return;
-    const d = new Date(w.starts_at);
-    if (d.getUTCFullYear() === viewY && d.getUTCMonth() === viewM) {
-      const diff = Math.abs(d.getTime() - now);
-      if (diff < best) { best = diff; pick = d; }
-    }
-  });
-  if (pick) selectDay(dateKey(pick));
-  try{ const sw=localStorage.getItem("mn_wid"); if(sw){ const w=totals.find(x=>x.webinar_id===sw); if(w){ if(w.starts_at) selectDay(dateKey(new Date(w.starts_at))); selectWebinar(sw); } } }catch(_){}
+  if (focusW){ selectDay(dateKey(focusDate)); selectWebinar(focusW.webinar_id); }
   if (isAdmin) loadAdmin();
   else if (isOrgLead) loadOrg();
   if (isAdmin || isOrgLead) loadReviewStats();
