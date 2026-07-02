@@ -5,6 +5,17 @@
       "has": [
         {
           "type": "host",
+          "value": "pflegeimmobilie.mitnorm.de"
+        }
+      ],
+      "destination": "/pflege-verl/",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "rente.mitnorm.de"
         }
       ],
@@ -13,16 +24,6 @@
     }
   ],
   "rewrites": [
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "pflegeimmobilie.mitnorm.de"
-        }
-      ],
-      "destination": "/pflege-verl/:path*"
-    },
     {
       "source": "/login",
       "destination": "/login.html"
