@@ -59,6 +59,10 @@ section{padding:72px 0}
 .hero p.lead{font-size:1.12rem;color:var(--muted);max-width:34rem;margin-bottom:30px}
 .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px}
 .hero-note{font-size:.85rem;color:var(--muted)}
+.hero-img-mobile{display:none;position:relative;margin:6px 0 22px}
+.hero-img-mobile img{width:100%;height:230px;object-fit:cover;border-radius:14px;display:block;box-shadow:0 12px 30px rgba(0,40,80,.18)}
+.hero-img-pill{position:absolute;top:12px;left:12px;display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.95);border-radius:999px;padding:7px 14px;font-size:.8rem;font-weight:700;color:#b03a32;box-shadow:0 4px 12px rgba(28,39,51,.18)}
+.hero-img-pill .dot{width:8px;height:8px;border-radius:50%;background:#d2433a;animation:pulse 1.6s infinite;flex:none}
 .mini-facts{display:grid;grid-template-columns:repeat(4,auto);gap:12px 28px;margin-bottom:26px;justify-content:start}
 .mini-facts b{display:block;font-family:'Manrope',sans-serif;font-size:1.15rem;color:var(--blue)}
 .mini-facts span{font-size:.78rem;color:var(--muted)}
@@ -147,6 +151,10 @@ footer a{color:rgba(255,255,255,.85)}
   .gallery{grid-template-columns:1fr !important}
   .gallery img{height:200px !important}
   .mini-facts{grid-template-columns:repeat(2,1fr)}
+  .hero-img-mobile{display:block}
+  .hero-pano{display:none}
+  .hero{padding:36px 0 44px}
+  .stats{padding-top:44px !important}
   .hero{padding:56px 0 48px}
   .hero-grid,.calc-grid,.bank{grid-template-columns:1fr;gap:32px}
   .grid3{grid-template-columns:1fr}
@@ -175,6 +183,10 @@ footer a{color:rgba(255,255,255,.85)}
 <header class="hero">
   <div class="wrap hero-grid">
     <div>
+      <div class="hero-img-mobile">
+        <img src="pflege-verl-bilder/luftbild.jpg" alt="Seniorenresidenz Verl – Luftaufnahme">
+        <div class="hero-img-pill"><span class="dot"></span><span>Nur noch <span data-units>14</span> von <span data-units-total>80</span> Einheiten</span></div>
+      </div>
       <div class="eyebrow" style="display:block">Pflegeimmobilie Verl · Kreis Gütersloh</div>
       <h1>Die Kapitalanlage, die sich <em>selbst bezahlt</em>.</h1>
       <p class="lead">Fertiggestellter, energieeffizienter Neubau (Effizienzhaus 40 EE) im wirtschaftsstarken Kreis Gütersloh. 25 Jahre Pachtvertrag, renommierter Betreiber, Mieteinnahmen ab Kauf – und die Finanzierung ist über unseren Bankpartner bereits vorbereitet.</p>
@@ -213,8 +225,8 @@ footer a{color:rgba(255,255,255,.85)}
   </div>
 </header>
 
-<!-- HERO-BILD -->
-<div class="wrap" style="margin-top:-8px;margin-bottom:-46px;position:relative;z-index:2">
+<!-- HERO-BILD (Desktop-Panorama) -->
+<div class="wrap hero-pano" style="margin-top:-8px;margin-bottom:-46px;position:relative;z-index:2">
   <img src="pflege-verl-bilder/luftbild.jpg" alt="Luftaufnahme der Seniorenresidenz Verl" style="width:100%;aspect-ratio:21/9;object-fit:cover;border-radius:18px;box-shadow:0 24px 60px rgba(0,40,80,.28);display:block">
 </div>
 
@@ -235,12 +247,12 @@ footer a{color:rgba(255,255,255,.85)}
     <h2 class="sec">Ein Wachstumsmarkt, der nicht von der Konjunktur abhängt</h2>
     <p class="sub">Die Nachfrage nach Pflegeplätzen steigt demografisch bedingt seit Jahren – unabhängig von Börsen, Zinsen und Wirtschaftslage. Allein im Umkreis von 12 Autominuten um Verl fehlen statistisch rund 140 Pflegeplätze.*</p>
     <div class="grid3 vorteile">
-      <div class="card"><div class="ic">📈</div><h3>Miete auch ohne Belegung</h3><p>Der Betreiber zahlt die Pacht unabhängig davon, ob das Apartment belegt ist – vertraglich vereinbart über 25 Jahre.</p></div>
-      <div class="card"><div class="ic">🏛️</div><h3>Echtes Eigentum im Grundbuch</h3><p>Ihr Apartment ist grundbuchlich gesichert – vererbbar, beleihbar, verkaufbar. Kein Fondsanteil, sondern eine reale Immobilie.</p></div>
-      <div class="card"><div class="ic">🛡️</div><h3>Inflationsschutz eingebaut</h3><p>Indexierte Pacht: Ab dem 3. Jahr wird die Miete an die Verbraucherpreisentwicklung angepasst.</p></div>
-      <div class="card"><div class="ic">🔧</div><h3>Kein Vermieter-Stress</h3><p>Double-Net-Plus-Vertrag: Instandhaltung für Dach und Fach übernimmt der Betreiber. Kein Mieterkontakt, keine Nebenkostenabrechnung.</p></div>
-      <div class="card"><div class="ic">💶</div><h3>Steuerliche Vorteile</h3><p>Über Abschreibungen holen Sie sich Jahr für Jahr einen Teil Ihrer Einkommensteuer zurück. Ihre individuelle Rechnung erstellen wir im Gespräch.</p></div>
-      <div class="card"><div class="ic">👨‍👩‍👧</div><h3>Bevorzugtes Belegungsrecht</h3><p>Als Eigentümer erhalten Sie ein bevorzugtes Belegungsrecht für sich selbst oder Ihre Angehörigen – in ganz Deutschland.</p></div>
+      <div class="card"><h3>Miete auch ohne Belegung</h3><p>Der Betreiber zahlt die Pacht unabhängig davon, ob das Apartment belegt ist – vertraglich vereinbart über 25 Jahre.</p></div>
+      <div class="card"><h3>Echtes Eigentum im Grundbuch</h3><p>Ihr Apartment ist grundbuchlich gesichert – vererbbar, beleihbar, verkaufbar. Kein Fondsanteil, sondern eine reale Immobilie.</p></div>
+      <div class="card"><h3>Inflationsschutz eingebaut</h3><p>Indexierte Pacht: Ab dem 3. Jahr wird die Miete an die Verbraucherpreisentwicklung angepasst.</p></div>
+      <div class="card"><h3>Kein Vermieter-Stress</h3><p>Double-Net-Plus-Vertrag: Instandhaltung für Dach und Fach übernimmt der Betreiber. Kein Mieterkontakt, keine Nebenkostenabrechnung.</p></div>
+      <div class="card"><h3>Steuerliche Vorteile</h3><p>Über Abschreibungen holen Sie sich Jahr für Jahr einen Teil Ihrer Einkommensteuer zurück. Ihre individuelle Rechnung erstellen wir im Gespräch.</p></div>
+      <div class="card"><h3>Bevorzugtes Belegungsrecht</h3><p>Als Eigentümer erhalten Sie ein bevorzugtes Belegungsrecht für sich selbst oder Ihre Angehörigen – in ganz Deutschland.</p></div>
     </div>
   </div>
 </section>
