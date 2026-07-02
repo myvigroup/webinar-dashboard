@@ -143,9 +143,6 @@ details p{margin-top:10px;font-size:.92rem;color:var(--muted)}
 footer{background:var(--anthra);color:rgba(255,255,255,.7);padding:48px 0;font-size:.8rem;line-height:1.7}
 footer .logo{color:#fff;display:block;margin-bottom:16px}
 footer a{color:rgba(255,255,255,.85)}
-/* Sticky mobile CTA */
-.sticky-cta{display:none;position:fixed;bottom:0;left:0;right:0;z-index:60;background:#fff;border-top:1px solid var(--line);padding:12px 16px;box-shadow:0 -6px 20px rgba(28,39,51,.10)}
-.sticky-cta .btn{width:100%;text-align:center;padding:13px}
 @media(max-width:860px){
   section{padding:52px 0}
   .gallery{grid-template-columns:1fr !important}
@@ -161,8 +158,6 @@ footer a{color:rgba(255,255,255,.85)}
   .grid2{grid-template-columns:1fr}
   .stats-grid{grid-template-columns:repeat(2,1fr)}
   .bank{padding:32px 24px}
-  .sticky-cta{display:block}
-  body{padding-bottom:72px}
 }
 </style>
 </head>
@@ -421,7 +416,6 @@ footer a{color:rgba(255,255,255,.85)}
   </div>
 </footer>
 
-<div class="sticky-cta"><a class="btn" href="#lead-top">Kostenfreie Beratung sichern</a></div>
 
 <script>
 /* mitNORM – Berater-Auflösung + Beratungs-Lead (public.leads), Muster wie rente-2026 */
@@ -451,7 +445,14 @@ footer a{color:rgba(255,255,255,.85)}
     var d={}; new FormData(f).forEach(function(v,k){ d[k]=v; });
     var ok=f.querySelector('.ok-msg'), btn=f.querySelector('button[type=submit]');
     function msg(t){ if(ok){ ok.style.display='block'; ok.textContent=t; } }
-    function pixelLead(){ try{ if(window.fbq) fbq('track','Lead'); }catch(err){} }
+    function pixelLead(){ try{ if(window.fbq){
+      var id=(window.MITNORM_CONFIG||{}).metaPixelId;
+      /* Advanced Matching: Pixel hasht die Werte clientseitig selbst -> bessere EMQ */
+      if(id) fbq('init', id, { em:(d.email||'').trim().toLowerCase(), ph:(d.telefon||'').replace(/\D/g,''), fn:(d.vorname||'').trim().toLowerCase() });
+      /* eventID ermöglicht später CAPI-Deduplizierung (gleiche ID serverseitig senden) */
+      var eid='lead-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);
+      fbq('track','Lead',{content_name:'pflege-verl'},{eventID:eid});
+    } }catch(err){} }
     if(!ready||!state.appId||!state.advisor){ msg('Danke! Wir melden uns bei Ihnen.'); pixelLead(); return; }
     if(btn) btn.disabled=true;
     rest('/leads',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({
