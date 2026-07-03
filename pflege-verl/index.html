@@ -180,6 +180,11 @@ footer a{color:rgba(255,255,255,.85)}
 /* Formular-Selects */
 .fact-card select,.form-card select{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:10px;font-size:1rem;font-family:inherit;margin-bottom:13px;background:#fff;color:var(--ink)}
 .fact-card select:focus,.form-card select:focus{outline:none;border-color:var(--blue)}
+
+/* Step 2 im Lead-Formular */
+@keyframes s2pulse{0%{box-shadow:0 0 0 0 rgba(0,67,128,.35)}70%{box-shadow:0 0 0 10px rgba(0,67,128,0)}100%{box-shadow:0 0 0 0 rgba(0,67,128,0)}}
+.step2-box{background:var(--blue-soft);border:2px solid var(--blue);border-radius:14px;padding:18px 16px 16px;margin-top:14px;animation:s2pulse 1.8s ease-out 3}
+.step2-box .btn{width:100%}
 </style>
 </head>
 <body>
@@ -485,12 +490,21 @@ footer a{color:rgba(255,255,255,.85)}
 </section>
 
 
+
+
 <!-- COOKIE-CONSENT -->
-<div id="mnConsent" style="display:none;position:fixed;left:16px;right:16px;bottom:16px;z-index:999;max-width:560px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:0 20px 60px rgba(28,39,51,.25)">
-  <p style="font-size:.88rem;line-height:1.5;margin-bottom:14px"><b>Cookies &amp; Messung.</b> Wir verwenden das Meta&nbsp;Pixel, um die Wirksamkeit unserer Anzeigen zu messen – nur mit deiner Einwilligung. Notwendige Funktionen (Formular, Live-Bestand) laufen ohne Cookies. <a href="https://www.mitnorm.com/datenschutz" target="_blank" rel="noopener" style="color:var(--blue)">Datenschutzerklärung</a></p>
-  <div style="display:flex;gap:10px;flex-wrap:wrap">
-    <button type="button" data-consent="all" class="btn" style="padding:11px 22px;font-size:.92rem">Einverstanden</button>
-    <button type="button" data-consent="essential" class="btn btn-ghost" style="padding:11px 22px;font-size:.92rem">Nur notwendige</button>
+<div id="mnConsent" style="display:none;position:fixed;left:16px;bottom:16px;z-index:999;width:min(520px,calc(100vw - 32px));background:#0d3164;color:#fff;border-radius:14px;padding:26px 26px 20px;box-shadow:0 24px 70px rgba(0,0,0,.45);font-size:.88rem;line-height:1.55">
+  <h3 style="font-family:'Manrope',sans-serif;font-size:1.15rem;margin-bottom:12px;color:#fff">Wir verwenden Cookies</h3>
+  <p style="color:rgba(255,255,255,.82);margin-bottom:16px">Wir setzen auf dieser Internetseite Cookies ein, wie in unserer <a href="https://www.mitnorm.com/datenschutz" target="_blank" rel="noopener" style="color:#8fc0ec">Datenschutzerklärung</a> beschrieben. Einige sind technisch erforderlich (funktionale Cookies); andere nicht, sondern dienen der Ausführung von Marketingmaßnahmen (Marketing – Meta&nbsp;Pixel zur Messung unserer Anzeigen). Du kannst diesen Cookie-Banner über „Cookie-Einstellungen" im Fußbereich jederzeit aufrufen und deine Einwilligungserklärungen jederzeit modifizieren und damit auch jederzeit mit Wirkung für die Zukunft widerrufen.</p>
+  <div id="mnConsentEdit" style="display:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:14px 16px;margin-bottom:16px">
+    <label style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0 10px;border-bottom:1px solid rgba(255,255,255,.14);font-weight:600">Technisch erforderlich (funktional)<input type="checkbox" checked disabled style="width:18px;height:18px"></label>
+    <label style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0 12px;font-weight:600">Marketing (Meta&nbsp;Pixel)<input type="checkbox" id="mnMkt" style="width:18px;height:18px"></label>
+    <button type="button" data-consent="save" style="width:100%;background:#3aa7dd;padding:13px 10px;border:none;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;font-family:inherit;color:#fff">Auswahl speichern</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <button type="button" data-consent="all" style="background:#3aa7dd;padding:13px 10px;border:none;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;font-family:inherit;color:#fff">Alle akzeptieren</button>
+    <button type="button" data-consent="essential" style="background:#1d4f96;padding:13px 10px;border:none;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;font-family:inherit;color:#fff">Ablehnen</button>
+    <button type="button" data-consent="edit" style="grid-column:1 / -1;background:#1d4f96;padding:13px 10px;border:none;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;font-family:inherit;color:#fff">Bearbeiten</button>
   </div>
 </div>
 
@@ -498,7 +512,7 @@ footer a{color:rgba(255,255,255,.85)}
   <div class="wrap">
     <a class="logo" href="#" style="display:block;margin-bottom:16px"><img src="pflege-verl-bilder/mitnorm-logo-weiss.svg" alt="mitNORM" style="height:46px;display:block"></a>
     <p>*Quelle: Standort- und Bedarfsanalyse des Anbieters (Detailanalyse on-geo.de); statistische Unterversorgung von ca. 140 Pflegeplätzen im Radius von 12 Autominuten. Alle Objektangaben laut Verkaufsunterlage des Anbieters (Name auf Anfrage), Stand der Unterlagen. Betreiber: compaserv Ostwestfalen-Lippe GmbH, eine Tochter der compassio-Gruppe; Angaben laut Unternehmensdarstellung des Betreibers. Diese Seite ist eine Werbemitteilung und ersetzt keine Anlage-, Rechts- oder Steuerberatung. Grundlage jeder Investitionsentscheidung sind ausschließlich Kaufvertrag, Teilungserklärung, Baubeschreibung und Mietvertrag. Immobilieninvestitionen unterliegen Risiken; frühere Wertentwicklungen und Musterberechnungen sind keine Garantie für zukünftige Ergebnisse. Bildmaterial: Objektaufnahmen aus der Verkaufsunterlage des Anbieters.</p>
-    <p style="margin-top:14px"><a href="https://www.mitnorm.com/impressum">Impressum</a> · <a href="https://www.mitnorm.com/datenschutz">Datenschutz</a></p>
+    <p style="margin-top:14px"><a href="https://www.mitnorm.com/impressum">Impressum</a> · <a href="https://www.mitnorm.com/datenschutz">Datenschutz</a> · <a href="#" data-consent-open>Cookie-Einstellungen</a></p>
   </div>
 </footer>
 
@@ -526,13 +540,18 @@ footer a{color:rgba(255,255,255,.85)}
     rest('/apps?slug=eq.'+APP_SLUG+'&select=id').then(gj).then(function(a){ if(a&&a[0]) state.appId=a[0].id; }).catch(function(){});
   }
   function step2HTML(){
-    return '<div class="ok-msg" style="display:block;margin-top:0">\u2713 Danke! Deine Anfrage ist eingegangen.</div>'
-      +'<p style="font-size:.9rem;color:var(--muted);margin:14px 0 16px">Damit dein Berater deine <b>Ersteinschätzung</b> direkt vorbereiten kann \u2013 zwei kurze Fragen:</p>'
+    return '<p style="font-size:.85rem;color:var(--ok);font-weight:700;margin-bottom:2px">\u2713 Kontaktdaten gespeichert</p>'
+      +'<div class="step2-box">'
+      +'<div style="display:flex;gap:6px;margin-bottom:10px"><span style="flex:1;height:6px;border-radius:99px;background:var(--ok)"></span><span style="flex:1;height:6px;border-radius:99px;background:var(--blue)"></span></div>'
+      +'<div style="font-size:.72rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--blue);margin-bottom:6px">Schritt 2 von 2 \u2013 noch nicht fertig!</div>'
+      +'<h3 style="font-family:\'Manrope\',sans-serif;font-size:1.15rem;letter-spacing:0;text-transform:none;color:var(--ink);margin-bottom:6px">Fast geschafft \u2013 zwei kurze Fragen.</h3>'
+      +'<p style="font-size:.88rem;color:var(--muted);margin-bottom:14px">Damit dein Berater deine <b>Ersteinschätzung</b> schon vor dem Gespräch vorbereiten kann:</p>'
       +'<label for="q_einkommen">Jahresbruttoeinkommen</label>'
       +'<select id="q_einkommen" name="einkommen" required><option value="" disabled selected>Bitte wählen</option><option>unter 75.000 \u20ac</option><option>75.000 \u2013 100.000 \u20ac</option><option>über 100.000 \u20ac</option></select>'
       +'<label for="q_liquiditaet">Liquiditätsreserven vorhanden?</label>'
       +'<select id="q_liquiditaet" name="liquiditaet" required><option value="" disabled selected>Bitte wählen</option><option>Ja</option><option>Nein</option></select>'
-      +'<button class="btn" type="submit" style="width:100%">Ersteinschätzung anfordern</button>'
+      +'<button class="btn" type="submit">Angaben absenden \u2192</button>'
+      +'</div>'
       +'<p style="font-size:.75rem;color:var(--muted);text-align:center;margin-top:10px">Kein Muss \u2013 wir melden uns in jedem Fall innerhalb von 24\u202fh.</p>';
   }
   document.addEventListener('submit',function(e){
@@ -572,6 +591,7 @@ footer a{color:rgba(255,255,255,.85)}
       if(!r.ok) throw new Error('HTTP '+r.status);
       pixelLead();
       f.dataset.step='2'; f.dataset.leadId=leadId; f.innerHTML=step2HTML();
+      try{ f.scrollIntoView({behavior:'smooth',block:'center'}); var s1=f.querySelector('select'); if(s1) s1.focus({preventScroll:true}); }catch(e){}
     }).catch(function(){ msg('Es gab ein Problem \u2013 bitte versuche es später erneut.'); if(btn) btn.disabled=false; });
   },true);
 })();
@@ -632,18 +652,27 @@ footer a{color:rgba(255,255,255,.85)}
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', id); fbq('track','PageView');
   }
-  var box=document.getElementById('mnConsent');
-  var saved=null; try{ saved=localStorage.getItem(KEYNAME); }catch(e){}
-  if(saved==='all'){ loadPixel(); return; }
-  if(saved==='essential'){ return; }
-  if(!box) return;
-  box.style.display='block';
-  box.addEventListener('click',function(e){
-    var b=e.target.closest('[data-consent]'); if(!b) return;
-    var v=b.getAttribute('data-consent');
-    try{ localStorage.setItem(KEYNAME,v); }catch(err){}
-    box.style.display='none';
+  var box=document.getElementById('mnConsent'), edit=document.getElementById('mnConsentEdit'), mkt=document.getElementById('mnMkt');
+  function getSaved(){ try{ return localStorage.getItem(KEYNAME); }catch(e){ return null; } }
+  function apply(v){ try{ localStorage.setItem(KEYNAME,v); }catch(e){}
+    if(box) box.style.display='none';
     if(v==='all') loadPixel();
+  }
+  function openBanner(){ if(!box) return;
+    if(mkt) mkt.checked = getSaved()==='all';
+    if(edit) edit.style.display='none';
+    box.style.display='block';
+  }
+  if(getSaved()==='all') loadPixel();
+  if(!getSaved()) openBanner();
+  document.addEventListener('click',function(e){
+    var o=e.target.closest?e.target.closest('[data-consent-open]'):null;
+    if(o){ e.preventDefault(); openBanner(); return; }
+    var b=e.target.closest?e.target.closest('[data-consent]'):null; if(!b) return;
+    var a=b.getAttribute('data-consent');
+    if(a==='edit'){ if(edit) edit.style.display = (edit.style.display==='none'||!edit.style.display) ? 'block' : 'none'; return; }
+    if(a==='save'){ apply(mkt&&mkt.checked ? 'all' : 'essential'); return; }
+    apply(a==='all' ? 'all' : 'essential');
   });
 })();
 </script>
