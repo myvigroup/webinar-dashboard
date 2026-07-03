@@ -231,9 +231,9 @@
     <div class="brand"><img src="/logo.png" alt="mitNORM · Finanzplanung DIN 77230" style="height:62px;width:auto;display:block;"></div>
     <h1>Webinar-<br>Anmeldungen.</h1>
     <p>Sieh auf einen Blick, wie viele Teilnehmer du für jedes Webinar gewonnen hast – und wie das Team insgesamt performt.</p>
-    <div class="feat"><span class="ck">✓</span> Anmeldungen pro Webinar & gesamt</div>
-    <div class="feat"><span class="ck">✓</span> Dein Anteil und Rang im Team</div>
-    <div class="feat"><span class="ck">✓</span> Kalender & Liste der nächsten Webinare</div>
+    <div class="feat"><span class="ck"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M20 6 9 17l-5-5"/></svg></span> Anmeldungen pro Webinar & gesamt</div>
+    <div class="feat"><span class="ck"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M20 6 9 17l-5-5"/></svg></span> Dein Anteil und Rang im Team</div>
+    <div class="feat"><span class="ck"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M20 6 9 17l-5-5"/></svg></span> Kalender & Liste der nächsten Webinare</div>
   </div>
   <div class="login-right">
     <div class="label">WEBINAR-DASHBOARD · BERATER-LOGIN</div>
@@ -249,34 +249,144 @@
   </div>
 </div>
 
+<style>
+.hmi{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:none;border:none;border-radius:8px;padding:9px 12px;cursor:pointer;font:inherit;font-size:14px;color:#0b2138;}
+.hmi:hover{background:#f3f7fb;}
+.adm-hidden{display:none !important;}
+#app{display:flex;align-items:stretch;min-height:100vh;}
+.sidebar{width:214px;flex:0 0 214px;background:#f6f9fc;border-right:1px solid var(--line);padding:16px 12px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;}
+.sb-brand{margin:2px 8px 16px;}
+.sb-logo{font-family:Outfit,sans-serif;font-weight:800;color:var(--navy);font-size:17px;display:block;letter-spacing:-.3px;}
+.sb-sub{font-size:10.5px;color:var(--muted);letter-spacing:.05em;}
+.sb-nav{display:flex;flex-direction:column;gap:2px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;color:var(--muted);font-weight:600;font-size:13.5px;cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:inherit;transition:background .12s,color .12s;}
+.nav-item>svg{flex:0 0 auto;}
+.nav-item:hover{background:rgba(0,66,131,.05);color:var(--navy);}
+.nav-item.on{background:rgba(0,66,131,.10);color:var(--navy);}
+.nav-badge{margin-left:auto;background:rgba(5,150,179,.15);color:var(--cyan-d);font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:20px;min-width:10px;text-align:center;}
+.sb-user{margin-top:auto;border-top:1px solid var(--line);padding-top:12px;display:flex;align-items:center;gap:9px;}
+.sb-uinfo{flex:1;min-width:0;}
+.sb-uinfo #who{font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;}
+.sb-logout{background:none;border:none;color:var(--muted);cursor:pointer;padding:5px;border-radius:8px;display:flex;}
+.sb-logout:hover{background:rgba(176,58,58,.08);color:#b03a3a;}
+.content{flex:1;min-width:0;display:flex;flex-direction:column;}
+.content .topbar{padding:18px 28px 0;}
+.content .topbar h1{font-family:Outfit,sans-serif;font-weight:700;color:var(--navy);font-size:20px;margin:0;}
+.content .wrap{max-width:1180px;margin:0;padding:14px 28px 56px;}
+.view-section.hidden{display:none!important;}
+.affil-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:11px;}
+.link-tile{border:1px solid var(--line);border-radius:12px;padding:13px 14px;background:#fff;display:flex;flex-direction:column;gap:9px;box-shadow:0 1px 2px rgba(0,40,90,.03);}
+.lt-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.lt-label{font-family:Outfit,sans-serif;font-weight:700;color:var(--navy);font-size:13.5px;}
+.lt-open{color:var(--muted);text-decoration:none;font-size:14px;line-height:1;padding:2px;}
+.lt-open:hover{color:var(--cyan-d);}
+.lt-url{font-size:11.5px;color:var(--muted);word-break:break-all;background:#f6f9fc;border-radius:8px;padding:7px 9px;line-height:1.45;}
+.lt-copy{align-self:flex-start;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:7px 14px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;transition:transform .08s,background .12s;}
+.lt-copy:active{transform:scale(.97);}
+.lt-copy.ok{background:#1a7d4b;}
+.link-tile.lp{border-color:var(--cyan);background:linear-gradient(180deg,#eefafd,#fff);}
+.link-tile.lp .lt-label{color:var(--cyan-d);}
+.link-tile.lp .lt-url{background:#e3f6fb;}
+.link-tile.lp .lt-copy{background:var(--cyan-d);}
+.link-tile.lp .lt-open:hover{color:var(--cyan-d);}
+.lt-badge{display:inline-block;font-family:Inter,sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--cyan-d);background:#d6f1f8;border-radius:5px;padding:2px 6px;margin-left:6px;vertical-align:middle;}
+.mtab{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);color:var(--ink);font:inherit;font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:10px;cursor:pointer;transition:background .12s,border-color .12s,color .12s;}
+.mtab svg{stroke:currentColor;}
+.mtab:hover{border-color:var(--navy);}
+.mtab.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+.pres-overlay{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#02315f,#004283 55%,#0596b3);display:none;color:#fff;cursor:pointer;}
+.pres-overlay.show{display:flex;}
+.pres-inner{position:relative;margin:auto;width:min(840px,93vw);max-height:94vh;display:flex;flex-direction:column;padding:30px 26px;}
+.pres-close{position:absolute;top:-6px;right:0;background:rgba(255,255,255,.14);border:none;color:#fff;width:40px;height:40px;border-radius:50%;font-size:17px;cursor:pointer;line-height:1;}
+.pres-close:hover{background:rgba(255,255,255,.26);}
+.pres-head{text-align:center;margin-bottom:24px;}
+.pres-kicker{font-family:Inter,sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.72);}
+.pres-title{font-family:Outfit,sans-serif;font-weight:800;font-size:clamp(26px,4vw,38px);margin-top:6px;}
+.pres-list{display:flex;flex-direction:column;gap:10px;overflow:auto;padding:4px;}
+.pres-row{display:flex;align-items:center;gap:18px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:14px;padding:14px 22px;transition:transform .4s,background .4s,border-color .4s;}
+.pres-pos{font-family:Outfit,sans-serif;font-weight:800;font-size:clamp(22px,3vw,32px);width:56px;text-align:center;color:rgba(255,255,255,.85);transition:opacity .3s;}
+.pres-row:not(.reveal) .pres-pos{opacity:.28;}
+.pres-mid{flex:1;min-width:0;}
+.pres-name{font-family:Outfit,sans-serif;font-weight:700;font-size:clamp(18px,2.4vw,25px);opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pres-sub{font-size:13px;color:rgba(255,255,255,.62);opacity:0;transition:opacity .5s .12s;margin-top:3px;}
+.pres-val{font-family:Outfit,sans-serif;font-weight:800;font-size:clamp(22px,3vw,32px);opacity:0;transform:scale(.6);transition:opacity .5s,transform .5s;}
+.pres-row.reveal{background:rgba(255,255,255,.14);}
+.pres-row.reveal .pres-name,.pres-row.reveal .pres-sub,.pres-row.reveal .pres-val{opacity:1;transform:none;}
+.pres-row.winner{background:linear-gradient(120deg,rgba(227,179,65,.32),rgba(255,255,255,.12));border-color:#E3B341;transform:scale(1.03);}
+.pres-row.winner .pres-pos,.pres-row.winner .pres-val{color:#F5D77E;}
+.pres-foot{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:24px;flex-wrap:wrap;}
+.pres-hint{font-size:13px;color:rgba(255,255,255,.6);}
+.pres-next{background:#fff;color:var(--navy);border:none;font:inherit;font-weight:700;font-size:15px;padding:12px 22px;border-radius:12px;cursor:pointer;}
+.pres-next:hover{background:#eaf4fb;}
+.pres-inner.wide{width:min(1200px,96vw);}
+.tg-grp{opacity:0;}
+.tg-grp.on{opacity:1;}
+.tg-grp .tg-bar{transform:scaleY(0);transform-box:fill-box;transform-origin:bottom;transition:transform .65s cubic-bezier(.2,.85,.25,1);}
+.tg-grp.on .tg-bar{transform:scaleY(1);}
+.tg-grp .tg-val,.tg-grp .tg-lbl{opacity:0;transition:opacity .5s .25s;}
+.tg-grp.on .tg-val,.tg-grp.on .tg-lbl{opacity:1;}
+#month-panel.hide-results #month-anm .lb-main,#month-panel.hide-results #month-teil .lb-main,#month-panel.hide-results #month-anm .lb-pos,#month-panel.hide-results #month-teil .lb-pos{filter:blur(9px);user-select:none;pointer-events:none;}
+#month-panel.hide-results #month-anm::after,#month-panel.hide-results #month-teil::after{content:"Ergebnisse verdeckt – im Präsentationsmodus aufdecken";display:block;text-align:center;color:var(--muted);font-size:13px;font-weight:600;padding:14px;}
+#pres-hide.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+@media(max-width:860px){#app{flex-direction:column;}.sidebar{width:auto;flex:none;height:auto;position:static;flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px;border-right:none;border-bottom:1px solid var(--line);}.sb-brand{margin:0 12px 0 4px;}.sb-nav{flex-direction:row;flex-wrap:wrap;}.sb-user{margin:0 0 0 auto;border:none;padding:0;}.content .wrap{padding:14px 16px 48px;}.content .topbar{padding:14px 16px 0;}}
+</style>
 <div id="app" class="hidden">
-  <header>
-    <div class="hbrand"><img src="/logo.png" alt="mitNORM" style="height:32px;width:auto;display:block;"><span class="happ">Webinar-Anmeldungen</span></div>
-    <div class="huser"><div class="avatar" id="avatar">–</div><span class="muted" id="who"></span><button class="ghost dark" id="btn-logout">Abmelden</button></div>
-  </header>
+  <aside class="sidebar">
+    <div class="sb-brand"><img src="/logo.png" alt="mitNORM" style="height:26px;width:auto;display:block;margin:0 0 5px 2px;"><span class="sb-sub" style="margin-left:2px;">Webinar-Cockpit</span></div>
+    <nav class="sb-nav">
+      <button class="nav-item on" data-sec="uebersicht"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 16l3-4 3 2 4-6"/></svg>Übersicht</button>
+      <button class="nav-item" data-sec="webinare"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Nächste Webinare</button>
+      <button class="nav-item" data-sec="anmeldungen"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M16 11l2 2 4-4"/></svg>Meine Anmeldungen</button>
+      <button class="nav-item" data-sec="link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M11 6l.5-.5a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-.5.5a4 4 0 0 1-6-6l2-2"/></svg>Mein Link</button>
+      <button class="nav-item" data-sec="social"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Social-Media-Vorlagen</button>
+      <button class="nav-item adm-only" data-sec="kunden"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Unzugeordnete Kunden<span class="nav-badge" id="nav-ua-count"></span></button>
+      <button class="nav-item adm-only" data-sec="berater"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Berater verwalten</button>
+      <button class="nav-item adm-only" data-sec="monat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Monatsrangliste</button>
+    </nav>
+    <div class="sb-user">
+      <div class="avatar" id="avatar">–</div>
+      <div class="sb-uinfo"><span class="muted" id="who"></span></div>
+      <button id="btn-logout" class="sb-logout" title="Abmelden"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+    </div>
+  </aside>
   <div class="wrap">
+    <div class="hidden" id="ov-summary"></div>
+    <div class="panel hidden" id="my-reg-panel" style="margin-bottom:14px;">
+      <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M16 11l2 2 4-4"/></svg>Meine Anmeldungen <span style="font-weight:400;font-size:11px;color:var(--muted);">· deine eingeladenen Kunden &amp; ihr Status</span></div>
+      <div style="margin-bottom:10px;"><select id="myreg-wfilter" style="display:none;font:inherit;font-size:13px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 11px;max-width:100%;cursor:pointer;"></select></div>
+      <div id="myreg-chips" style="display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;"></div>
+      <div id="myreg-body" class="muted">Lädt…</div>
+    </div>
     <div class="toolbar">
       <div class="seg"><button id="tab-cal" class="on">Kalender</button><button id="tab-list">Nächste Webinare</button></div>
     </div>
     <div class="panel hidden" id="affil-panel" style="margin-bottom:14px;">
-      <div class="ptitle">Dein Einladungs-Link <span style="font-weight:400;font-size:11px;color:var(--muted);">· teile ihn mit deinen Kunden – Anmeldungen werden dir zugeordnet</span></div>
-      <div class="affil-row">
+      <div class="ptitle">Deine Einladungs-Links <span style="font-weight:400;font-size:11px;color:var(--muted);">· Link zum jeweiligen Thema kopieren – Anmeldungen werden dir zugeordnet</span></div>
+      <div class="affil-row" style="display:none;">
         <label for="affil-topic">Ziel:</label>
         <select id="affil-topic"></select>
         <input id="affil-link" readonly onclick="this.select()">
         <button id="affil-copy" class="affil-btn">Link kopieren</button>
         <a id="affil-open" class="affil-btn ghosty" target="_blank" rel="noopener">Vorschau ↗</a>
       </div>
-      <div id="affil-hint" class="muted" style="font-size:12px;margin-top:8px;"></div>
+      <div id="affil-tiles" class="affil-tiles"></div>
+      <div id="affil-hint" class="muted" style="font-size:12px;margin-top:10px;"></div>
     </div>
     <div class="panel hidden" id="sov-panel" style="margin-bottom:14px;">
-      <div class="ptitle">🎨 Social-Media-Vorlagen <span style="font-weight:400;font-size:11px;color:var(--muted);">· Vorlage wählen, herunterladen &amp; posten</span></div>
+      <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Social-Media-Vorlagen <span style="font-weight:400;font-size:11px;color:var(--muted);">· Vorlage wählen, herunterladen &amp; posten</span></div>
       <div class="affil-row"><label for="sov-sel">Vorlage:</label><select id="sov-sel" style="min-width:260px;"></select></div>
       <div id="sov-body" class="social-grid" style="margin-top:12px;"></div>
     </div>
-    <div class="panel hidden" id="leads-panel" style="margin-bottom:14px;">
-      <div class="ptitle">📥 Beratungsanfragen <span style="font-weight:400;font-size:11px;color:var(--muted);">· aus dem Rente-Check auf der Landingpage – diese Kunden möchten eine persönliche Beratung</span></div>
-      <div style="overflow-x:auto"><table id="leadstable"></table></div>
+    <div class="panel hidden adm-only" id="sov-admin-panel" style="margin-bottom:14px;">
+      <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Vorlagen verwalten <span style="font-weight:400;font-size:11px;color:var(--muted);">· neue Social-Media-Vorlagen hochladen</span></div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;">
+        <div><label style="display:block;font-size:12px;color:var(--muted);margin-bottom:4px;">Webinar (übernimmt Thema + Datum)</label><select id="sov-adm-wsel" style="font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;min-width:300px;"></select></div>
+        <div><label style="display:block;font-size:12px;color:var(--muted);margin-bottom:4px;">Thema</label><select id="sov-adm-topic" style="font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;"></select></div>
+        <div><label style="display:block;font-size:12px;color:var(--muted);margin-bottom:4px;">Datum</label><input id="sov-adm-date" type="date" style="font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;"></div>
+      </div>
+      <div id="sov-adm-slots" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;"></div>
+      <div id="sov-adm-msg" style="margin-top:12px;font-size:13px;"></div>
+      <div style="margin-top:14px;"><div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Aktuell hinterlegt für diese Auswahl:</div><div id="sov-adm-current" class="social-grid">—</div></div>
     </div>
     <div class="layout">
       <div class="col-left">
@@ -321,6 +431,12 @@
                 <button id="att-send" style="background:var(--cyan-d);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700;font:inherit;margin-left:8px;">Nachfass-Mails jetzt senden</button>
                 <span id="att-send-status" class="muted" style="margin-left:10px;font-size:13px;"></span>
               </div>
+              <div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px;">
+                <label style="display:block;font-size:13px;color:var(--muted);margin:2px 0 4px;">Handout (PDF) – wird Anwesenden automatisch an die Danke-Mail angehängt</label>
+                <input type="file" id="ho-file" accept="application/pdf,.pdf" style="font:inherit;font-size:13px;">
+                <span id="ho-status" class="muted" style="margin-left:8px;font-size:13px;"></span>
+                <div id="ho-current" style="margin-top:8px;font-size:13px;"></div>
+              </div>
             </div>
           </div>
           <div class="cards" style="margin-bottom:14px;">
@@ -338,6 +454,7 @@
             <div class="ptitle">Social-Media-Vorlagen <span style="font-weight:400;font-size:11px;color:var(--muted);">· für dieses Webinar – herunterladen &amp; posten</span></div>
             <div id="social-body" class="social-grid"></div>
             <div id="social-empty" class="muted" style="font-size:13px;display:none;">Für dieses Webinar sind noch keine Vorlagen hinterlegt.</div>
+            <div id="social-admin" class="adm-only" style="display:none;"></div>
           </div>
         </div>
       </div>
@@ -348,9 +465,36 @@
         <div id="delta-body" class="muted">Lädt…</div>
       </div>
       <div class="panel hidden" id="rank-panel" style="margin-bottom:14px;">
-        <div class="ptitle">🏆 Berater-Ranking <span style="font-weight:400;font-size:11px;color:var(--muted);">· wer hat am meisten eingeladen</span></div>
+        <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v2a3 3 0 0 0 3 3"/><path d="M17 6h3v2a3 3 0 0 1-3 3"/></svg>Berater-Ranking <span style="font-weight:400;font-size:11px;color:var(--muted);">· wer hat am meisten eingeladen</span></div>
         <div class="cms-tabs" id="rank-filter" style="margin-bottom:14px;"><button data-p="all" class="on">Gesamt</button><button data-p="7d">Letzte 7 Tage</button><button data-p="today">Heute</button></div>
         <div id="rank-board" class="muted">Lädt…</div>
+      </div>
+      <div class="panel hidden" id="monthtrend-panel" style="margin-bottom:14px;">
+        <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Monatsauswertung <span style="font-weight:400;font-size:11px;color:var(--muted);">· Anmeldungen &amp; Teilnahmen je Monat</span></div>
+        <div id="monthtrend-body" class="muted">Lädt…</div>
+      </div>
+      <div class="panel hidden" id="month-panel" style="margin-bottom:14px;">
+        <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Monatsrangliste <span style="font-weight:400;font-size:11px;color:var(--muted);">· Berater nach Anmeldungen &amp; Teilnahmen</span></div>
+        <div style="margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><div><label style="font-size:13px;color:var(--muted);margin-right:6px;">Monat:</label><select id="month-sel" style="font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;min-width:160px;"></select></div><button id="pres-start" style="display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--navy),var(--cyan-d));color:#fff;border:none;font:inherit;font-size:13px;font-weight:700;padding:9px 16px;border-radius:10px;cursor:pointer;box-shadow:0 2px 8px rgba(0,66,131,.18);"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Präsentationsmodus</button><button id="pres-hide" class="mtab" title="Ergebnisse verdecken – ideal beim Teilen des Bildschirms"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg><span id="pres-hide-lbl">Ergebnisse verbergen</span></button></div>
+        <div id="month-tabs" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+          <button class="mtab on" data-t="anm"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v2a3 3 0 0 0 3 3"/><path d="M17 6h3v2a3 3 0 0 1-3 3"/></svg>Meiste Anmeldungen</button>
+          <button class="mtab" data-t="teil"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>Meiste Teilnahmen</button>
+        </div>
+        <div id="month-anm" class="muted">Lädt…</div>
+        <div id="month-teil" class="muted" style="display:none;">Lädt…</div>
+      </div>
+      <div class="panel hidden" id="unassigned-panel" style="margin-bottom:14px;">
+        <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Unzugeordnete Kunden <span id="ua-count" style="font-weight:400;font-size:11px;color:var(--muted);"></span></div>
+        <div class="muted" style="font-size:12px;margin-bottom:10px;">Anmeldungen ohne Berater – Berater wählen und zuordnen. „Hinweis" = Antwort aus der Teams-Anmeldung (zur Vorauswahl genutzt).</div>
+        <input id="ua-search" placeholder="Suche Name / E-Mail / Webinar…" style="width:100%;max-width:340px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;margin-bottom:10px;">
+        <div id="ua-body" class="muted">Lädt…</div>
+      </div>
+      <div class="panel hidden" id="advisors-panel" style="margin-bottom:14px;">
+        <div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Berater verwalten <span id="adm-count" style="font-weight:400;font-size:11px;color:var(--muted);"></span>
+          <button id="adm-new" style="float:right;background:var(--navy);color:#fff;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;font-size:13px;">+ Neuer Berater</button></div>
+        <input id="adm-search" placeholder="Suche Name / E-Mail / Slug…" style="width:100%;max-width:340px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;margin:8px 0 10px;">
+        <div id="adm-editor"></div>
+        <div id="adm-body" class="muted">Lädt…</div>
       </div>
       <div class="panel hidden" id="pe-panel" style="margin-bottom:14px;">
         <div class="ptitle">ProvenExpert-Bewertungen über Webinar-Mails</div>
@@ -441,6 +585,43 @@ if($("att-file")){
   $("att-test").onclick = ()=>sendFollowup(true);
   $("att-send").onclick = ()=>sendFollowup(false);
 }
+if($("ho-file")){ $("ho-file").onchange = handleHandoutFile; }
+function renderHandoutCurrent(url,name){
+  const el=$("ho-current"); if(!el) return;
+  if(url){ el.innerHTML='<span style="color:#1a7d4b;font-weight:600;">✓ Handout hinterlegt</span> · '
+      +'<a href="'+esc(url)+'" target="_blank" rel="noopener" style="font-weight:600;">ansehen ↗</a>'
+      +' · <button id="ho-del" style="font:inherit;font-size:13px;color:#b03a3a;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;">entfernen</button>';
+    const b=$("ho-del"); if(b) b.onclick=removeHandout;
+  } else { el.innerHTML='<span class="muted">Noch kein Handout hinterlegt.</span>'; }
+}
+function loadHandout(wid){
+  renderHandoutCurrent(null);
+  sb.rpc("webinar_handout_get",{p_webinar_id:wid}).then(({data})=>{ if(selectedWid===wid) renderHandoutCurrent(data||null); });
+}
+async function handleHandoutFile(ev){
+  const f=ev.target.files&&ev.target.files[0]; if(!f||!selectedWid) return;
+  if(f.size>8*1024*1024){ $("ho-status").textContent="PDF zu groß (max 8 MB)."; return; }
+  $("ho-status").textContent="Lade hoch…";
+  try{
+    const buf=await f.arrayBuffer(); const bytes=new Uint8Array(buf);
+    let bin=""; const chunk=0x8000; for(let i=0;i<bytes.length;i+=chunk){ bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk)); }
+    const b64=btoa(bin);
+    const { data, error } = await sb.functions.invoke("webinar-handout-upload",{ body:{ webinar_id:selectedWid, filename:f.name, content_base64:b64 } });
+    if(error){ $("ho-status").textContent="Fehler: "+error.message; return; }
+    if(data&&data.ok){ $("ho-status").innerHTML='<span style="color:#1a7d4b;font-weight:600;">✓ hochgeladen</span>'; renderHandoutCurrent(data.url,f.name); $("ho-file").value=""; }
+    else { $("ho-status").textContent="Fehler: "+((data&&data.error)||"unbekannt"); }
+  }catch(e){ $("ho-status").textContent="Fehler: "+e; }
+}
+async function removeHandout(){
+  if(!selectedWid) return;
+  if(!confirm("Handout für dieses Webinar entfernen?")) return;
+  $("ho-status").textContent="Entferne…";
+  try{
+    const { data, error } = await sb.functions.invoke("webinar-handout-upload",{ body:{ webinar_id:selectedWid, action:"remove" } });
+    if(error){ $("ho-status").textContent="Fehler: "+error.message; return; }
+    $("ho-status").textContent=""; renderHandoutCurrent(null);
+  }catch(e){ $("ho-status").textContent="Fehler: "+e; }
+}
 function durToSecs(s){ s=(s||"").toLowerCase(); let t=0,m; if((m=s.match(/(\d+)\s*h/)))t+=+m[1]*3600; if((m=s.match(/(\d+)\s*m/)))t+=+m[1]*60; if((m=s.match(/(\d+)\s*s/)))t+=+m[1]; return t; }
 async function handleAttFile(ev){
   const f=ev.target.files&&ev.target.files[0]; if(!f||!selectedWid) return;
@@ -529,6 +710,8 @@ async function init() {
   $("login").style.display="none"; $("app").classList.remove("hidden");
   me = (session.user.email || "").toLowerCase();
   isAdmin = ADMIN.includes(me);
+  try{ const { data: srvAdmin } = await sb.rpc("webinar_is_admin"); if(srvAdmin===true) isAdmin=true; }catch(_){}
+  setupHeaderMenu();
   const name = session.user.user_metadata?.full_name || session.user.email || "";
   $("who").textContent = isAdmin ? name + " · Admin" : name;
   $("avatar").textContent = name.split(" ").map(s => s[0]).slice(0,2).join("").toUpperCase();
@@ -565,27 +748,27 @@ async function loadData() {
     const d = new Date(w.starts_at), k = dateKey(d);
     (byDate[k] = byDate[k] || []).push(w);
   });
-  // Kalender immer im aktuellen Monat starten
-  const today = new Date();
-  viewY = today.getUTCFullYear(); viewM = today.getUTCMonth();
+  // Fokus-Webinar bestimmen: zuletzt geöffnetes (falls noch vorhanden), sonst das nächste kommende, sonst das jüngste vergangene.
+  const today = new Date(); const now = today.getTime();
+  let focusW = null;
+  try{ const sw=localStorage.getItem("mn_wid"); if(sw) focusW=totals.find(x=>x.webinar_id===sw && x.starts_at)||null; }catch(_){}
+  if(!focusW){
+    const sorted = totals.filter(w=>w.starts_at).slice().sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+    focusW = sorted.find(w=>new Date(w.starts_at).getTime() >= now-3600000) || sorted[sorted.length-1] || null;
+  }
+  // Kalender auf den Monat des Fokus-Webinars stellen (sonst auf den aktuellen Monat).
+  const focusDate = (focusW && focusW.starts_at) ? new Date(focusW.starts_at) : today;
+  viewY = focusDate.getUTCFullYear(); viewM = focusDate.getUTCMonth();
   renderCalendar();
-  // Webinar im aktuellen Monat auswählen, das heute am nächsten liegt
-  let pick = null, best = Infinity, now = today.getTime();
-  totals.forEach(w => {
-    if (!w.starts_at) return;
-    const d = new Date(w.starts_at);
-    if (d.getUTCFullYear() === viewY && d.getUTCMonth() === viewM) {
-      const diff = Math.abs(d.getTime() - now);
-      if (diff < best) { best = diff; pick = d; }
-    }
-  });
-  if (pick) selectDay(dateKey(pick));
+  if (focusW){ selectDay(dateKey(focusDate)); selectWebinar(focusW.webinar_id); }
   if (isAdmin) loadAdmin();
   else if (isOrgLead) loadOrg();
   if (isAdmin || isOrgLead) loadReviewStats();
   loadAffil();
   loadSocialOverview();
-  loadMyLeads();
+  if (isAdmin) loadSovAdmin();
+  renderMyReg();
+  renderOverviewSummary();
   if (isAdmin && !window._liveTimer) window._liveTimer = setInterval(refreshLive, 60000);
 }
 async function refreshLive(){
@@ -619,27 +802,25 @@ const AFFIL_TOPICS=[
   {k:"",l:"Alle Themen (Übersicht)"},
   {k:"__landing",l:"➜ Rente-Landingpage (rente.mitnorm.de)"},
   {k:"__pflege",l:"➜ Pflegeimmobilie Verl (pflegeimmobilie.mitnorm.de)"},
-  {k:"rente",l:"Rente & Rentenreform (Webinar)"},
   {k:"immobilie",l:"Immobilie als Kapitalanlage"},
   {k:"ruhestand",l:"Ruhestandsplanung"},
   {k:"baufi",l:"Baufinanzierung"},
   {k:"riester",l:"Riester & Altersvorsorge"},
+  {k:"rente",l:"Rente & Rentenreform – Webinar"},
+  {k:"rente-lp",l:"Rente & Rentenreform – Landingpage",u:"https://rente.mitnorm.de/rente-2026.html"},
   {k:"steuern",l:"Steuern sparen"},
   {k:"geldanlage",l:"Geldanlage"}
 ];
 let _affilSlug=null;
-async function loadMyLeads(){
-  try{
-    const { data, error } = await sb.rpc("webinar_my_leads");
-    if(error){ return; }
-    const rows = data || [];
-    if(!rows.length){ $("leads-panel").classList.add("hidden"); return; }
-    $("leads-panel").classList.remove("hidden");
-    const fmt=(d)=>{ try{ return new Date(d).toLocaleString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}); }catch(_){ return ""; } };
-    const head='<thead><tr><th>Eingegangen</th><th>Name</th><th>E-Mail</th><th>Telefon</th><th>Status</th></tr></thead>';
-    const body=rows.map(r=>'<tr><td>'+esc(fmt(r.created_at))+'</td><td>'+esc(r.first_name||"–")+'</td><td>'+esc(r.email||"–")+'</td><td>'+esc(r.phone||"–")+'</td><td>'+esc(r.status||"")+'</td></tr>').join("");
-    $("leadstable").innerHTML=head+'<tbody>'+body+'</tbody>';
-  }catch(_){ }
+function renderLinkTiles(){
+  const el=$("affil-tiles"); if(!el||!_affilSlug) return;
+  el.innerHTML=AFFIL_TOPICS.map(t=>{
+    const isLp=!!t.u;
+    const url=isLp?(t.u+(t.u.includes("?")?"&":"?")+"b="+encodeURIComponent(_affilSlug)):(APP_URL+"?b="+encodeURIComponent(_affilSlug)+(t.k?"&t="+t.k:""));
+    const badge=isLp?'<span class="lt-badge">Landingpage</span>':'';
+    return '<div class="link-tile'+(isLp?' lp':'')+'"><div class="lt-top"><span class="lt-label">'+esc(t.l)+badge+'</span><a class="lt-open" href="'+esc(url)+'" target="_blank" rel="noopener" title="Vorschau">↗</a></div><div class="lt-url">'+esc(url)+'</div><button class="lt-copy" data-url="'+esc(url)+'">Link kopieren</button></div>';
+  }).join("");
+  el.querySelectorAll(".lt-copy").forEach(b=>b.onclick=()=>{ navigator.clipboard.writeText(b.dataset.url).then(()=>{ const o=b.textContent; b.textContent="Kopiert ✓"; b.classList.add("ok"); setTimeout(()=>{b.textContent=o;b.classList.remove("ok");},1500); }).catch(()=>{}); });
 }
 async function loadAffil(){
   try{
@@ -648,19 +829,24 @@ async function loadAffil(){
     if(!r||!r.slug) return;
     _affilSlug=r.slug;
     $("affil-panel").classList.remove("hidden");
+    renderLinkTiles();
     const sel=$("affil-topic");
     sel.innerHTML=AFFIL_TOPICS.map(t=>'<option value="'+t.k+'">'+t.l+'</option>').join("");
-    const upd=()=>{ const t=sel.value; const url=(t==="__landing")?("https://rente.mitnorm.de/?b="+encodeURIComponent(_affilSlug)):(t==="__pflege")?("https://pflegeimmobilie.mitnorm.de/?b="+encodeURIComponent(_affilSlug)):(APP_URL+"?b="+encodeURIComponent(_affilSlug)+(t?"&t="+t:"")); $("affil-link").value=url; $("affil-open").href=url; };
+    const upd=()=>{ const t=sel.value;
+      if(t==="__landing"||t==="__pflege"){ const base=(t==="__landing")?"https://rente.mitnorm.de":"https://pflegeimmobilie.mitnorm.de"; const u=base+"/?b="+encodeURIComponent(_affilSlug); $("affil-link").value=u; $("affil-open").href=u; return; } const meta=AFFIL_TOPICS.find(x=>x.k===t); let url;
+      if(meta&&meta.u){ url=meta.u+(meta.u.includes("?")?"&":"?")+"b="+encodeURIComponent(_affilSlug); }
+      else { url=APP_URL+"?b="+encodeURIComponent(_affilSlug)+(t?"&t="+t:""); }
+      $("affil-link").value=url; $("affil-open").href=url; };
     sel.onchange=upd; upd();
     $("affil-copy").onclick=async()=>{ try{ await navigator.clipboard.writeText($("affil-link").value); }catch(_){ $("affil-link").select(); try{document.execCommand("copy");}catch(e){} } const b=$("affil-copy"); const o=b.textContent; b.textContent="✓ Kopiert"; setTimeout(()=>{b.textContent=o;},1500); };
-    $("affil-hint").textContent="Tipp: Wähle ein Thema, um direkt dorthin zu verlinken – oder „Alle Themen“ für die Übersicht. Anmeldungen über deinen Link werden automatisch dir zugeordnet.";
+    $("affil-hint").textContent="Kopiere den passenden Link zum Thema und teile ihn – Anmeldungen darüber werden automatisch dir zugeordnet.";
   }catch(_){}
 }
 
 async function loadOrg(){
   $("tables").classList.remove("hidden");
   $("rank-panel").classList.remove("hidden");
-  document.querySelector("#rank-panel .ptitle").innerHTML='🏆 Berater-Ranking deiner Organisation';
+  document.querySelector("#rank-panel .ptitle").innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v2a3 3 0 0 0 3 3"/><path d="M17 6h3v2a3 3 0 0 1-3 3"/></svg>Berater-Ranking deiner Organisation';
   $("rank-filter").style.display="none";
   const { data } = await sb.rpc("webinar_org_ranking");
   renderRankBoard(data || []);
@@ -673,8 +859,445 @@ async function loadAdmin(){
   $("rank-filter").querySelectorAll("button").forEach(b=>b.onclick=()=>{ _rankPeriod=b.dataset.p; $("rank-filter").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b)); loadRanking(); });
   if(!selectedWid){ $("mytbl-title").textContent="Teilnehmer je Berater"; $("tbl-filters").classList.add("hidden"); $("mytable").innerHTML='<tbody><tr><td class="muted" style="padding:14px;">Wähle ein Webinar im Kalender, um die Anmeldungen je Berater zu sehen.</td></tr></tbody>'; }
   loadRanking();
+  loadMonthRanking();
+  renderMonthlyTrend();
   loadDelta();
   loadCms();
+  loadAdvisors();
+  loadUnassigned();
+  if($("ua-search")) $("ua-search").oninput=renderUnassigned;
+  if($("adm-search")) $("adm-search").oninput=renderAdvisors;
+  if($("adm-new")) $("adm-new").onclick=()=>editAdvisor(null);
+}
+// ===== Beraterverwaltung + Unzugeordnete Kunden (Admin) =====
+let _admAdv=[], _unassigned=[];
+function normName(s){ return (s||"").toLowerCase().replace(/[^a-zäöüß ]/g,"").replace(/\s+/g," ").trim(); }
+// Listen auf 5 Einträge klappen (Rest ausklappbar)
+const _expand={}; let _rankRows=[];
+function clampToggle(key,total,open,lim){ lim=lim||5; return total>lim? '<div style="text-align:center;margin-top:10px;"><button class="clamp-toggle" data-key="'+key+'" style="background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 14px;cursor:pointer;font:inherit;font-size:13px;color:var(--navy);font-weight:600;">'+(open?"Weniger anzeigen ▴":("Alle "+total+" anzeigen ▾"))+'</button></div>' : ''; }
+function clampRows(key,arr,total,lim){ lim=lim||5; const open=_expand[key]; return (open?arr:arr.slice(0,lim)).join("")+clampToggle(key,total,open,lim); }
+function wireClamp(el,fn){ if(!el) return; el.querySelectorAll(".clamp-toggle").forEach(b=>b.onclick=()=>{ _expand[b.dataset.key]=!_expand[b.dataset.key]; fn(); }); }
+// Header-Dropdown + Bereichsumschaltung
+const SEC_TITLES={uebersicht:"Übersicht",webinare:"Nächste Webinare",anmeldungen:"Meine Anmeldungen",link:"Mein Einladungs-Link",social:"Social-Media-Vorlagen",kunden:"Unzugeordnete Kunden",berater:"Berater verwalten",monat:"Monatsrangliste"};
+const SEC_VIEWS={uebersicht:"view-overview",webinare:"view-webinare",anmeldungen:"view-anmeldungen",link:"view-link",social:"view-social",kunden:"view-kunden",berater:"view-berater",monat:"view-monat"};
+function buildShell(){
+  const wrap=document.querySelector(".wrap"); if(!wrap||document.getElementById("view-overview")) return;
+  const content=document.createElement("div"); content.className="content";
+  const topbar=document.createElement("div"); topbar.className="topbar"; topbar.innerHTML='<h1 id="sec-title">Übersicht</h1>';
+  wrap.parentNode.insertBefore(content,wrap); content.appendChild(topbar); content.appendChild(wrap);
+  const secs=["overview","webinare","anmeldungen","link","social","kunden","berater","monat"];
+  const V={}; secs.forEach(s=>{ const v=document.createElement("div"); v.id="view-"+s; v.className="view-section hidden"; V[s]=v; });
+  const place=(sel,sec,show)=>{ const el=document.querySelector(sel); if(el){ if(show) el.classList.remove("hidden"); V[sec].appendChild(el); } };
+  place("#unassigned-panel","kunden",true);
+  place("#advisors-panel","berater",true);
+  place("#monthtrend-panel","monat",true);
+  place("#month-panel","monat",true);
+  place("#ov-summary","overview",true);
+  place("#my-reg-panel","anmeldungen",true);
+  place("#affil-panel","link",false);
+  place("#sov-panel","social",false);
+  place("#sov-admin-panel","social",false);
+  place(".toolbar","webinare",false);
+  place(".layout","webinare",false);
+  place("#tables","overview",false);
+  secs.forEach(s=>wrap.appendChild(V[s]));
+}
+const ADMIN_SECTIONS=new Set(["kunden","berater","monat"]);
+function showSection(name,noScroll){
+  if(!SEC_VIEWS[name]) name="uebersicht";
+  if(ADMIN_SECTIONS.has(name) && !isAdmin) name="uebersicht";
+  try{ localStorage.setItem("mn_section",name); }catch(_){}
+  Object.values(SEC_VIEWS).forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.add("hidden"); });
+  const el=document.getElementById(SEC_VIEWS[name]); if(el) el.classList.remove("hidden");
+  const st=document.getElementById("sec-title"); if(st) st.textContent=SEC_TITLES[name];
+  document.querySelectorAll(".nav-item[data-sec]").forEach(b=>b.classList.toggle("on", b.dataset.sec===name));
+  if(!noScroll) window.scrollTo({top:0,behavior:"smooth"});
+}
+function setupHeaderMenu(){
+  buildShell();
+  document.querySelectorAll(".adm-only").forEach(el=>el.classList.toggle("adm-hidden", !isAdmin));
+  document.querySelectorAll(".nav-item[data-sec]").forEach(b=>b.onclick=()=>showSection(b.dataset.sec));
+  let init="uebersicht";
+  try{ const s=localStorage.getItem("mn_section"); if(s && SEC_VIEWS[s] && !(ADMIN_SECTIONS.has(s)&&!isAdmin)) init=s; }catch(_){}
+  showSection(init,true);
+}
+function fmtWhen(iso){ try{ const d=new Date(iso); return d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"long",timeZone:TZ})+", "+d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ})+" Uhr"; }catch(_){ return ""; } }
+function mrIcon(n){ const s='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;">'; if(n==="check") return s+'<path d="M20 6 9 17l-5-5"/></svg>'; if(n==="x") return s+'<path d="M18 6 6 18M6 6l12 12"/></svg>'; return s+'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'; }
+function myRegRows(){
+  const tmap={}; (totals||[]).forEach(w=>{ tmap[w.webinar_id]=w.starts_at; });
+  const now=Date.now();
+  return (mine||[]).map(r=>{
+    const st=tmap[r.webinar_id]; const future=st&&new Date(st).getTime()>now;
+    let cls,label; if(future){cls="plan";label="Geplant";} else if(r.attended===true){cls="done";label="Teilgenommen";} else {cls="no";label="Nicht teilgenommen";}
+    return Object.assign({},r,{_cls:cls,_label:label,_st:st});
+  });
+}
+let _myRegFilter="all", _myRegWid="all";
+function renderMyReg(){
+  const body=$("myreg-body"), chips=$("myreg-chips"), wf=$("myreg-wfilter"); if(!body) return;
+  const all=myRegRows();
+  if(wf){
+    const seen={}, opts=[];
+    all.forEach(r=>{ if(r.webinar_id && !seen[r.webinar_id]){ seen[r.webinar_id]=1; opts.push({id:r.webinar_id,title:r.title||"—"}); } });
+    opts.sort((a,b)=>a.title.localeCompare(b.title,"de"));
+    if(_myRegWid!=="all" && !opts.some(o=>o.id===_myRegWid)) _myRegWid="all";
+    wf.innerHTML='<option value="all">Alle Webinare</option>'+opts.map(o=>'<option value="'+esc(o.id)+'"'+(o.id===_myRegWid?" selected":"")+'>'+esc(o.title)+'</option>').join("");
+    wf.onchange=()=>{ _myRegWid=wf.value; renderMyReg(); };
+    wf.style.display = opts.length>1 ? "" : "none";
+  }
+  const rows=all.filter(r=>_myRegWid==="all"||r.webinar_id===_myRegWid);
+  const c={all:rows.length,done:rows.filter(r=>r._cls==="done").length,no:rows.filter(r=>r._cls==="no").length,plan:rows.filter(r=>r._cls==="plan").length};
+  if(chips){ const chip=(k,l,col)=>'<button class="myreg-chip" data-f="'+k+'" style="background:'+(_myRegFilter===k?"var(--navy)":"#fff")+';color:'+(_myRegFilter===k?"#fff":(col||"var(--ink)"))+';border:1px solid '+(_myRegFilter===k?"var(--navy)":"var(--line)")+';font:inherit;font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;cursor:pointer;">'+l+' '+c[k]+'</button>';
+    chips.innerHTML=chip("all","Alle")+chip("done","Teilgenommen","#1a7d4b")+chip("no","Nicht teilgenommen","#b03a3a")+chip("plan","Geplant","var(--muted)");
+    chips.querySelectorAll(".myreg-chip").forEach(b=>b.onclick=()=>{ _myRegFilter=b.dataset.f; renderMyReg(); });
+  }
+  const f=rows.filter(r=>_myRegFilter==="all"||r._cls===_myRegFilter);
+  if(!f.length){ body.innerHTML='<div class="muted" style="padding:6px 2px;">Keine Anmeldungen in dieser Auswahl.</div>'; return; }
+  const badge=(r)=>{ const m={done:["#1a7d4b","rgba(26,125,75,.12)","check"],no:["#b03a3a","rgba(176,58,58,.10)","x"],plan:["#5b7088","rgba(91,112,136,.12)","clock"]}[r._cls]; return '<span style="display:inline-flex;align-items:center;background:'+m[1]+';color:'+m[0]+';font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:7px;white-space:nowrap;">'+mrIcon(m[2])+r._label+'</span>'; };
+  const rowHtml=f.map(r=>'<div style="display:grid;grid-template-columns:1.4fr 1.1fr auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;"><div style="min-width:0;"><div style="font-weight:600;font-size:13.5px;color:var(--ink);">'+esc(r.attendee_name||"—")+'</div><div style="font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;">'+esc(r.attendee_email||"")+'</div></div><div style="font-size:12.5px;color:var(--muted);">'+esc(r.title||"")+'</div><div style="text-align:right;">'+badge(r)+'</div></div>');
+  body.innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'+clampRows("myreg",rowHtml,f.length)+'</div>';
+  wireClamp(body,renderMyReg);
+}
+function renderOverviewSummary(){
+  const el=$("ov-summary"); if(!el) return;
+  const rows=myRegRows();
+  const total=rows.length, done=rows.filter(r=>r._cls==="done").length, plan=rows.filter(r=>r._cls==="plan").length;
+  const rated=rows.filter(r=>r._cls!=="plan").length; const quote=rated?Math.round(done/rated*100):0;
+  const now=Date.now();
+  const nx=(totals||[]).filter(w=>w.starts_at&&new Date(w.starts_at).getTime()>=now-7200000).sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at))[0]||null;
+  const card=(l,v,col)=>'<div class="stat"><div class="label">'+l+'</div><div class="val" style="color:'+(col||"var(--navy)")+';font-variant-numeric:tabular-nums;">'+v+'</div></div>';
+  const nxUrl = nx ? APP_URL+"?w="+encodeURIComponent(nx.webinar_id)+(_affilSlug?"&b="+encodeURIComponent(_affilSlug):"") : "";
+  const nxCta = nx ? '<a href="'+esc(nxUrl)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;margin-top:11px;background:var(--navy);color:#fff;font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:9px;text-decoration:none;">Zur Anmeldeseite <span style="font-size:13px;">↗</span></a>' : '';
+  const nxHtml = nx ? '<div style="font-weight:600;font-size:13px;line-height:1.35;color:var(--ink);">'+esc(nx.title)+'</div><div style="font-size:12px;color:var(--muted);margin-top:5px;">'+fmtWhen(nx.starts_at)+(nx.total_registrations!=null?' · '+nx.total_registrations+' Anmeldungen':'')+'</div>'+nxCta : '<div class="muted" style="font-size:13px;">Aktuell kein kommendes Webinar.</div>';
+  const ql=(sec,label)=>'<button class="ov-ql" data-sec="'+sec+'" style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,66,131,.06);color:var(--navy);font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:9px;border:none;cursor:pointer;font-family:inherit;">'+label+'</button>';
+  el.classList.remove("hidden");
+  el.innerHTML='<div class="cards" style="margin-bottom:14px;">'+card("Deine Anmeldungen",total)+card("Teilgenommen",done,"#1a7d4b")+card("Quote",quote+"%")+card("Geplant",plan,"var(--cyan-d)")+'</div>'+
+    '<div class="layout"><div class="panel"><div class="ptitle">Nächstes Webinar</div>'+nxHtml+'</div><div class="panel"><div class="ptitle">Schnellzugriff</div><div style="display:flex;flex-wrap:wrap;gap:8px;">'+ql("webinare","Nächste Webinare")+ql("anmeldungen","Meine Anmeldungen")+ql("link","Mein Link")+ql("social","Vorlagen")+'</div></div></div>';
+  el.querySelectorAll(".ov-ql").forEach(b=>b.onclick=()=>showSection(b.dataset.sec));
+}
+async function loadAdvisors(){
+  try{ const { data } = await sb.rpc("webinar_admin_advisors_full"); _admAdv=data||[]; }catch(_){ _admAdv=[]; }
+  $("adm-count").textContent="· "+_admAdv.length+" Einträge";
+  renderAdvisors();
+}
+function renderAdvisors(){
+  const q=($("adm-search").value||"").toLowerCase().trim();
+  const rows=_admAdv.filter(a=>!q || ((a.name||"")+" "+(a.email||"")+" "+(a.slug||"")).toLowerCase().includes(q));
+  if(!rows.length){ $("adm-body").innerHTML='<div class="muted">Keine Treffer.</div>'; return; }
+  $("adm-body").innerHTML='<div style="overflow:auto;"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:640px;">'+
+    '<tr style="text-align:left;color:var(--muted);font-size:11px;"><th style="padding:6px 8px;">Name</th><th style="padding:6px 8px;">E-Mail</th><th style="padding:6px 8px;">Slug</th><th style="padding:6px 8px;">Anm.</th><th style="padding:6px 8px;">Aktiv</th><th style="padding:6px 8px;">Events</th><th style="padding:6px 8px;">Leads</th><th></th></tr>'+
+    (_expand["adm"]?rows:rows.slice(0,5)).map(a=>{
+      const dup=a.dup_count>1?' <span style="background:#fdecea;color:#b03a3a;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;">Dublette</span>':'';
+      const ina=a.active?'':'opacity:.5;';
+      return '<tr style="border-top:1px solid var(--line);'+ina+'"><td style="padding:6px 8px;font-weight:600;color:var(--navy);">'+esc(a.name)+dup+'</td>'+
+        '<td style="padding:6px 8px;color:var(--muted);">'+esc(a.email||"–")+'</td>'+
+        '<td style="padding:6px 8px;color:var(--muted);">'+esc(a.slug||"")+'</td>'+
+        '<td style="padding:6px 8px;">'+a.webinar_regs+'</td>'+
+        '<td style="padding:6px 8px;">'+(a.active?"✓":"–")+'</td>'+
+        '<td style="padding:6px 8px;">'+(a.can_events?"✓":"–")+'</td>'+
+        '<td style="padding:6px 8px;">'+(a.can_leads?"✓":"–")+'</td>'+
+        '<td style="padding:6px 8px;white-space:nowrap;"><button class="adm-edit" data-id="'+a.id+'" style="font:inherit;font-size:12px;color:var(--navy);background:none;border:1px solid var(--line);border-radius:6px;padding:4px 8px;cursor:pointer;">Bearbeiten</button> <button class="adm-merge" data-id="'+a.id+'" style="font:inherit;font-size:12px;color:#b03a3a;background:none;border:1px solid #f0c8c2;border-radius:6px;padding:4px 8px;cursor:pointer;">Merge</button></td></tr>';
+    }).join("")+'</table></div>'+clampToggle("adm",rows.length,_expand["adm"]);
+  document.querySelectorAll(".adm-edit").forEach(b=>b.onclick=()=>editAdvisor(b.dataset.id));
+  document.querySelectorAll(".adm-merge").forEach(b=>b.onclick=()=>mergeAdvisor(b.dataset.id));
+  wireClamp($("adm-body"),renderAdvisors);
+}
+function editAdvisor(id){
+  const a=id?(_admAdv.find(x=>x.id===id)||{}):{};
+  const v=(x)=>esc(x||"");
+  const ck=(b)=>b?"checked":"";
+  $("adm-editor").innerHTML='<div style="background:#f6f9fc;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px;">'+
+    '<div style="font-weight:700;color:var(--navy);margin-bottom:8px;">'+(id?"Berater bearbeiten":"Neuer Berater")+'</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+
+      '<label style="font-size:12px;color:var(--muted);">Vorname<input id="ed-first" value="'+v(a.first_name)+'" style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;"></label>'+
+      '<label style="font-size:12px;color:var(--muted);">Nachname<input id="ed-last" value="'+v(a.last_name)+'" style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;"></label>'+
+      '<label style="font-size:12px;color:var(--muted);">E-Mail<input id="ed-email" value="'+v(a.email)+'" style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;"></label>'+
+      '<label style="font-size:12px;color:var(--muted);">Slug<input id="ed-slug" value="'+v(a.slug)+'" style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;"></label>'+
+      '<label style="font-size:12px;color:var(--muted);">Telefon<input id="ed-phone" value="'+v(a.phone)+'" style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;"></label>'+
+    '</div>'+
+    '<div style="display:flex;gap:16px;margin-top:10px;font-size:13px;">'+
+      '<label><input type="checkbox" id="ed-active" '+ck(id?a.active:true)+'> Aktiv</label>'+
+      '<label><input type="checkbox" id="ed-events" '+ck(a.can_events)+'> Events</label>'+
+      '<label><input type="checkbox" id="ed-leads" '+ck(a.can_leads)+'> Leads</label>'+
+    '</div>'+
+    '<div style="margin-top:12px;"><button id="ed-save" data-id="'+(id||"")+'" style="background:var(--navy);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;">Speichern</button> <button id="ed-cancel" style="background:#fff;border:1px solid var(--line);padding:8px 14px;border-radius:8px;cursor:pointer;font:inherit;">Abbrechen</button> <span id="ed-status" class="muted" style="font-size:13px;margin-left:8px;"></span></div></div>';
+  $("ed-cancel").onclick=()=>{ $("adm-editor").innerHTML=""; };
+  $("ed-save").onclick=saveAdvisor;
+  $("adm-editor").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+async function saveAdvisor(){
+  const id=$("ed-save").dataset.id||null;
+  $("ed-status").textContent="Speichern…";
+  const { error } = await sb.rpc("webinar_admin_advisor_save",{ p_id:id||null, p_first:$("ed-first").value, p_last:$("ed-last").value, p_email:$("ed-email").value, p_slug:$("ed-slug").value, p_phone:$("ed-phone").value, p_active:$("ed-active").checked, p_can_events:$("ed-events").checked, p_can_leads:$("ed-leads").checked });
+  if(error){ $("ed-status").textContent="Fehler: "+error.message; return; }
+  $("adm-editor").innerHTML=""; await loadAdvisors();
+}
+function mergeAdvisor(fromId){
+  const from=_admAdv.find(x=>x.id===fromId); if(!from) return;
+  const others=_admAdv.filter(x=>x.id!==fromId).slice();
+  others.sort((a,b)=> ((normName(b.name)===normName(from.name))-(normName(a.name)===normName(from.name))) || (b.webinar_regs-a.webinar_regs));
+  const opts=others.map(a=>'<option value="'+a.id+'">'+esc(a.name)+(a.email?" · "+esc(a.email):"")+" ("+a.webinar_regs+" Anm.)</option>").join("");
+  $("adm-editor").innerHTML='<div style="background:#fff7f6;border:1px solid #f0c8c2;border-radius:10px;padding:14px;margin-bottom:12px;">'+
+    '<div style="font-weight:700;color:#b03a3a;margin-bottom:6px;">Dublette zusammenführen</div>'+
+    '<div style="font-size:13px;margin-bottom:8px;">Alle Daten von <b>'+esc(from.name)+'</b> ('+from.webinar_regs+' Anm.'+(from.email?", "+esc(from.email):"")+') werden auf den Zielberater übertragen (Webinare, Leads, Termine, Anträge, VLZ). Danach wird <b>'+esc(from.name)+'</b> deaktiviert.</div>'+
+    '<label style="font-size:12px;color:var(--muted);">Zielberater (behalten):</label><br><select id="mg-into" style="min-width:280px;padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;margin:4px 0;">'+opts+'</select>'+
+    '<div style="margin-top:10px;"><button id="mg-go" style="background:#b03a3a;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;">Zusammenführen</button> <button id="mg-cancel" style="background:#fff;border:1px solid var(--line);padding:8px 14px;border-radius:8px;cursor:pointer;font:inherit;">Abbrechen</button> <span id="mg-status" class="muted" style="font-size:13px;margin-left:8px;"></span></div></div>';
+  $("mg-cancel").onclick=()=>{ $("adm-editor").innerHTML=""; };
+  $("mg-go").onclick=async()=>{
+    const into=$("mg-into").value; if(!into) return;
+    if(!confirm("Wirklich zusammenführen? "+from.name+" wird deaktiviert und alle Daten auf den Zielberater übertragen.")) return;
+    $("mg-status").textContent="Führe zusammen…";
+    const { error } = await sb.rpc("webinar_admin_advisor_merge",{ p_from:fromId, p_into:into });
+    if(error){ $("mg-status").textContent="Fehler: "+error.message; return; }
+    $("adm-editor").innerHTML=""; await loadAdvisors(); await loadUnassigned();
+  };
+  $("adm-editor").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+async function loadUnassigned(){
+  if(!_admAdv.length){ try{ const {data}=await sb.rpc("webinar_admin_advisors_full"); _admAdv=data||[]; }catch(_){} }
+  try{ const { data } = await sb.rpc("webinar_admin_unassigned"); _unassigned=data||[]; }catch(_){ _unassigned=[]; }
+  $("ua-count").textContent="· "+_unassigned.length+" offen";
+  { const nb=$("nav-ua-count"); if(nb) nb.textContent=_unassigned.length||""; }
+  renderUnassigned();
+}
+function fmtDshort(iso){ try{ return new Date(iso).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric",timeZone:TZ}); }catch(_){ return ""; } }
+function renderUnassigned(){
+  const q=($("ua-search").value||"").toLowerCase().trim();
+  let rows=_unassigned.filter(r=>!q || ((r.attendee_name||"")+" "+(r.attendee_email||"")+" "+(r.webinar_title||"")).toLowerCase().includes(q));
+  if(!rows.length){ $("ua-body").innerHTML='<div class="muted" style="display:flex;align-items:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a7d4b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>Keine offenen Zuordnungen</div>'; return; }
+  const active=_admAdv.filter(a=>a.active);
+  const optsFor=(answer)=>{ const want=normName(answer);
+    return '<option value="">– Berater wählen –</option><option value="__none__">— Ohne Berater (kein) —</option>'+active.map(a=>'<option value="'+a.id+'"'+((want&&normName(a.name)===want)?" selected":"")+'>'+esc(a.name)+'</option>').join(""); };
+  rows=rows.slice(0,300);
+  $("ua-body").innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'+clampRows("ua",rows.map(r=>{
+    const hint=(r.advisor_answer&&r.advisor_answer.trim())?'<span style="background:#eef7fb;color:var(--navy);font-size:11px;font-weight:600;padding:2px 7px;border-radius:6px;">Hinweis: '+esc(r.advisor_answer)+'</span>':"";
+    return '<div class="ua-row" data-id="'+r.id+'" style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'+
+      '<div style="flex:1;min-width:200px;"><div style="font-weight:600;color:var(--navy);">'+esc(r.attendee_name||"(ohne Name)")+'</div><div style="font-size:12px;color:var(--muted);">'+esc(r.attendee_email||"")+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">'+esc(r.webinar_title||"")+' · '+fmtDshort(r.starts_at)+'</div></div>'+
+      '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+hint+
+      '<select class="ua-sel" style="padding:7px;border:1px solid var(--line);border-radius:6px;font:inherit;min-width:180px;">'+optsFor(r.advisor_answer)+'</select>'+
+      '<label style="font-size:11px;color:var(--muted);"><input type="checkbox" class="ua-all"> alle Termine dieser E-Mail</label>'+
+      '<button class="ua-go" style="background:var(--cyan-d);color:#fff;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:600;font:inherit;font-size:13px;">Zuordnen</button>'+
+      '<span class="ua-status muted" style="font-size:12px;"></span></div></div>';
+  }),rows.length)+'</div>';
+  document.querySelectorAll(".ua-go").forEach(b=>b.onclick=()=>assignRow(b));
+  wireClamp($("ua-body"),renderUnassigned);
+}
+async function assignRow(btn){
+  const row=btn.closest(".ua-row"); const id=row.dataset.id;
+  const advisorId=row.querySelector(".ua-sel").value;
+  const all=row.querySelector(".ua-all").checked;
+  const st=row.querySelector(".ua-status");
+  if(!advisorId){ st.textContent="Bitte Berater wählen."; return; }
+  const none = advisorId==="__none__";
+  st.textContent="…";
+  const { error } = await sb.rpc("webinar_admin_assign",{ p_registration_id:id, p_advisor_id: none?null:advisorId, p_all_for_email:all, p_no_advisor:none });
+  if(error){ st.textContent="Fehler: "+error.message; return; }
+  const email=((_unassigned.find(x=>x.id===id)||{}).attendee_email||"").toLowerCase();
+  _unassigned=_unassigned.filter(x=> (all&&email) ? (x.attendee_email||"").toLowerCase()!==email : x.id!==id );
+  $("ua-count").textContent="· "+_unassigned.length+" offen";
+  row.style.transition="opacity .25s"; row.style.opacity=".3";
+  setTimeout(renderUnassigned,260);
+}
+const MONTH_NAMES=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+async function loadMonthRanking(){
+  const sel=$("month-sel");
+  if(!sel.dataset.init){
+    let months=[];
+    try{ const { data } = await sb.rpc("webinar_admin_ranking_months"); months=data||[]; }catch(_){}
+    if(!months.length){ const d=new Date(); months=[{y:d.getFullYear(),m:d.getMonth()+1}]; }
+    sel.innerHTML=months.map(x=>'<option value="'+x.y+'-'+x.m+'">'+MONTH_NAMES[x.m-1]+' '+x.y+'</option>').join("");
+    sel.dataset.init="1";
+    sel.onchange=renderMonth;
+    document.querySelectorAll("#month-tabs .mtab").forEach(b=>b.onclick=()=>{ _monthTab=b.dataset.t; applyMonthTab(); });
+    if($("pres-start")) $("pres-start").onclick=startPresentation;
+    if($("pres-hide")) $("pres-hide").onclick=()=>{ _monthHide=!_monthHide; try{localStorage.setItem("mn_month_hide",_monthHide?"1":"0");}catch(_){} applyHideResults(); };
+    try{ _monthHide=localStorage.getItem("mn_month_hide")==="1"; }catch(_){}
+  }
+  renderMonth();
+}
+let _monthHide=false;
+function applyHideResults(){
+  const p=$("month-panel"); if(!p) return;
+  p.classList.toggle("hide-results",_monthHide);
+  const b=$("pres-hide"), lbl=$("pres-hide-lbl");
+  if(b) b.classList.toggle("on",_monthHide);
+  if(lbl) lbl.textContent=_monthHide?"Ergebnisse anzeigen":"Ergebnisse verbergen";
+}
+let _monthRows=[], _monthLabel="";
+let _presOrder=[], _presIdx=0, _presMetricLabel="", _presPlace=[];
+function startPresentation(){
+  const metric=_monthTab==="teil"?"teilgenommen":"anmeldungen";
+  const subkey=_monthTab==="teil"?"anmeldungen":"teilgenommen";
+  const subword=_monthTab==="teil"?"Anmeldungen":"teilgenommen";
+  _presMetricLabel=_monthTab==="teil"?"Meiste Teilnahmen":"Meiste Anmeldungen";
+  const sorted=(_monthRows||[]).slice().filter(r=>Number(r[metric])>0)
+    .sort((a,b)=>Number(b[metric])-Number(a[metric])||Number(b[subkey])-Number(a[subkey]));
+  // Top 10 PLÄTZE – bei Gleichstand am Rand alle Geteilten mitnehmen (z. B. drei auf Platz 10)
+  const pl=rankPlaces(sorted,metric);
+  const rows=sorted.filter((r,i)=>pl[i]<=10);
+  if(!rows.length){ alert("Für diesen Monat liegen keine Daten vor."); return; }
+  buildPresOverlay(rows,metric,subkey,subword);
+}
+function buildPresOverlay(rows,metric,subkey,subword){
+  let ov=$("pres-overlay");
+  if(!ov){ ov=document.createElement("div"); ov.id="pres-overlay"; ov.className="pres-overlay"; document.body.appendChild(ov); }
+  const n=rows.length;
+  _presPlace=rankPlaces(rows,metric);
+  const slot=(r,i)=>{ const pl=_presPlace[i]; return '<div class="pres-row" id="pres-row-'+i+'" data-idx="'+i+'" data-place="'+pl+'"><div class="pres-pos">'+pl+'</div><div class="pres-mid"><div class="pres-name">'+esc(r.advisor)+'</div><div class="pres-sub">'+(r[subkey]||0)+' '+subword+'</div></div><div class="pres-val">'+r[metric]+'</div></div>'; };
+  ov.innerHTML='<div class="pres-inner"><button class="pres-close" id="pres-close" title="Schließen (Esc)">✕</button>'
+    +'<div class="pres-head"><div class="pres-kicker">Monatsrangliste · '+esc(_monthLabel)+'</div><div class="pres-title">'+esc(_presMetricLabel)+'</div></div>'
+    +'<div class="pres-list" id="pres-list">'+rows.map(slot).join("")+'</div>'
+    +'<div class="pres-foot"><div class="pres-hint" id="pres-hint">Klick / Leertaste: nächsten Platz aufdecken · Esc: schließen</div><button class="pres-next" id="pres-next">Platz '+_presPlace[n-1]+' aufdecken ▾</button></div></div>';
+  ov.classList.add("show");
+  document.documentElement.style.overflow="hidden";
+  _presOrder=[]; for(let i=n-1;i>=0;i--) _presOrder.push(i); // von unten (niedrigster Platz) nach oben aufdecken
+  _presIdx=0;
+  $("pres-close").onclick=(e)=>{ e.stopPropagation(); closePresentation(); };
+  $("pres-next").onclick=(e)=>{ e.stopPropagation(); presReveal(); };
+  ov.onclick=(e)=>{ if(e.target.closest(".pres-close")||e.target.closest(".pres-next")) return; presReveal(); };
+  document.addEventListener("keydown",presKey);
+}
+function presKey(e){
+  if(e.key==="Escape"){ closePresentation(); }
+  else if(e.key===" "||e.key==="Enter"||e.key==="ArrowDown"||e.key==="ArrowRight"){ e.preventDefault(); presReveal(); }
+}
+function presReveal(){
+  if(_presIdx>=_presOrder.length){ closePresentation(); return; }
+  const idx=_presOrder[_presIdx]; const row=$("pres-row-"+idx);
+  if(row){ row.classList.add("reveal"); if(_presPlace[idx]===1) row.classList.add("winner"); try{ row.scrollIntoView({behavior:"smooth",block:"center"}); }catch(_){} }
+  _presIdx++;
+  const nb=$("pres-next"), hint=$("pres-hint");
+  if(_presIdx>=_presOrder.length){ if(nb) nb.textContent="Fertig – schließen ✓"; if(hint) hint.textContent="Alle Plätze aufgedeckt."; }
+  else if(nb){ nb.textContent="Platz "+_presPlace[_presOrder[_presIdx]]+" aufdecken ▾"; }
+}
+function closePresentation(){
+  const ov=$("pres-overlay"); if(ov) ov.classList.remove("show");
+  document.documentElement.style.overflow="";
+  document.removeEventListener("keydown",presKey);
+}
+let _monthTab="anm";
+function applyMonthTab(){
+  const a=$("month-anm"), t=$("month-teil"); if(!a||!t) return;
+  a.style.display=_monthTab==="anm"?"":"none";
+  t.style.display=_monthTab==="teil"?"":"none";
+  document.querySelectorAll("#month-tabs .mtab").forEach(b=>b.classList.toggle("on",b.dataset.t===_monthTab));
+}
+// Platz mit Gleichstand (Standard-Wettkampf-Ranking: 1,2,2,4 …)
+function rankPlaces(rows,key){ let pl=[],rk=0,prev=null; rows.forEach((r,i)=>{ const v=Number(r[key]); if(prev===null||v!==prev){ rk=i+1; prev=v; } pl[i]=rk; }); return pl; }
+const MONTH_SHORT=["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+async function renderMonthlyTrend(){
+  const el=$("monthtrend-body"); if(!el) return;
+  el.innerHTML='<span class="muted">Lädt…</span>';
+  let rows=[];
+  try{ const { data } = await sb.rpc("webinar_admin_monthly_totals"); rows=data||[]; }
+  catch(e){ el.innerHTML='<div class="muted">Konnte nicht geladen werden.</div>'; return; }
+  if(!rows.length){ el.innerHTML='<div class="muted">Noch keine Daten.</div>'; return; }
+  _trendRows=rows;
+  const lbl=ym=>{ const p=String(ym).split('-'); return MONTH_SHORT[(+p[1])-1]+' '+p[0].slice(2); };
+  const sumA=rows.reduce((s,r)=>s+Number(r.anmeldungen),0);
+  const sumT=rows.reduce((s,r)=>s+Number(r.teilgenommen),0);
+  const best=rows.reduce((b,r)=>Number(r.anmeldungen)>Number(b.anmeldungen)?r:b,rows[0]);
+  const last=rows[rows.length-1], prev=rows.length>1?rows[rows.length-2]:null;
+  let deltaTxt='—', deltaUp=true;
+  if(prev){ const d=Number(last.anmeldungen)-Number(prev.anmeldungen); const pct=Number(prev.anmeldungen)>0?Math.round(d/Number(prev.anmeldungen)*100):null; deltaUp=d>=0; deltaTxt=(d>=0?'+':'')+d+(pct!=null?' ('+(d>=0?'+':'')+pct+'%)':''); }
+  const stat=(l,v,col)=>'<div class="stat"><div class="label">'+l+'</div><div class="val" style="color:'+(col||'var(--navy)')+';font-variant-numeric:tabular-nums;">'+v+'</div></div>';
+  const cards='<div class="cards" style="margin-bottom:18px;">'+stat('Anmeldungen gesamt',sumA)+stat('Teilnahmen gesamt',sumT,'#1a7d4b')+stat('Bester Monat',lbl(best.ym)+' · '+best.anmeldungen,'var(--cyan-d)')+stat(lbl(last.ym)+' vs. Vormonat',deltaTxt,deltaUp?'#1a7d4b':'#b03a3a')+'</div>';
+  const n=rows.length, slotW=64, padL=52, padR=20, top=28, H=320, baseline=H-46, plotH=baseline-top;
+  const W=padL+n*slotW+padR;
+  const max=Math.max(1,...rows.map(r=>Number(r.anmeldungen)));
+  const step=max>200?50:(max>80?25:(max>20?10:5));
+  const niceMax=Math.max(step,Math.ceil(max/step)*step);
+  const y=v=>baseline-(v/niceMax)*plotH;
+  let svg='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="display:block;font-family:Inter,sans-serif;" preserveAspectRatio="xMinYMid meet">';
+  for(let g=0;g<=4;g++){ const val=Math.round(niceMax*g/4); const yy=y(val); svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#e4eaf1" stroke-width="1"/><text x="'+(padL-8)+'" y="'+(yy+4)+'" text-anchor="end" font-size="11" fill="#5b7088">'+val+'</text>'; }
+  rows.forEach((r,i)=>{ const cx=padL+i*slotW+slotW/2; const aV=Number(r.anmeldungen), tV=Number(r.teilgenommen);
+    const aw=22, tw=22, ax=cx-23, tx=cx+1, ay=y(aV), ty=y(tV), isLast=i===n-1;
+    svg+='<rect x="'+ax+'" y="'+ay+'" width="'+aw+'" height="'+(baseline-ay)+'" rx="3" fill="'+(isLast?'#004283':'#1565a8')+'"/>';
+    svg+='<rect x="'+tx+'" y="'+ty+'" width="'+tw+'" height="'+(baseline-ty)+'" rx="3" fill="#06BADD"/>';
+    svg+='<text x="'+(ax+aw/2)+'" y="'+(ay-6)+'" text-anchor="middle" font-size="11" font-weight="700" fill="#0b2138">'+aV+'</text>';
+    svg+='<text x="'+cx+'" y="'+(baseline+18)+'" text-anchor="middle" font-size="11" fill="'+(isLast?'#004283':'#5b7088')+'" font-weight="'+(isLast?'700':'400')+'">'+lbl(r.ym)+'</text>';
+  });
+  svg+='<line x1="'+padL+'" y1="'+baseline+'" x2="'+(W-padR)+'" y2="'+baseline+'" stroke="#c7d2de" stroke-width="1"/></svg>';
+  const legend='<div style="display:flex;gap:18px;margin-top:8px;font-size:12.5px;color:var(--muted);"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:#1565a8;display:inline-block;"></span>Anmeldungen</span><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:#06BADD;display:inline-block;"></span>Teilnahmen</span></div>';
+  const presBtn='<div style="display:flex;justify-content:flex-end;margin-bottom:14px;"><button id="trend-pres" style="display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--navy),var(--cyan-d));color:#fff;border:none;font:inherit;font-size:13px;font-weight:700;padding:9px 16px;border-radius:10px;cursor:pointer;box-shadow:0 2px 8px rgba(0,66,131,.18);"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Präsentationsmodus</button></div>';
+  el.innerHTML=presBtn+cards+'<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">'+svg+'</div>'+legend;
+  const tp=$("trend-pres"); if(tp) tp.onclick=buildTrendPresentation;
+}
+// ===== Präsentationsmodus für die Monatsauswertung (Diagramm Monat für Monat) =====
+let _trendRows=[], _trendOrder=[], _trendIdx=0;
+function buildTrendPresentation(){
+  const rows=_trendRows||[]; if(!rows.length){ alert("Keine Daten für die Auswertung."); return; }
+  const lbl=ym=>{ const p=String(ym).split('-'); return MONTH_SHORT[(+p[1])-1]+' '+p[0].slice(2); };
+  let ov=$("trend-overlay"); if(!ov){ ov=document.createElement("div"); ov.id="trend-overlay"; ov.className="pres-overlay"; document.body.appendChild(ov); }
+  const n=rows.length;
+  const padL=64, padR=34, top=38, H=560, baseline=H-78, plotH=baseline-top;
+  const slotW=Math.max(64,Math.min(150,Math.floor((1180-padL-padR)/n)));
+  const W=padL+n*slotW+padR;
+  const max=Math.max(1,...rows.map(r=>Number(r.anmeldungen)));
+  const step=max>200?50:(max>80?25:(max>20?10:5));
+  const niceMax=Math.max(step,Math.ceil(max/step)*step);
+  const y=v=>baseline-(v/niceMax)*plotH;
+  let svg='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="display:block;max-height:66vh;font-family:Inter,sans-serif;" preserveAspectRatio="xMidYMid meet">';
+  for(let g=0;g<=4;g++){ const val=Math.round(niceMax*g/4); const yy=y(val); svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="rgba(255,255,255,.16)" stroke-width="1"/><text x="'+(padL-10)+'" y="'+(yy+5)+'" text-anchor="end" font-size="15" fill="rgba(255,255,255,.72)">'+val+'</text>'; }
+  svg+='<line x1="'+padL+'" y1="'+baseline+'" x2="'+(W-padR)+'" y2="'+baseline+'" stroke="rgba(255,255,255,.42)" stroke-width="1.5"/>';
+  rows.forEach((r,i)=>{ const cx=padL+i*slotW+slotW/2; const aV=Number(r.anmeldungen),tV=Number(r.teilgenommen);
+    const bw=Math.min(34,slotW*0.34), ax=cx-bw-3, tx=cx+3, ay=y(aV), ty=y(tV), isLast=i===n-1;
+    svg+='<g class="tg-grp" id="tg-grp-'+i+'">';
+    svg+='<rect class="tg-bar" x="'+ax+'" y="'+ay+'" width="'+bw+'" height="'+(baseline-ay)+'" rx="4" fill="'+(isLast?'#F5D77E':'#4aa7ec')+'"/>';
+    svg+='<rect class="tg-bar" x="'+tx+'" y="'+ty+'" width="'+bw+'" height="'+(baseline-ty)+'" rx="4" fill="#0ad0ef"/>';
+    svg+='<text class="tg-val" x="'+(ax+bw/2)+'" y="'+(ay-9)+'" text-anchor="middle" font-size="17" font-weight="800" fill="#fff">'+aV+'</text>';
+    svg+='<text class="tg-lbl" x="'+cx+'" y="'+(baseline+24)+'" text-anchor="middle" font-size="14" fill="'+(isLast?'#F5D77E':'rgba(255,255,255,.82)')+'" font-weight="'+(isLast?'800':'500')+'">'+lbl(r.ym)+'</text>';
+    svg+='</g>';
+  });
+  svg+='</svg>';
+  ov.innerHTML='<div class="pres-inner wide"><button class="pres-close" id="trend-close" title="Schließen (Esc)">✕</button>'
+    +'<div class="pres-head"><div class="pres-kicker">Monatsauswertung · '+esc(lbl(rows[0].ym))+' – '+esc(lbl(rows[n-1].ym))+'</div><div class="pres-title">Anmeldungen je Monat</div></div>'
+    +svg
+    +'<div class="pres-foot"><div class="pres-hint" id="trend-hint">Klick / Leertaste: nächsten Monat einblenden · Esc: schließen</div><div style="display:flex;gap:18px;align-items:center;"><span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.8);"><span style="width:13px;height:13px;border-radius:3px;background:#4aa7ec;display:inline-block;"></span>Anmeldungen</span><span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.8);"><span style="width:13px;height:13px;border-radius:3px;background:#0ad0ef;display:inline-block;"></span>Teilnahmen</span><button class="pres-next" id="trend-next">'+lbl(rows[0].ym)+' einblenden ▸</button></div></div></div>';
+  ov.classList.add("show");
+  document.documentElement.style.overflow="hidden";
+  _trendOrder=[]; for(let i=0;i<n;i++) _trendOrder.push(i);
+  _trendIdx=0;
+  $("trend-close").onclick=(e)=>{ e.stopPropagation(); closeTrend(); };
+  $("trend-next").onclick=(e)=>{ e.stopPropagation(); trendReveal(); };
+  ov.onclick=(e)=>{ if(e.target.closest(".pres-close")||e.target.closest(".pres-next")) return; trendReveal(); };
+  document.addEventListener("keydown",trendKey);
+}
+function trendKey(e){ if(e.key==="Escape"){ closeTrend(); } else if(e.key===" "||e.key==="Enter"||e.key==="ArrowRight"||e.key==="ArrowDown"){ e.preventDefault(); trendReveal(); } }
+function trendReveal(){
+  if(_trendIdx>=_trendOrder.length){ closeTrend(); return; }
+  const i=_trendOrder[_trendIdx]; const g=$("tg-grp-"+i); if(g) g.classList.add("on");
+  _trendIdx++;
+  const nb=$("trend-next"), hint=$("trend-hint"), rows=_trendRows||[];
+  const lbl=ym=>{ const p=String(ym).split('-'); return MONTH_SHORT[(+p[1])-1]+' '+p[0].slice(2); };
+  if(_trendIdx>=_trendOrder.length){ if(nb) nb.textContent="Fertig – schließen ✓"; if(hint) hint.textContent="Alle Monate eingeblendet."; }
+  else if(nb){ nb.textContent=lbl(rows[_trendOrder[_trendIdx]].ym)+" einblenden ▸"; }
+}
+function closeTrend(){ const ov=$("trend-overlay"); if(ov) ov.classList.remove("show"); document.documentElement.style.overflow=""; document.removeEventListener("keydown",trendKey); }
+function monthTable(rows,key,subkey,subword){
+  if(!rows.length) return '<div class="muted">Keine Daten für diesen Monat.</div>';
+  const max=Math.max(1,...rows.map(r=>Number(r[key])));
+  const c=["#E3B341","#9AA7B2","#CD7F47"];
+  const medal=pl=>pl<=3?'<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:'+c[pl-1]+';color:#fff;font-weight:700;font-size:11px;">'+pl+'</span>':pl+".";
+  const places=rankPlaces(rows,key);
+  const lim=places.filter(p=>p<=10).length||10;
+  return clampRows("m_"+key,rows.map((r,i)=>{
+    const pl=places[i];
+    const pct=Math.max(4,Math.round(Number(r[key])/max*100));
+    return '<div class="lb-row'+(pl<=3?' top':'')+'"><div class="lb-pos">'+medal(pl)+'</div><div class="lb-main"><div class="lb-name">'+esc(r.advisor)+'<span class="lb-n">'+r[key]+'</span></div><div class="lb-bar"><div class="lb-fill" style="width:'+pct+'%;"></div></div><div class="lb-sub">'+(r[subkey]||0)+' '+subword+'</div></div></div>';
+  }),rows.length,lim);
+}
+async function renderMonth(){
+  const v=($("month-sel").value||"").split("-"); if(v.length<2) return;
+  const y=+v[0], m=+v[1];
+  $("month-anm").innerHTML='<span class="muted">Lädt…</span>'; $("month-teil").innerHTML='<span class="muted">Lädt…</span>';
+  const { data } = await sb.rpc("webinar_admin_month_ranking",{p_year:y,p_month:m});
+  const rows=data||[];
+  _monthRows=rows; _monthLabel=(MONTH_NAMES[m-1]||"")+" "+y;
+  $("month-anm").innerHTML=monthTable(rows.slice().sort((a,b)=>Number(b.anmeldungen)-Number(a.anmeldungen)||Number(b.teilgenommen)-Number(a.teilgenommen)),"anmeldungen","teilgenommen","teilgenommen");
+  $("month-teil").innerHTML=monthTable(rows.slice().sort((a,b)=>Number(b.teilgenommen)-Number(a.teilgenommen)||Number(b.anmeldungen)-Number(a.anmeldungen)),"teilgenommen","anmeldungen","Anmeldungen");
+  wireClamp($("month-anm"),renderMonth); wireClamp($("month-teil"),renderMonth);
+  applyMonthTab(); applyHideResults();
 }
 async function loadRanking(){
   const { data } = await sb.rpc("webinar_admin_ranking_f", { p_period:_rankPeriod });
@@ -683,11 +1306,13 @@ async function loadRanking(){
 function renderRankBoard(rows){
   rows = rows || [];
   const max = Math.max(1, ...rows.map(r=>Number(r.anmeldungen)));
-  const medal=i=> i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1)+".";
-  $("rank-board").innerHTML = rows.length ? rows.map((r,i)=>{
+  const medal=i=>{const c=["#E3B341","#9AA7B2","#CD7F47"];return i<3?'<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:'+c[i]+';color:#fff;font-weight:700;font-size:11px;">'+(i+1)+'</span>':(i+1)+".";};
+  _rankRows=rows;
+  $("rank-board").innerHTML = rows.length ? clampRows("rank",rows.map((r,i)=>{
     const pct=Math.max(4, Math.round(Number(r.anmeldungen)/max*100));
     return '<div class="lb-row'+(i<3?' top':'')+'"><div class="lb-pos">'+medal(i)+'</div><div class="lb-main"><div class="lb-name">'+esc(r.advisor)+'<span class="lb-n">'+r.anmeldungen+'</span></div><div class="lb-bar"><div class="lb-fill" style="width:'+pct+'%;"></div></div><div class="lb-sub">'+(r.teilgenommen||0)+' teilgenommen</div></div></div>';
-  }).join("") : '<div class="muted">Keine Anmeldungen im gewählten Zeitraum.</div>';
+  }),rows.length) : '<div class="muted">Keine Anmeldungen im gewählten Zeitraum.</div>';
+  wireClamp($("rank-board"),()=>renderRankBoard(_rankRows));
 }
 
 async function loadDelta(){
@@ -863,7 +1488,7 @@ function renderList(){
   renderAggregate(up);
 }
 
-function selectWebinar(wid){ selectedWid = wid; markSelection(); renderWebinar(wid); }
+function selectWebinar(wid){ selectedWid = wid; try{ localStorage.setItem("mn_wid",wid); }catch(_){} markSelection(); renderWebinar(wid); }
 
 function drawChart(labels,data,colors){
   if (chart) chart.destroy();
@@ -1140,33 +1765,67 @@ function openRowModal(r){
 function closeRowModal(){ $("row-modal").classList.remove("open"); }
 
 const SOCIAL_BASE = SUPABASE_URL + "/storage/v1/object/public/social/social-vorlagen/";
+const SOCIAL_PUBLIC = SUPABASE_URL + "/storage/v1/object/public/social/";
+// Themen, die KEIN Standard-3er-Schema nutzen, sondern alle vorhandenen Story-Grafiken zeigen:
+const STORY_ONLY = new Set(["rentenreform"]);
+// Pro Story-Thema: welche Dateien sind Webinar-Promos (kommen zuerst), Rest = allgemeine Stories.
+const STORY_META = { rentenreform: { promo: ["01","03"] } };
+function storyBase(full){ return (full.split("/").pop()||"").replace(/\.png$/i,""); }
+async function renderStorySet(body, topic, date, onResult){
+  const token = (Date.now()+"-"+Math.random()); body.dataset.rsToken = token;
+  let files=[];
+  try{ const { data } = await sb.rpc("webinar_social_files",{p_topic:topic,p_date:date}); files=(data||[]).map(r=>r.name); }catch(_){}
+  if(body.dataset.rsToken!==token) return; // neuerer Aufruf hat übernommen
+  files=files.filter(n=>/\.png$/i.test(n) && !/\(\d+\)\.png$/i.test(n));
+  if(!files.length){ body.innerHTML=""; if(onResult) onResult(false); return; }
+  const promoList=(STORY_META[topic]&&STORY_META[topic].promo)||[];
+  const promos=files.filter(f=>promoList.includes(storyBase(f))).sort((a,b)=>promoList.indexOf(storyBase(a))-promoList.indexOf(storyBase(b)));
+  const general=files.filter(f=>!promoList.includes(storyBase(f))).sort();
+  let pi=0, gi=0;
+  const html=promos.concat(general).map((full)=>{
+    const isPromo=promoList.includes(storyBase(full));
+    const n=isPromo?(++pi):(++gi);
+    const label=isPromo?("Webinar-Promo "+n):("Allgemeine Story "+n);
+    const url=SOCIAL_PUBLIC+full;
+    const fname="mitnorm_"+topic+"_"+date+"_"+(isPromo?"promo":"story")+"_"+n+".png";
+    const lblStyle=isPromo?' style="color:var(--navy);font-weight:700;"':'';
+    return '<div class="social-card"><a href="'+esc(url)+'" target="_blank" rel="noopener"><img src="'+esc(url)+'" alt=""></a><div class="sc-l"'+lblStyle+'>'+label+' (9:16)</div><button class="affil-btn ghosty sc-dl" data-url="'+esc(url)+'" data-fn="'+esc(fname)+'">Herunterladen</button></div>';
+  }).join("");
+  body.innerHTML=html;
+  body.querySelectorAll(".sc-dl").forEach(b=>b.onclick=()=>dlImage(b.dataset.url,b.dataset.fn));
+  if(onResult) onResult(true);
+}
 function socialTopic(title){ const t=(title||"").toLowerCase();
   if(/baufinanz/.test(t)) return "baufi";
   if(/geldanlage/.test(t)) return "geldanlage";
   if(/immobilie/.test(t)) return "immobilie";
   if(/ruhestand/.test(t)) return "ruhestand";
   if(/steuer/.test(t)) return "steuern";
-  if(/rente|rentenreform|rentenkommission/.test(t)) return "rentenreform";
+  if(/riester|altersvorsorgedepot/.test(t)) return "riester";
+  if(/rentenkommission|rente 2026|gesetzliche rente|rentenreform/.test(t)) return "rentenreform";
   return null; }
 function socialDate(d){ const p=n=>String(n).padStart(2,"0"); return d.getUTCFullYear()+"-"+p(d.getUTCMonth()+1)+"-"+p(d.getUTCDate()); }
 async function dlImage(url,name){ try{ const r=await fetch(url); if(!r.ok) throw 0; const b=await r.blob(); const u=URL.createObjectURL(b); const a=document.createElement("a"); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); }catch(_){ window.open(url,"_blank"); } }
-const SOC_TOPIC_LABEL={baufi:"Baufinanzierung",geldanlage:"Geldanlage",immobilie:"Immobilie",ruhestand:"Ruhestand",steuern:"Steuern",riester:"Riester",rente:"Rente & Rentenreform",rentenreform:"Rente & Rentenreform"};
-const SOC_FMT_LABEL={beitrag:"Beitrag (4:5)",story:"Story (9:16)",linkedin:"LinkedIn"};
-function socialLabelFor(fn,i){ const b=(fn||"").replace(/\.png$/i,"").toLowerCase(); if(SOC_FMT_LABEL[b]) return SOC_FMT_LABEL[b]; if(/story/.test(b)) return "Story (9:16)"; if(/beitrag|post|feed/.test(b)) return "Beitrag (4:5)"; if(/linkedin/.test(b)) return "LinkedIn"; return "Vorlage "+(i+1); }
+const SOC_TOPIC_LABEL={baufi:"Baufinanzierung",geldanlage:"Geldanlage",immobilie:"Immobilie",ruhestand:"Ruhestand",steuern:"Steuern",riester:"Riester",rentenreform:"Rente & Rentenreform"};
 function fmtSetDate(d){ const p=(d||"").split("-"); return p.length===3? p[2]+"."+p[1]+"."+p[0] : d; }
-async function renderSovCards(topic,date){
+function renderSovCards(topic,date){
   const body=$("sov-body"); body.innerHTML="";
-  let files=[];
-  try{ const { data }=await sb.rpc("webinar_social_files",{p_topic:topic,p_date:date}); files=(data||[]).map(r=>r.filename); }catch(_){}
-  if(!files.length) files=["beitrag.png","story.png","linkedin.png"];
-  files.forEach((fn,i)=>{
-    const url=SOCIAL_BASE+topic+"/"+date+"/"+fn; const fname="mitnorm_"+topic+"_"+date+"_"+fn;
-    const card=document.createElement("div"); card.className="social-card";
-    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img loading="lazy" alt=""></a><div class="sc-l">'+esc(socialLabelFor(fn,i))+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
-    card.querySelector("img").src=url;
+  if(STORY_ONLY.has(topic)){ renderStorySet(body,topic,date); return; }
+  const note=document.createElement("div"); note.className="muted"; note.style.cssText="font-size:13px;display:none;"; note.textContent="Für dieses Thema sind die Vorlagen noch nicht im Standard-Format (Beitrag/Story/LinkedIn) hinterlegt.";
+  let pending=3, anyOk=false;
+  const done=()=>{ if(--pending<=0 && !anyOk) note.style.display=""; };
+  [{k:"beitrag",l:"Beitrag (4:5)"},{k:"story",l:"Story (9:16)"},{k:"linkedin",l:"LinkedIn"}].forEach(v=>{
+    const url=SOCIAL_BASE+topic+"/"+date+"/"+v.k+".png"; const fname="mitnorm_"+topic+"_"+date+"_"+v.k+".png";
+    const card=document.createElement("div"); card.className="social-card"; card.style.display="none";
+    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img alt=""></a><div class="sc-l">'+v.l+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
+    const img=card.querySelector("img");
+    img.onload=()=>{ card.style.display=""; anyOk=true; done(); };
+    img.onerror=()=>{ card.remove(); done(); };
+    img.src=url;
     card.querySelector(".sc-dl").onclick=()=>dlImage(url,fname);
     body.appendChild(card);
   });
+  body.appendChild(note);
 }
 async function loadSocialOverview(){
   try{
@@ -1181,26 +1840,125 @@ async function loadSocialOverview(){
     sel.value=up.topic+"|"+up.set_date; renderSovCards(up.topic,up.set_date);
   }catch(_){ $("sov-panel").classList.add("hidden"); }
 }
-async function fillSocial(w){
+// ===== Admin: Social-Vorlagen hochladen =====
+const ADM_TOPICS=[["immobilie","Immobilie"],["baufi","Baufinanzierung"],["ruhestand","Ruhestand"],["riester","Riester"],["geldanlage","Geldanlage"],["steuern","Steuern"],["rentenreform","Rente & Rentenreform"]];
+const ADM_SLOTS=[["beitrag","Beitrag (4:5)"],["story","Story (9:16)"],["linkedin","LinkedIn (quer)"]];
+let _sovAdmInit=false;
+function fileToB64(f){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>{ const s=String(r.result||""); res(s.slice(s.indexOf(",")+1)); }; r.onerror=rej; r.readAsDataURL(f); }); }
+function sovAdmSel(){ return { topic:($("sov-adm-topic")||{}).value||"", date:($("sov-adm-date")||{}).value||"" }; }
+function sovMsg(t,ok){ const m=$("sov-adm-msg"); if(m){ m.textContent=t; m.style.color=ok?"#1a7d4b":"#b03a3a"; } }
+function loadSovAdmin(){
+  const panel=$("sov-admin-panel"); if(!panel) return;
+  const tsel=$("sov-adm-topic"); if(tsel && !tsel.options.length) tsel.innerHTML=ADM_TOPICS.map(t=>'<option value="'+t[0]+'">'+esc(t[1])+'</option>').join("");
+  const wsel=$("sov-adm-wsel");
+  const now=Date.now();
+  const ws=(totals||[]).filter(w=>w.starts_at).slice().sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+  if(wsel){ wsel.innerHTML='<option value="">– manuell wählen –</option>'+ws.map(w=>{ const tp=socialTopic(w.title)||""; const d=socialDate(new Date(w.starts_at)); return '<option value="'+tp+'|'+d+'">'+esc(fmtSetDate(d)+' · '+(w.title||''))+'</option>'; }).join("");
+    wsel.onchange=()=>{ const v=wsel.value.split("|"); if(v[0]) tsel.value=v[0]; if(v[1]) $("sov-adm-date").value=v[1]; renderSovAdmin(); };
+  }
+  if(!_sovAdmInit){
+    const up=ws.find(w=>new Date(w.starts_at).getTime()>=now)||ws[ws.length-1];
+    if(up){ const tp=socialTopic(up.title); const d=socialDate(new Date(up.starts_at)); if(tp&&tsel) tsel.value=tp; if($("sov-adm-date")) $("sov-adm-date").value=d; if(wsel) wsel.value=(tp||"")+"|"+d; }
+    if(tsel) tsel.onchange=renderSovAdmin;
+    if($("sov-adm-date")) $("sov-adm-date").onchange=renderSovAdmin;
+    _sovAdmInit=true;
+  }
+  renderSovAdmin();
+}
+function renderSovAdmin(){
+  const {topic,date}=sovAdmSel();
+  const slotsEl=$("sov-adm-slots"); if(slotsEl){
+    slotsEl.innerHTML=ADM_SLOTS.map(s=>'<div style="border:1px solid var(--line);border-radius:10px;padding:12px;"><div style="font-weight:700;font-size:13px;color:var(--navy);margin-bottom:8px;">'+s[1]+'</div><input type="file" accept="image/png,image/jpeg" data-slot="'+s[0]+'" class="sov-adm-file" style="font:inherit;font-size:12px;width:100%;"></div>').join("");
+    slotsEl.querySelectorAll(".sov-adm-file").forEach(inp=>inp.onchange=()=>sovUpload(inp));
+  }
+  renderSovCurrent(topic,date);
+}
+async function renderSovCurrent(topic,date){
+  const el=$("sov-adm-current"); if(!el) return;
+  if(!topic||!date){ el.innerHTML='<span class="muted">Thema & Datum wählen.</span>'; return; }
+  let files=[];
+  try{ const {data}=await sb.rpc("webinar_social_files",{p_topic:topic,p_date:date}); files=(data||[]).map(r=>r.name); }catch(_){}
+  files=files.filter(n=>/\.(png|jpe?g)$/i.test(n));
+  if(!files.length){ el.innerHTML='<span class="muted">Noch keine Vorlagen für '+esc(fmtSetDate(date))+' hinterlegt.</span>'; return; }
+  el.innerHTML=files.map(full=>{ const slot=(full.split("/").pop()||"").replace(/\.(png|jpe?g)$/i,""); const url=SOCIAL_PUBLIC+full+"?v="+Date.now(); return '<div class="social-card"><a href="'+esc(url)+'" target="_blank" rel="noopener"><img src="'+esc(url)+'" alt=""></a><div class="sc-l">'+esc(slot)+'</div><button class="affil-btn ghosty sov-del" data-slot="'+esc(slot)+'">Löschen</button></div>'; }).join("");
+  el.querySelectorAll(".sov-del").forEach(b=>b.onclick=()=>sovDelete(b.dataset.slot));
+}
+async function sovUpload(inp){
+  const f=inp.files&&inp.files[0]; if(!f) return;
+  const {topic,date}=sovAdmSel(); const slot=inp.dataset.slot;
+  if(!topic||!date){ sovMsg("Bitte Thema und Datum wählen.",false); inp.value=""; return; }
+  if(f.size>15*1024*1024){ sovMsg("Datei zu groß (max 15 MB).",false); inp.value=""; return; }
+  sovMsg("Lade "+slot+" hoch …",true);
+  try{
+    const b64=await fileToB64(f);
+    const { data, error } = await sb.functions.invoke("webinar-social-upload",{ body:{ topic, date, slot, content_base64:b64, content_type:f.type||"image/png" } });
+    if(error||!data||!data.ok){ sovMsg("Fehler: "+((data&&data.error)||(error&&error.message)||"unbekannt"),false); return; }
+    sovMsg(slot+" hochgeladen ✓",true); inp.value="";
+    renderSovCurrent(topic,date); loadSocialOverview();
+  }catch(e){ sovMsg("Fehler: "+String(e),false); }
+}
+async function sovDelete(slot){
+  const {topic,date}=sovAdmSel(); if(!topic||!date) return;
+  if(!confirm("Vorlage „"+slot+"“ wirklich löschen?")) return;
+  sovMsg("Lösche …",true);
+  try{
+    const { data, error } = await sb.functions.invoke("webinar-social-upload",{ body:{ action:"remove", topic, date, slot } });
+    if(error||!data||!data.ok){ sovMsg("Fehler: "+((data&&data.error)||(error&&error.message)||"unbekannt"),false); return; }
+    sovMsg("Gelöscht ✓",true); renderSovCurrent(topic,date); loadSocialOverview();
+  }catch(e){ sovMsg("Fehler: "+String(e),false); }
+}
+let _socBust=0;
+function fillSocial(w){
   const panel=$("social-panel"), body=$("social-body"), empty=$("social-empty");
-  if(!w || !w.starts_at){ panel.classList.add("hidden"); return; }
+  if(!w || !w.starts_at){ panel.classList.add("hidden"); renderWebinarSocialAdmin(null); return; }
   const topic=socialTopic(w.title);
-  if(!topic){ panel.classList.add("hidden"); return; }
+  if(!topic){ panel.classList.add("hidden"); renderWebinarSocialAdmin(null); return; }
   const date=socialDate(new Date(w.starts_at));
   panel.classList.remove("hidden"); empty.style.display="none"; body.innerHTML="";
-  let files=[];
-  try{ const { data }=await sb.rpc("webinar_social_files",{p_topic:topic,p_date:date}); files=(data||[]).map(r=>r.filename); }catch(_){}
-  if(!files.length){ empty.style.display=""; return; }
-  files.forEach((fn,i)=>{
-    const url=SOCIAL_BASE+topic+"/"+date+"/"+fn;
-    const fname="mitnorm_"+topic+"_"+date+"_"+fn;
-    const card=document.createElement("div"); card.className="social-card";
-    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img loading="lazy" alt=""></a>'
-      +'<div class="sc-l">'+esc(socialLabelFor(fn,i))+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
-    card.querySelector("img").src=url;
+  if(STORY_ONLY.has(topic)){ renderStorySet(body,topic,date,(ok)=>{ if(!ok) empty.style.display=""; }); renderWebinarSocialAdmin(w,topic,date); return; }
+  renderWebinarSocialAdmin(w,topic,date);
+  const variants=[{k:"beitrag",l:"Beitrag (4:5)"},{k:"story",l:"Story (9:16)"},{k:"linkedin",l:"LinkedIn"}];
+  let pending=variants.length, anyOk=false;
+  const done=()=>{ if(--pending<=0 && !anyOk) empty.style.display=""; };
+  variants.forEach(v=>{
+    const url=SOCIAL_BASE+topic+"/"+date+"/"+v.k+".png"+(_socBust?("?v="+_socBust):"");
+    const fname="mitnorm_"+topic+"_"+date+"_"+v.k+".png";
+    const card=document.createElement("div"); card.className="social-card"; card.style.display="none";
+    card.innerHTML='<a href="'+url+'" target="_blank" rel="noopener"><img alt=""></a>'
+      +'<div class="sc-l">'+v.l+'</div><button class="affil-btn ghosty sc-dl">Herunterladen</button>';
+    const img=card.querySelector("img");
+    img.onload=()=>{ card.style.display=""; anyOk=true; done(); };
+    img.onerror=()=>{ card.remove(); done(); };
+    img.src=url;
     card.querySelector(".sc-dl").onclick=()=>dlImage(url,fname);
     body.appendChild(card);
   });
+}
+function renderWebinarSocialAdmin(w, topic, date){
+  const el=$("social-admin"); if(!el) return;
+  if(!isAdmin || !w || !topic || STORY_ONLY.has(topic)){ el.style.display="none"; el.innerHTML=""; return; }
+  el.style.display="";
+  const slots=[["beitrag","Beitrag (4:5)"],["story","Story (9:16)"],["linkedin","LinkedIn (quer)"]];
+  el.innerHTML='<div style="border-top:1px solid var(--line);margin-top:14px;padding-top:14px;">'
+    +'<div style="font-size:12px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Admin: Vorlagen für dieses Webinar hochladen ('+esc(SOC_TOPIC_LABEL[topic]||topic)+' · '+esc(fmtSetDate(date))+')</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;">'
+    + slots.map(s=>'<div style="border:1px solid var(--line);border-radius:9px;padding:10px;"><div style="font-weight:700;font-size:12.5px;color:var(--navy);margin-bottom:6px;">'+s[1]+'</div><input type="file" accept="image/png,image/jpeg" data-slot="'+s[0]+'" class="ws-file" style="font:inherit;font-size:12px;width:100%;"></div>').join("")
+    +'</div><div id="ws-msg" style="margin-top:8px;font-size:12.5px;"></div></div>';
+  el.querySelectorAll(".ws-file").forEach(inp=>inp.onchange=()=>wsUpload(inp,w,topic,date));
+}
+async function wsUpload(inp,w,topic,date){
+  const f=inp.files&&inp.files[0]; if(!f) return;
+  const slot=inp.dataset.slot, m=$("ws-msg");
+  const msg=(t,ok)=>{ if(m){ m.textContent=t; m.style.color=ok?"#1a7d4b":"#b03a3a"; } };
+  if(f.size>15*1024*1024){ msg("Datei zu groß (max 15 MB).",false); inp.value=""; return; }
+  msg("Lade "+slot+" hoch …",true);
+  try{
+    const b64=await fileToB64(f);
+    const { data, error } = await sb.functions.invoke("webinar-social-upload",{ body:{ topic, date, slot, content_base64:b64, content_type:f.type||"image/png" } });
+    if(error||!data||!data.ok){ msg("Fehler: "+((data&&data.error)||(error&&error.message)||"unbekannt"),false); return; }
+    _socBust=Date.now(); fillSocial(w); loadSocialOverview();
+    const m2=$("ws-msg"); if(m2){ m2.textContent=slot+" hochgeladen ✓"; m2.style.color="#1a7d4b"; }
+  }catch(e){ msg("Fehler: "+String(e),false); }
 }
 function renderWebinar(wid) {
   $("detail").classList.remove("hidden"); $("tables").classList.remove("hidden");
@@ -1209,7 +1967,8 @@ function renderWebinar(wid) {
     $("detail-head").textContent = w.title + (d ? " · " + d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"long",year:"numeric",timeZone:TZ}) + ", " + d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:TZ}) + " Uhr" : ""); }
   if (isAdmin && w){ $("admin-edit").classList.remove("hidden"); $("ae-link").value = w.web_url||""; $("ae-pres").value = w.presenters||""; $("ae-join").value=""; $("ae-all").checked=false; $("ae-status").textContent="";
     sb.rpc("webinar_join_url_get",{p_webinar_id:wid}).then(({data})=>{ if(selectedWid===wid) $("ae-join").value = data||""; });
-    $("att-file").value=""; $("att-status").textContent=""; $("att-send-status").textContent=""; }
+    $("att-file").value=""; $("att-status").textContent=""; $("att-send-status").textContent="";
+    if($("ho-file")) $("ho-file").value=""; if($("ho-status")) $("ho-status").textContent=""; loadHandout(wid); }
   else { $("admin-edit").classList.add("hidden"); }
   { const it=$("intern-teams"); if (w && w.web_url){ it.classList.remove("hidden");
       it.innerHTML='<b style="color:var(--navy);">Interne Teilnahme:</b> Als mitNORM-Mitarbeiter über Teams (eigenes Konto) – '
