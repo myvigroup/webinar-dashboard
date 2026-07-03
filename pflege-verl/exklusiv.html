@@ -187,6 +187,16 @@ footer a{color:rgba(255,255,255,.65)}
   </div>
 </div>
 
+
+<!-- COOKIE-CONSENT -->
+<div id="mnConsent" style="display:none;position:fixed;left:16px;right:16px;bottom:16px;z-index:999;max-width:560px;margin:0 auto;background:#fff;color:#1c2733;border-radius:16px;padding:20px 22px;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+  <p style="font-size:.88rem;line-height:1.5;margin-bottom:14px"><b>Cookies &amp; Messung.</b> Wir verwenden das Meta&nbsp;Pixel, um die Wirksamkeit unserer Anzeigen zu messen – nur mit deiner Einwilligung. Notwendige Funktionen (Formular, Live-Bestand) laufen ohne Cookies. <a href="https://www.mitnorm.com/datenschutz" target="_blank" rel="noopener" style="color:#004380">Datenschutzerklärung</a></p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button type="button" data-consent="all" class="btn" style="display:inline-block;width:auto;padding:11px 22px;font-size:.92rem">Einverstanden</button>
+    <button type="button" data-consent="essential" style="background:transparent;border:1.5px solid #004380;color:#004380;border-radius:12px;padding:11px 22px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit">Nur notwendige</button>
+  </div>
+</div>
+
 <footer>
   Werbemitteilung der mitNORM GmbH. Alle Objektangaben laut Verkaufsunterlage des Anbieters (Name auf Anfrage). Betreiber: compaserv Ostwestfalen-Lippe GmbH (compassio-Gruppe). Immobilieninvestitionen unterliegen Risiken; Musterberechnungen sind keine Garantie für zukünftige Ergebnisse. Grundlage jeder Entscheidung sind ausschließlich Kaufvertrag, Teilungserklärung, Baubeschreibung und Mietvertrag.<br><br>
   <a href="https://www.mitnorm.com/impressum">Impressum</a> · <a href="https://www.mitnorm.com/datenschutz">Datenschutz</a>
@@ -236,7 +246,11 @@ footer a{color:rgba(255,255,255,.65)}
     } }catch(err){} }
     if(!ready||!state.appId||!state.advisor){ pixelLead(); unlock(d.vorname); return; }
     if(btn){btn.disabled=true;btn.textContent='Wird freigeschaltet…';}
-    rest('/leads',{method:'POST',body:JSON.stringify({
+    function newUUID(){ try{ if(window.crypto&&crypto.randomUUID) return crypto.randomUUID(); }catch(e){}
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0,v=c=='x'?r:(r&3|8);return v.toString(16);}); }
+    var leadId=newUUID();
+    rest('/leads',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({
+      id: leadId,
       advisor_id: state.advisor.id, app_id: state.appId,
       first_name: d.vorname||null, email: d.email||null, phone: d.telefon||null,
       calc_data: {variant:'exklusiv-gate'},
@@ -244,10 +258,8 @@ footer a{color:rgba(255,255,255,.65)}
       consent_text: 'Reservierungs-/Zugangs-Anfrage Pflegeimmobilie Verl (exklusiv.html)', status: 'new'
     })}).then(function(r){
       if(!r.ok) throw new Error('HTTP '+r.status);
-      return r.json().catch(function(){return null;});
-    }).then(function(rows){
       pixelLead(); unlock(d.vorname);
-      var id=rows&&rows[0]&&rows[0].id, q=document.getElementById('qualiCard');
+      var id=leadId, q=document.getElementById('qualiCard');
       if(id&&q){ q.style.display='block'; q.dataset.leadId=id;
         q.addEventListener('submit',function(ev){ ev.preventDefault(); ev.stopImmediatePropagation();
           var qd={}; new FormData(q).forEach(function(v,k){ qd[k]=v; });
@@ -304,9 +316,28 @@ footer a{color:rgba(255,255,255,.65)}
   if(BASE&&KEY){ var b=new URLSearchParams(location.search).get('b');
     try{ fetch(BASE+'/rest/v1/page_events',{method:'POST',keepalive:true,headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({event_type:'view',app_slug:'pflege-verl-exklusiv',advisor_slug:b||null})}); }catch(e){}
   }
-  var id=(window.MITNORM_CONFIG||{}).metaPixelId; if(!id) return;
-  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', id); fbq('track','PageView');
+})();
+/* Meta Pixel – nur nach Einwilligung (Consent-Banner) */
+(function(){
+  var KEYNAME='mn_consent_pflege_verl';
+  function loadPixel(){
+    var id=(window.MITNORM_CONFIG||{}).metaPixelId; if(!id||window.fbq) return;
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', id); fbq('track','PageView');
+  }
+  var box=document.getElementById('mnConsent');
+  var saved=null; try{ saved=localStorage.getItem(KEYNAME); }catch(e){}
+  if(saved==='all'){ loadPixel(); return; }
+  if(saved==='essential'){ return; }
+  if(!box) return;
+  box.style.display='block';
+  box.addEventListener('click',function(e){
+    var b=e.target.closest('[data-consent]'); if(!b) return;
+    var v=b.getAttribute('data-consent');
+    try{ localStorage.setItem(KEYNAME,v); }catch(err){}
+    box.style.display='none';
+    if(v==='all') loadPixel();
+  });
 })();
 </script>
 </body>
