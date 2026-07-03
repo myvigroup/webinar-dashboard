@@ -284,12 +284,14 @@
 .lt-copy{align-self:flex-start;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:7px 14px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;transition:transform .08s,background .12s;}
 .lt-copy:active{transform:scale(.97);}
 .lt-copy.ok{background:#1a7d4b;}
-.link-tile.lp{border-color:var(--cyan);background:linear-gradient(180deg,#eefafd,#fff);}
-.link-tile.lp .lt-label{color:var(--cyan-d);}
-.link-tile.lp .lt-url{background:#e3f6fb;}
-.link-tile.lp .lt-copy{background:var(--cyan-d);}
-.link-tile.lp .lt-open:hover{color:var(--cyan-d);}
-.lt-badge{display:inline-block;font-family:Inter,sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--cyan-d);background:#d6f1f8;border-radius:5px;padding:2px 6px;margin-left:6px;vertical-align:middle;}
+.link-tile.lp{border-color:#9fd4b4;background:linear-gradient(180deg,#eef9f2,#fff);}
+.link-tile.lp .lt-label{color:#1a7d4b;}
+.link-tile.lp .lt-url{background:#e2f3e9;}
+.link-tile.lp .lt-copy{background:#1a7d4b;}
+.link-tile.lp .lt-open:hover{color:#1a7d4b;}
+.lt-badge{display:inline-block;font-family:Inter,sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#1a7d4b;background:#d7efe0;border-radius:5px;padding:2px 6px;margin-left:6px;vertical-align:middle;}
+.lp-section{margin-top:16px;border-top:1px dashed var(--line);padding-top:13px;}
+.lp-sec-title{font-family:Outfit,sans-serif;font-weight:700;color:#1a7d4b;font-size:13.5px;margin-bottom:10px;}
 .mtab{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);color:var(--ink);font:inherit;font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:10px;cursor:pointer;transition:background .12s,border-color .12s,color .12s;}
 .mtab svg{stroke:currentColor;}
 .mtab:hover{border-color:var(--navy);}
@@ -370,6 +372,10 @@
         <a id="affil-open" class="affil-btn ghosty" target="_blank" rel="noopener">Vorschau ↗</a>
       </div>
       <div id="affil-tiles" class="affil-tiles"></div>
+      <div class="lp-section">
+        <div class="lp-sec-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M13.5 6H21m0 0v7.5M21 6l-9 9-4-4-6 6"/></svg>Landingpages · Kampagnen <span style="font-weight:400;font-size:11px;color:var(--muted);">· eigene Kampagnen-Seiten mit deinem Berater-Link – ideal zum Weiterschicken</span></div>
+        <div id="affil-lps" class="affil-tiles"></div>
+      </div>
       <div id="affil-hint" class="muted" style="font-size:12px;margin-top:10px;"></div>
     </div>
     <div class="panel hidden" id="sov-panel" style="margin-bottom:14px;">
@@ -800,27 +806,31 @@ async function loadReviewStats(){
 
 const AFFIL_TOPICS=[
   {k:"",l:"Alle Themen (Übersicht)"},
-  {k:"__landing",l:"➜ Rente-Landingpage (rente.mitnorm.de)"},
-  {k:"__pflege",l:"➜ Pflegeimmobilie Verl (pflegeimmobilie.mitnorm.de)"},
   {k:"immobilie",l:"Immobilie als Kapitalanlage"},
   {k:"ruhestand",l:"Ruhestandsplanung"},
   {k:"baufi",l:"Baufinanzierung"},
   {k:"riester",l:"Riester & Altersvorsorge"},
   {k:"rente",l:"Rente & Rentenreform – Webinar"},
-  {k:"rente-lp",l:"Rente & Rentenreform – Landingpage",u:"https://rente.mitnorm.de/rente-2026.html"},
   {k:"steuern",l:"Steuern sparen"},
   {k:"geldanlage",l:"Geldanlage"}
 ];
+/* Kampagnen-Landingpages – eigener Bereich unter den Webinar-Themen */
+const AFFIL_LANDINGPAGES=[
+  {k:"rente-lp",l:"Rente & Rentenreform",u:"https://rente.mitnorm.de/rente-2026.html"},
+  {k:"pflege-lp",l:"Pflegeimmobilie Verl",u:"https://pflegeimmobilie.mitnorm.de/"}
+];
 let _affilSlug=null;
+function tileHTML(t){
+  const isLp=!!t.u;
+  const url=isLp?(t.u+(t.u.includes("?")?"&":"?")+"b="+encodeURIComponent(_affilSlug)):(APP_URL+"?b="+encodeURIComponent(_affilSlug)+(t.k?"&t="+t.k:""));
+  const badge=isLp?'<span class="lt-badge">Landingpage</span>':'';
+  return '<div class="link-tile'+(isLp?' lp':'')+'"><div class="lt-top"><span class="lt-label">'+esc(t.l)+badge+'</span><a class="lt-open" href="'+esc(url)+'" target="_blank" rel="noopener" title="Vorschau">↗</a></div><div class="lt-url">'+esc(url)+'</div><button class="lt-copy" data-url="'+esc(url)+'">Link kopieren</button></div>';
+}
 function renderLinkTiles(){
   const el=$("affil-tiles"); if(!el||!_affilSlug) return;
-  el.innerHTML=AFFIL_TOPICS.map(t=>{
-    const isLp=!!t.u;
-    const url=isLp?(t.u+(t.u.includes("?")?"&":"?")+"b="+encodeURIComponent(_affilSlug)):(APP_URL+"?b="+encodeURIComponent(_affilSlug)+(t.k?"&t="+t.k:""));
-    const badge=isLp?'<span class="lt-badge">Landingpage</span>':'';
-    return '<div class="link-tile'+(isLp?' lp':'')+'"><div class="lt-top"><span class="lt-label">'+esc(t.l)+badge+'</span><a class="lt-open" href="'+esc(url)+'" target="_blank" rel="noopener" title="Vorschau">↗</a></div><div class="lt-url">'+esc(url)+'</div><button class="lt-copy" data-url="'+esc(url)+'">Link kopieren</button></div>';
-  }).join("");
-  el.querySelectorAll(".lt-copy").forEach(b=>b.onclick=()=>{ navigator.clipboard.writeText(b.dataset.url).then(()=>{ const o=b.textContent; b.textContent="Kopiert ✓"; b.classList.add("ok"); setTimeout(()=>{b.textContent=o;b.classList.remove("ok");},1500); }).catch(()=>{}); });
+  el.innerHTML=AFFIL_TOPICS.map(tileHTML).join("");
+  const lp=$("affil-lps"); if(lp) lp.innerHTML=AFFIL_LANDINGPAGES.map(tileHTML).join("");
+  document.querySelectorAll("#affil-tiles .lt-copy, #affil-lps .lt-copy").forEach(b=>b.onclick=()=>{ navigator.clipboard.writeText(b.dataset.url).then(()=>{ const o=b.textContent; b.textContent="Kopiert ✓"; b.classList.add("ok"); setTimeout(()=>{b.textContent=o;b.classList.remove("ok");},1500); }).catch(()=>{}); });
 }
 async function loadAffil(){
   try{
@@ -831,9 +841,9 @@ async function loadAffil(){
     $("affil-panel").classList.remove("hidden");
     renderLinkTiles();
     const sel=$("affil-topic");
-    sel.innerHTML=AFFIL_TOPICS.map(t=>'<option value="'+t.k+'">'+t.l+'</option>').join("");
+    sel.innerHTML=AFFIL_TOPICS.concat(AFFIL_LANDINGPAGES).map(t=>'<option value="'+t.k+'">'+t.l+'</option>').join("");
     const upd=()=>{ const t=sel.value;
-      if(t==="__landing"||t==="__pflege"){ const base=(t==="__landing")?"https://rente.mitnorm.de":"https://pflegeimmobilie.mitnorm.de"; const u=base+"/?b="+encodeURIComponent(_affilSlug); $("affil-link").value=u; $("affil-open").href=u; return; } const meta=AFFIL_TOPICS.find(x=>x.k===t); let url;
+      const meta=AFFIL_TOPICS.concat(AFFIL_LANDINGPAGES).find(x=>x.k===t); let url;
       if(meta&&meta.u){ url=meta.u+(meta.u.includes("?")?"&":"?")+"b="+encodeURIComponent(_affilSlug); }
       else { url=APP_URL+"?b="+encodeURIComponent(_affilSlug)+(t?"&t="+t:""); }
       $("affil-link").value=url; $("affil-open").href=url; };
