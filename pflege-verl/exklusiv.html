@@ -47,6 +47,8 @@ h1,h2,h3{font-family:'Manrope',sans-serif;line-height:1.12;letter-spacing:-.02em
 .gate h3{font-size:1.05rem;margin-bottom:4px}
 .gate .sub{font-size:.85rem;color:#5d6b7a;margin-bottom:18px}
 .gate label{display:block;font-size:.82rem;font-weight:600;margin-bottom:5px}
+.gate select{width:100%;padding:13px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:1rem;font-family:inherit;margin-bottom:13px;background:#fff;color:#1c2733}
+.gate select:focus{outline:none;border-color:var(--blue)}
 .gate input[type=text],.gate input[type=email],.gate input[type=tel]{width:100%;padding:13px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:1rem;font-family:inherit;margin-bottom:13px}
 .gate input:focus{outline:none;border-color:var(--blue)}
 .consent{display:flex;gap:9px;align-items:flex-start;font-size:.74rem;color:#5d6b7a;margin:2px 0 16px}
@@ -112,6 +114,19 @@ footer a{color:rgba(255,255,255,.65)}
     <input type="email" id="email" name="email" required autocomplete="email">
     <label for="telefon">Telefonnummer</label>
     <input type="tel" id="telefon" name="telefon" required autocomplete="tel">
+    <label for="einkommen">Jahresbruttoeinkommen</label>
+    <select id="einkommen" name="einkommen" required>
+      <option value="" disabled selected>Bitte wählen</option>
+      <option>unter 75.000 €</option>
+      <option>75.000 – 100.000 €</option>
+      <option>über 100.000 €</option>
+    </select>
+    <label for="liquiditaet">Liquiditätsreserven vorhanden?</label>
+    <select id="liquiditaet" name="liquiditaet" required>
+      <option value="" disabled selected>Bitte wählen</option>
+      <option>Ja</option>
+      <option>Nein</option>
+    </select>
     <div class="consent">
       <input type="checkbox" id="consent" required>
       <label for="consent" style="font-weight:400;margin:0">Ich bin einverstanden, dass mitNORM mich zur Pflegeimmobilie Verl kontaktiert. <a href="https://www.mitnorm.com/datenschutz" target="_blank" rel="noopener">Datenschutz</a></label>
@@ -224,7 +239,7 @@ footer a{color:rgba(255,255,255,.65)}
     rest('/leads',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({
       advisor_id: state.advisor.id, app_id: state.appId,
       first_name: d.vorname||null, email: d.email||null, phone: d.telefon||null,
-      calc_data: {variant:'exklusiv-gate'},
+      calc_data: {variant:'exklusiv-gate', einkommen: d.einkommen||null, liquiditaet: d.liquiditaet||null},
       consent_at: new Date().toISOString(),
       consent_text: 'Reservierungs-/Zugangs-Anfrage Pflegeimmobilie Verl (exklusiv.html)', status: 'new'
     })}).then(function(r){
