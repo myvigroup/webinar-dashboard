@@ -1,32 +1,8 @@
 {
   "redirects": [
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "pflegeimmobilie.mitnorm.de"
-        }
-      ],
-      "destination": "/pflege-verl/",
-      "permanent": false
-    },
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "rente.mitnorm.de"
-        }
-      ],
-      "destination": "/rente-2026.html",
-      "permanent": false
-    }
+    { "source": "/", "has": [{ "type": "host", "value": "rente.mitnorm.de" }], "destination": "/rente-2026.html", "permanent": false }
   ],
   "rewrites": [
-    {
-      "source": "/login",
-      "destination": "/login.html"
-    }
+    { "source": "/login", "destination": "/login.html" }
   ]
 }
