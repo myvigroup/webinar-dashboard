@@ -114,19 +114,6 @@ footer a{color:rgba(255,255,255,.65)}
     <input type="email" id="email" name="email" required autocomplete="email">
     <label for="telefon">Telefonnummer</label>
     <input type="tel" id="telefon" name="telefon" required autocomplete="tel">
-    <label for="einkommen">Jahresbruttoeinkommen</label>
-    <select id="einkommen" name="einkommen" required>
-      <option value="" disabled selected>Bitte wählen</option>
-      <option>unter 75.000 €</option>
-      <option>75.000 – 100.000 €</option>
-      <option>über 100.000 €</option>
-    </select>
-    <label for="liquiditaet">Liquiditätsreserven vorhanden?</label>
-    <select id="liquiditaet" name="liquiditaet" required>
-      <option value="" disabled selected>Bitte wählen</option>
-      <option>Ja</option>
-      <option>Nein</option>
-    </select>
     <div class="consent">
       <input type="checkbox" id="consent" required>
       <label for="consent" style="font-weight:400;margin:0">Ich bin einverstanden, dass mitNORM mich zur Pflegeimmobilie Verl kontaktiert. <a href="https://www.mitnorm.com/datenschutz" target="_blank" rel="noopener">Datenschutz</a></label>
@@ -141,6 +128,19 @@ footer a{color:rgba(255,255,255,.65)}
 
 <!-- ===== UNLOCKED ===== -->
 <div id="unlocked" class="wrap">
+  <form id="qualiCard" class="ucard" style="display:none;border-color:rgba(242,185,63,.5)">
+    <h3>Für deine Ersteinschätzung</h3>
+    <p style="font-size:.88rem;color:var(--muted);margin-bottom:14px">Zwei kurze Fragen, damit dein Berater sich optimal vorbereiten kann:</p>
+    <label for="qe" style="display:block;font-size:.82rem;font-weight:600;margin-bottom:5px">Jahresbruttoeinkommen</label>
+    <select id="qe" name="einkommen" required style="width:100%;padding:12px 13px;border-radius:10px;border:1.5px solid var(--line);background:rgba(255,255,255,.95);color:#1c2733;font-size:1rem;font-family:inherit;margin-bottom:13px">
+      <option value="" disabled selected>Bitte wählen</option><option>unter 75.000 €</option><option>75.000 – 100.000 €</option><option>über 100.000 €</option>
+    </select>
+    <label for="ql" style="display:block;font-size:.82rem;font-weight:600;margin-bottom:5px">Liquiditätsreserven vorhanden?</label>
+    <select id="ql" name="liquiditaet" required style="width:100%;padding:12px 13px;border-radius:10px;border:1.5px solid var(--line);background:rgba(255,255,255,.95);color:#1c2733;font-size:1rem;font-family:inherit;margin-bottom:16px">
+      <option value="" disabled selected>Bitte wählen</option><option>Ja</option><option>Nein</option>
+    </select>
+    <button class="btn" type="submit">Ersteinschätzung anfordern</button>
+  </form>
   <div class="uhead">
     <div class="check">✓</div>
     <h2>Zugang freigeschaltet<span id="uname"></span></h2>
@@ -236,15 +236,27 @@ footer a{color:rgba(255,255,255,.65)}
     } }catch(err){} }
     if(!ready||!state.appId||!state.advisor){ pixelLead(); unlock(d.vorname); return; }
     if(btn){btn.disabled=true;btn.textContent='Wird freigeschaltet…';}
-    rest('/leads',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({
+    rest('/leads',{method:'POST',body:JSON.stringify({
       advisor_id: state.advisor.id, app_id: state.appId,
       first_name: d.vorname||null, email: d.email||null, phone: d.telefon||null,
-      calc_data: {variant:'exklusiv-gate', einkommen: d.einkommen||null, liquiditaet: d.liquiditaet||null},
+      calc_data: {variant:'exklusiv-gate'},
       consent_at: new Date().toISOString(),
       consent_text: 'Reservierungs-/Zugangs-Anfrage Pflegeimmobilie Verl (exklusiv.html)', status: 'new'
     })}).then(function(r){
-      if(r.ok){ pixelLead(); unlock(d.vorname); }
-      else { throw new Error('HTTP '+r.status); }
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.json().catch(function(){return null;});
+    }).then(function(rows){
+      pixelLead(); unlock(d.vorname);
+      var id=rows&&rows[0]&&rows[0].id, q=document.getElementById('qualiCard');
+      if(id&&q){ q.style.display='block'; q.dataset.leadId=id;
+        q.addEventListener('submit',function(ev){ ev.preventDefault(); ev.stopImmediatePropagation();
+          var qd={}; new FormData(q).forEach(function(v,k){ qd[k]=v; });
+          var qb=q.querySelector('button'); if(qb) qb.disabled=true;
+          rest('/rpc/lead_set_qualification',{method:'POST',body:JSON.stringify({p_lead_id:q.dataset.leadId,p_einkommen:qd.einkommen||'',p_liquiditaet:qd.liquiditaet||''})})
+          .then(function(){ q.innerHTML='<h3>\u2713 Danke!</h3><p style="font-size:.9rem;color:var(--muted)">Dein Berater bereitet deine Ersteinschätzung vor und meldet sich innerhalb von 24 Stunden.</p>'; })
+          .catch(function(){ q.style.display='none'; });
+        },true);
+      }
     }).catch(function(){ if(btn){btn.disabled=false;btn.textContent='Zugang jetzt freischalten';} var ok=f.querySelector('.ok-msg'); if(ok){ok.style.display='block';ok.textContent='Es gab ein Problem – bitte versuche es erneut.';} });
   },true);
 })();

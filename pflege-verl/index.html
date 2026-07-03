@@ -231,19 +231,6 @@ footer a{color:rgba(255,255,255,.85)}
         <input type="email" id="email_t" name="email" required autocomplete="email">
         <label for="telefon_t">Telefonnummer</label>
         <input type="tel" id="telefon_t" name="telefon" required autocomplete="tel">
-        <label for="einkommen_t">Jahresbruttoeinkommen</label>
-        <select id="einkommen_t" name="einkommen" required>
-          <option value="" disabled selected>Bitte wählen</option>
-          <option>unter 75.000 €</option>
-          <option>75.000 – 100.000 €</option>
-          <option>über 100.000 €</option>
-        </select>
-        <label for="liquiditaet_t">Liquiditätsreserven vorhanden?</label>
-        <select id="liquiditaet_t" name="liquiditaet" required>
-          <option value="" disabled selected>Bitte wählen</option>
-          <option>Ja</option>
-          <option>Nein</option>
-        </select>
         <div class="consent">
           <input type="checkbox" id="consent_t" required>
           <label for="consent_t" style="font-weight:400;margin:0">Ich bin einverstanden, dass mitNORM mich zur Beratung kontaktiert. <a href="https://www.mitnorm.com/datenschutz" target="_blank" rel="noopener">Datenschutz</a></label>
@@ -470,20 +457,7 @@ footer a{color:rgba(255,255,255,.85)}
       <input type="email" id="email" name="email" required autocomplete="email">
       <label for="telefon">Telefonnummer</label>
       <input type="tel" id="telefon" name="telefon" required autocomplete="tel">
-      <label for="einkommen">Jahresbruttoeinkommen</label>
-        <select id="einkommen" name="einkommen" required>
-          <option value="" disabled selected>Bitte wählen</option>
-          <option>unter 75.000 €</option>
-          <option>75.000 – 100.000 €</option>
-          <option>über 100.000 €</option>
-        </select>
-        <label for="liquiditaet">Liquiditätsreserven vorhanden?</label>
-        <select id="liquiditaet" name="liquiditaet" required>
-          <option value="" disabled selected>Bitte wählen</option>
-          <option>Ja</option>
-          <option>Nein</option>
-        </select>
-        <div class="consent">
+      <div class="consent">
         <input type="checkbox" id="consent" required>
         <label for="consent" style="font-weight:400;margin:0">Ich bin einverstanden, dass mitNORM mich zur Beratung rund um die Pflegeimmobilie Verl per E-Mail oder Telefon kontaktiert. Hinweise in der <a href="https://www.mitnorm.com/datenschutz" target="_blank" rel="noopener">Datenschutzerklärung</a>.</label>
       </div>
@@ -541,32 +515,53 @@ footer a{color:rgba(255,255,255,.85)}
       }).catch(function(){});
     rest('/apps?slug=eq.'+APP_SLUG+'&select=id').then(gj).then(function(a){ if(a&&a[0]) state.appId=a[0].id; }).catch(function(){});
   }
+  function step2HTML(){
+    return '<div class="ok-msg" style="display:block;margin-top:0">\u2713 Danke! Deine Anfrage ist eingegangen.</div>'
+      +'<p style="font-size:.9rem;color:var(--muted);margin:14px 0 16px">Damit dein Berater deine <b>Ersteinschätzung</b> direkt vorbereiten kann \u2013 zwei kurze Fragen:</p>'
+      +'<label for="q_einkommen">Jahresbruttoeinkommen</label>'
+      +'<select id="q_einkommen" name="einkommen" required><option value="" disabled selected>Bitte wählen</option><option>unter 75.000 \u20ac</option><option>75.000 \u2013 100.000 \u20ac</option><option>über 100.000 \u20ac</option></select>'
+      +'<label for="q_liquiditaet">Liquiditätsreserven vorhanden?</label>'
+      +'<select id="q_liquiditaet" name="liquiditaet" required><option value="" disabled selected>Bitte wählen</option><option>Ja</option><option>Nein</option></select>'
+      +'<button class="btn" type="submit" style="width:100%">Ersteinschätzung anfordern</button>'
+      +'<p style="font-size:.75rem;color:var(--muted);text-align:center;margin-top:10px">Kein Muss \u2013 wir melden uns in jedem Fall innerhalb von 24\u202fh.</p>';
+  }
   document.addEventListener('submit',function(e){
     var f=e.target; if(!f||!f.matches('[data-lead-form]')) return;
     e.preventDefault(); e.stopImmediatePropagation();
     var d={}; new FormData(f).forEach(function(v,k){ d[k]=v; });
     var ok=f.querySelector('.ok-msg'), btn=f.querySelector('button[type=submit]');
     function msg(t){ if(ok){ ok.style.display='block'; ok.textContent=t; } }
+    if(f.dataset.step==='2'){
+      if(btn) btn.disabled=true;
+      rest('/rpc/lead_set_qualification',{method:'POST',body:JSON.stringify({
+        p_lead_id:f.dataset.leadId, p_einkommen:d.einkommen||'', p_liquiditaet:d.liquiditaet||''
+      })}).then(function(){ f.innerHTML='<div class="ok-msg" style="display:block;margin-top:0">\u2713 Perfekt \u2013 dein Berater bereitet deine Ersteinschätzung vor und meldet sich innerhalb von 24 Stunden.</div>';
+      }).catch(function(){ f.innerHTML='<div class="ok-msg" style="display:block;margin-top:0">\u2713 Danke! Wir melden uns innerhalb von 24 Stunden bei dir.</div>'; });
+      return;
+    }
     function pixelLead(){ try{ if(window.fbq){
       var id=(window.MITNORM_CONFIG||{}).metaPixelId;
-      /* Advanced Matching: Pixel hasht die Werte clientseitig selbst -> bessere EMQ */
       if(id) fbq('init', id, { em:(d.email||'').trim().toLowerCase(), ph:(d.telefon||'').replace(/\D/g,''), fn:(d.vorname||'').trim().toLowerCase() });
-      /* eventID ermöglicht später CAPI-Deduplizierung (gleiche ID serverseitig senden) */
       var eid='lead-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);
       fbq('track','Lead',{content_name:'pflege-verl'},{eventID:eid});
     } }catch(err){} }
     if(!ready||!state.appId||!state.advisor){ msg('Danke! Wir melden uns bei dir.'); pixelLead(); return; }
     if(btn) btn.disabled=true;
-    rest('/leads',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({
+    rest('/leads',{method:'POST',body:JSON.stringify({
       advisor_id: state.advisor.id, app_id: state.appId,
       first_name: d.vorname||null, email: d.email||null, phone: d.telefon||null,
-      calc_data: {einkommen: d.einkommen||null, liquiditaet: d.liquiditaet||null},
+      calc_data: {},
       consent_at: new Date().toISOString(),
       consent_text: 'Beratungsanfrage Pflegeimmobilie Verl (pflegeimmobilie.mitnorm.de)', status: 'new'
     })}).then(function(r){
-      if(r.ok){ msg('✓ Danke! Deine Anfrage ist eingegangen – wir melden uns innerhalb von 24 Stunden.'); pixelLead(); var ii=f.querySelectorAll('input,select'); for(var k=0;k<ii.length;k++) ii[k].disabled=true; }
-      else { throw new Error('HTTP '+r.status); }
-    }).catch(function(){ msg('Es gab ein Problem – bitte versuche es später erneut.'); if(btn) btn.disabled=false; });
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.json().catch(function(){return null;});
+    }).then(function(rows){
+      pixelLead();
+      var id=rows&&rows[0]&&rows[0].id;
+      if(id){ f.dataset.step='2'; f.dataset.leadId=id; f.innerHTML=step2HTML(); var b2=f.querySelector('button'); if(b2) b2.disabled=false; }
+      else { msg('\u2713 Danke! Deine Anfrage ist eingegangen \u2013 wir melden uns innerhalb von 24 Stunden.'); var ii=f.querySelectorAll('input,select'); for(var k=0;k<ii.length;k++) ii[k].disabled=true; }
+    }).catch(function(){ msg('Es gab ein Problem \u2013 bitte versuche es später erneut.'); if(btn) btn.disabled=false; });
   },true);
 })();
 </script>
