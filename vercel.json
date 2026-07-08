@@ -25,6 +25,16 @@
   ],
   "rewrites": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "ruhestand.mitnorm.de"
+        }
+      ],
+      "destination": "/ruhestand-kaplar.html"
+    },
+    {
       "source": "/login",
       "destination": "/login.html"
     }
