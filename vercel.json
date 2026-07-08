@@ -21,9 +21,7 @@
       ],
       "destination": "/rente-2026.html",
       "permanent": false
-    }
-  ],
-  "rewrites": [
+    },
     {
       "source": "/",
       "has": [
@@ -32,8 +30,11 @@
           "value": "ruhestand.mitnorm.de"
         }
       ],
-      "destination": "/ruhestand-kaplar.html"
-    },
+      "destination": "/ruhestand-kaplar.html",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
     {
       "source": "/login",
       "destination": "/login.html"
