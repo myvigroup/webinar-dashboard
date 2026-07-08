@@ -32,6 +32,17 @@
       ],
       "destination": "/ruhestand-kaplar.html",
       "permanent": false
+    },
+    {
+      "source": "/en",
+      "has": [
+        {
+          "type": "host",
+          "value": "ruhestand.mitnorm.de"
+        }
+      ],
+      "destination": "/ruhestand-kaplar-en.html",
+      "permanent": false
     }
   ],
   "rewrites": [
