@@ -44,7 +44,7 @@
 
   .hero{position:relative;overflow:hidden;color:#eaf1f8;
     background:radial-gradient(1100px 600px at 80% -10%,rgba(43,110,170,.5),transparent 60%),linear-gradient(160deg,#004380 0%,#00305f 55%,#0c1c2c 100%)}
-  .hero .wrap{padding:64px 22px 56px;display:grid;grid-template-columns:1.35fr .9fr;gap:44px;align-items:center}
+  .hero .wrap{padding:64px 22px 56px;display:grid;grid-template-columns:1.15fr 1fr;gap:44px;align-items:center}
   @media(max-width:860px){.hero .wrap{grid-template-columns:1fr}}
   .badge{display:inline-flex;align-items:center;gap:11px;font-weight:700;font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:#bcd6ef;background:rgba(43,110,170,.25);border:1px solid rgba(120,170,220,.5);padding:9px 16px;border-radius:999px}
   .badge .dot{width:10px;height:10px;border-radius:50%;background:#84b7e6;box-shadow:0 0 0 4px rgba(132,183,230,.22)}
@@ -155,6 +155,9 @@
 
   /* Familien-Sektion ohne Boxen */
   .gen .card-q{background:transparent;border:0;border-top:2px solid rgba(140,185,230,.35);border-radius:0;padding:22px 4px 0;flex-direction:column;gap:14px}
+
+  .hero .vsl{margin-top:0;aspect-ratio:16/10;border:1px solid rgba(140,185,230,.35);box-shadow:0 24px 60px rgba(0,20,45,.45)}
+  .hero .vsl-note{margin-top:14px;font-size:13.5px;color:#9fb6d0;text-align:center}
 
   /* VSL */
   .vsl{position:relative;border-radius:22px;overflow:hidden;background:#0c1c2c;box-shadow:0 24px 60px rgba(0,20,45,.35);aspect-ratio:16/9;margin-top:34px}
@@ -286,33 +289,22 @@ window.MITNORM_CONFIG={
       </div>
       <p class="hero-note"><svg class="icon"><use href="#ic-shield"/></svg> Kostenfrei &amp; unverbindlich · Analyse nach DIN&nbsp;77230 · mit Blick auf die ganze Familie</p>
     </div>
-    <div class="portrait">
-      <img src="kaplar-portrait.jpg" alt="Martin Kaplar, Ruhestandsplaner bei mitNORM" onerror="this.remove()">
-      <div class="ph"><div class="mono">MK</div><div>Porträtfoto<br>Martin Kaplar einsetzen</div></div>
-      <div class="card"><b>Martin Kaplar</b><span>Ruhestandsplaner · mitNORM</span></div>
-    </div>
-  </div>
-</section>
-
-<section class="block" id="video" style="padding:56px 0 10px">
-  <div class="wrap" style="max-width:900px">
-    <p class="eyebrow">In 90 Sekunden erklärt</p>
-    <h2 class="title">Was bedeutet Ruhestandsplanung – und warum jetzt?</h2>
-    <p class="lead">Bevor Sie weiterscrollen: Martin erklärt Ihnen in anderthalb Minuten, worum es beim Ruhestands-Check geht – und was Sie davon haben.</p>
-    <div class="vsl">
-      <!-- SOBALD DAS VIDEO DA IST: eine der beiden Varianten einkommentieren und den Platzhalter (.vsl-ph) löschen.
-      VARIANTE A – eigenes MP4 (empfohlen; Datei mit ins Deployment legen):
-      <video id="vslVideo" controls preload="metadata" poster="vsl-poster.jpg"><source src="vsl-martin-kaplar.mp4" type="video/mp4"></video>
-      VARIANTE B – YouTube „nicht gelistet“ (datenschutzfreundliche Domain):
-      <iframe src="https://www.youtube-nocookie.com/embed/VIDEO_ID" title="Ruhestandsplanung in 90 Sekunden erklärt" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>
-      -->
-      <div class="vsl-ph">
-        <div class="play"><svg viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></svg></div>
-        <b style="font-family:'Manrope',sans-serif;font-size:20px;color:#fff">Video: Ruhestandsplanung in 90 Sekunden</b>
-        <span style="font-size:14.5px">Platzhalter – hier kommt Martins Video (Drehbuch liegt im Kampagnen-Paket)</span>
+    <div>
+      <div class="vsl">
+        <!-- SOBALD DAS VIDEO DA IST: eine der beiden Varianten einkommentieren und den Platzhalter (.vsl-ph) löschen.
+        VARIANTE A – eigenes MP4 (empfohlen; Datei mit ins Deployment legen):
+        <video id="vslVideo" controls preload="metadata" poster="vsl-poster.jpg"><source src="vsl-martin-kaplar.mp4" type="video/mp4"></video>
+        VARIANTE B – YouTube „nicht gelistet" (datenschutzfreundliche Domain):
+        <iframe src="https://www.youtube-nocookie.com/embed/VIDEO_ID" title="Ruhestandsplanung in 90 Sekunden erklärt" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>
+        -->
+        <div class="vsl-ph">
+          <div class="play"><svg viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></svg></div>
+          <b style="font-family:'Manrope',sans-serif;font-size:19px;color:#fff">Ruhestandsplanung in 90 Sekunden</b>
+          <span style="font-size:14px">Martin Kaplar erklärt, worum es beim Ruhestands-Check geht</span>
+        </div>
       </div>
+      <p class="vsl-note">Kostenfrei &amp; unverbindlich · Antwort innerhalb von 24 Stunden</p>
     </div>
-    <div style="text-align:center;margin-top:26px"><a href="#anfrage" class="btn btn-primary">Kostenlosen Ruhestands-Check sichern</a></div>
   </div>
 </section>
 
@@ -344,7 +336,6 @@ window.MITNORM_CONFIG={
         <div class="mod"><span class="n">04</span><div><h3>Nachlass &amp; Vollmachten im Überblick</h3><p>Testament, Vorsorgevollmacht, Freibeträge: Wir zeigen, welche Dokumente und Weichenstellungen jetzt wichtig sind.</p></div></div>
       </div>
       <div class="mcard">
-        <div class="photo"><span class="pnote">Porträtfoto Martin Kaplar<br>(kaplar-portrait.jpg in den Ordner legen)</span><img src="kaplar-portrait.jpg" alt="Martin Kaplar, Ruhestandsplaner bei mitNORM" onerror="this.remove()"></div>
         <div class="body">
           <b>Martin Kaplar</b>
           <span class="role">Ruhestandsplaner · mitNORM</span>
