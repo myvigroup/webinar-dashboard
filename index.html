@@ -513,5 +513,60 @@ async function submit(t){
 window.addEventListener("popstate",()=>{ curTopic=new URLSearchParams(location.search).get("t")||""; render(); });
 init();
 </script>
+
+<!-- mn-calendar-view -->
+<script>
+(function(){
+  var SB_U="https://umgbtymowqavnmsbgceh.supabase.co", SB_K="sb_publishable_uwCtealR7TogA86X68-RZg_3FQ1RPT0";
+  var _cli=null,_wb=null,_view="topics",_calM=null;
+  function cli(){ if(!_cli) _cli=window.supabase.createClient(SB_U,SB_K); return _cli; }
+  function bslug(){ try{return new URLSearchParams(location.search).get("b")||"";}catch(_){return "";} }
+  function regUrl(w){ var u="?w="+encodeURIComponent(w.webinar_id); var b=bslug(); if(b) u+="&b="+encodeURIComponent(b); return u; }
+  var MN=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+  var WD=["Mo","Di","Mi","Do","Fr","Sa","So"];
+  function bYMD(iso){ var f=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Berlin",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(iso)); var p=f.split("-"); return {y:+p[0],m:+p[1]-1,d:+p[2]}; }
+  function bTime(iso){ return new Intl.DateTimeFormat("de-DE",{timeZone:"Europe/Berlin",hour:"2-digit",minute:"2-digit"}).format(new Date(iso)); }
+  function esc(s){ return (window.esc?window.esc(s):String(s==null?"":s)); }
+  function shortTitle(x){ x=String(x||""); return x.length>42?x.slice(0,40)+"…":x; }
+  function ensureToggle(view){
+    if(view.querySelector("#mn-vtoggle")) return;
+    var grid=view.querySelector(".grid"); if(!grid) return;
+    var bar=document.createElement("div"); bar.id="mn-vtoggle"; bar.style.cssText="display:flex;gap:8px;justify-content:center;margin:6px 0 18px;";
+    bar.innerHTML='<button data-v="topics" class="mnv on">Themen</button><button data-v="cal" class="mnv">Kalender</button>';
+    grid.parentNode.insertBefore(bar,grid);
+    var cal=document.createElement("div"); cal.id="mn-cal"; cal.style.display="none"; grid.parentNode.insertBefore(cal,grid.nextSibling);
+    Array.prototype.forEach.call(bar.querySelectorAll(".mnv"),function(b){ b.onclick=function(){ setView(b.getAttribute("data-v")); }; });
+    injectStyleOnce(); setView(_view);
+  }
+  function setView(v){ _view=v; var view=document.getElementById("view"); if(!view) return;
+    var grid=view.querySelector(".grid"),nf=view.querySelector(".nextfeat"),cal=view.querySelector("#mn-cal"),bar=view.querySelector("#mn-vtoggle");
+    if(bar) Array.prototype.forEach.call(bar.querySelectorAll(".mnv"),function(b){ b.classList.toggle("on",b.getAttribute("data-v")===v); });
+    var sc=v==="cal"; if(grid) grid.style.display=sc?"none":""; if(nf) nf.style.display=sc?"none":""; if(cal){ cal.style.display=sc?"":"none"; if(sc) loadCal(); } }
+  function loadCal(){ var cal=document.getElementById("mn-cal"); if(!cal) return; if(_wb){ renderCal(); return; }
+    cal.innerHTML='<div style="text-align:center;color:var(--muted);padding:30px;">Lädt…</div>';
+    cli().rpc("webinar_public_upcoming").then(function(r){ _wb=(r&&r.data)||[];
+      if(!_calM){ var f=_wb.slice().filter(function(w){return w.starts_at;}).sort(function(a,b){return new Date(a.starts_at)-new Date(b.starts_at);})[0]; var ym=f?bYMD(f.starts_at):null; var n=new Date(); _calM=ym?{y:ym.y,m:ym.m}:{y:n.getFullYear(),m:n.getMonth()}; }
+      renderCal();
+    }).catch(function(){ cal.innerHTML='<div style="text-align:center;color:var(--muted);padding:30px;">Konnte nicht geladen werden.</div>'; }); }
+  function byDay(y,m){ var mp={}; (_wb||[]).forEach(function(w){ if(!w.starts_at) return; var p=bYMD(w.starts_at); if(p.y===y&&p.m===m)(mp[p.d]=mp[p.d]||[]).push(w); }); return mp; }
+  function renderCal(){ var cal=document.getElementById("mn-cal"); if(!cal||!_calM) return; var y=_calM.y,m=_calM.m;
+    var first=new Date(Date.UTC(y,m,1)); var sw=(first.getUTCDay()+6)%7; var days=new Date(Date.UTC(y,m+1,0)).getUTCDate(); var mp=byDay(y,m);
+    var cells=""; for(var i=0;i<sw;i++){ cells+='<div class="mc-cell mc-empty"></div>'; } var td=bYMD(new Date().toISOString());
+    for(var d=1;d<=days;d++){ var evs=(mp[d]||[]).sort(function(a,b){return new Date(a.starts_at)-new Date(b.starts_at);}); var it='<div class="mc-d'+((td.y===y&&td.m===m&&td.d===d)?' mc-today':'')+'">'+d+'</div>';
+      evs.forEach(function(w){ it+='<a class="mc-ev" href="'+regUrl(w)+'"><span class="mc-t">'+bTime(w.starts_at)+'</span> '+esc(shortTitle(w.title))+'</a>'; });
+      cells+='<div class="mc-cell'+(evs.length?' mc-has':'')+'">'+it+'</div>'; }
+    var head='<div class="mc-head"><button id="mc-prev">‹</button><div class="mc-title">'+MN[m]+' '+y+'</div><button id="mc-next">›</button></div>';
+    var wds='<div class="mc-wds">'+WD.map(function(x){return '<div>'+x+'</div>';}).join("")+'</div>';
+    var up=(_wb||[]).slice().filter(function(w){return w.starts_at&&new Date(w.starts_at)>=new Date(Date.now()-3600000);}).sort(function(a,b){return new Date(a.starts_at)-new Date(b.starts_at);}).slice(0,6);
+    var list=up.length?('<div class="mc-list"><div class="mc-list-h">Nächste Termine</div>'+up.map(function(w){var p=bYMD(w.starts_at);var dd=String(p.d).padStart(2,"0")+"."+String(p.m+1).padStart(2,"0")+".";return '<a class="mc-li" href="'+regUrl(w)+'"><span class="mc-li-d">'+dd+'</span> <span class="mc-li-t">'+bTime(w.starts_at)+'</span> '+esc(shortTitle(w.title))+'</a>';}).join("")+'</div>'):"";
+    cal.innerHTML='<div class="mc-wrap">'+head+wds+'<div class="mc-grid">'+cells+'</div></div>'+list;
+    var pv=document.getElementById("mc-prev"),nx=document.getElementById("mc-next");
+    if(pv)pv.onclick=function(){ _calM={y:(m===0?y-1:y),m:(m===0?11:m-1)}; renderCal(); };
+    if(nx)nx.onclick=function(){ _calM={y:(m===11?y+1:y),m:(m===11?0:m+1)}; renderCal(); }; }
+  function injectStyleOnce(){ if(document.getElementById("mn-cal-style")) return; var s=document.createElement("style"); s.id="mn-cal-style"; s.textContent="#mn-vtoggle .mnv{font:inherit;font-size:14px;font-weight:600;padding:8px 18px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--text);cursor:pointer;}#mn-vtoggle .mnv.on{background:var(--navy);color:#fff;border-color:var(--navy);}.mc-wrap{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 16px 20px;max-width:760px;margin:0 auto;box-shadow:0 2px 10px rgba(0,40,90,.04);}.mc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}.mc-title{font-weight:800;font-size:19px;color:var(--navy);}.mc-head button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:18px;color:var(--navy);cursor:pointer;}.mc-wds{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;}.mc-wds div{text-align:center;font-size:12px;font-weight:700;color:var(--muted);}.mc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}.mc-cell{min-height:74px;border:1px solid var(--line);border-radius:10px;padding:5px;background:#fbfdff;}.mc-cell.mc-empty{background:transparent;border:none;}.mc-cell.mc-has{background:#fff;border-color:#cfe6f5;}.mc-d{font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:3px;}.mc-d.mc-today{color:#fff;background:var(--cyan);display:inline-block;min-width:20px;text-align:center;border-radius:6px;padding:0 4px;}.mc-ev{display:block;font-size:11px;line-height:1.25;background:var(--navy);color:#fff;border-radius:6px;padding:3px 5px;margin-top:3px;text-decoration:none;overflow:hidden;}.mc-ev .mc-t{font-weight:700;}.mc-ev:hover{background:#02315f;}.mc-list{max-width:760px;margin:16px auto 0;}.mc-list-h{font-weight:700;color:var(--navy);font-size:14px;margin:0 0 8px 2px;}.mc-li{display:block;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;text-decoration:none;color:var(--text);font-size:14px;}.mc-li:hover{border-color:#cfe6f5;}.mc-li-d{font-weight:800;color:var(--navy);}.mc-li-t{color:var(--muted);font-weight:600;margin-right:4px;}@media(max-width:560px){.mc-cell{min-height:58px;}.mc-ev{font-size:10px;}}"; document.head.appendChild(s); }
+  if(typeof window.renderOverview==="function" && !window.__mnCalHooked){ window.__mnCalHooked=true; var o=window.renderOverview; window.renderOverview=function(){ var r=o.apply(this,arguments); try{ var v=document.getElementById("view"); if(v) ensureToggle(v); }catch(e){} return r; }; }
+  try{ var v=document.getElementById("view"); if(v&&v.querySelector(".grid")) ensureToggle(v); }catch(e){}
+})();
+</script>
 </body>
 </html>
