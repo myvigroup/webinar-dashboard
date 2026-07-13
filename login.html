@@ -2118,12 +2118,12 @@ init();
     +'<div style="margin-bottom:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;"><div><label style="font-size:13px;color:var(--muted);margin-right:6px;">Monat:</label><select id="hr-month" style="font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;min-width:170px;"></select></div><span id="hr-sum" style="font-size:12.5px;color:var(--muted);"></span></div>'
     +'<div id="hr-body" class="muted">Lädt…</div></div>';
   function ensureView(){
+    if(document.getElementById("nav-hr")) return true;
     var nav=document.querySelector(".sb-nav"), content=document.querySelector(".content");
     if(!nav||!content) return false;
-    if(document.getElementById("nav-hr")) return true;
     var monat=document.querySelector('.nav-item[data-sec="monat"]');
-    var isAdm = monat && !monat.classList.contains("adm-hidden") && getComputedStyle(monat).display!=="none";
-    if(!isAdm) return true;
+    var isAdm = monat && !monat.classList.contains("adm-hidden");
+    if(!isAdm) return false;
     var b=document.createElement("button"); b.className="nav-item"; b.id="nav-hr"; b.type="button";
     b.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Personal-Auswertung';
     nav.appendChild(b);
@@ -2171,7 +2171,8 @@ init();
     body.innerHTML='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:13.5px;min-width:440px;">'+head+br+tot+'</table></div>';
     body.querySelectorAll("th[data-k]").forEach(function(th){ th.onclick=function(){ var k=th.getAttribute("data-k"); if(_sortKey===k){ _sortDir=-_sortDir; } else { _sortKey=k; _sortDir=(k==="advisor")?1:-1; } drawTable(rows); }; });
   }
-  var _tries=0; var _iv=setInterval(function(){ _tries++; try{ if(ensureView()||_tries>60) clearInterval(_iv); }catch(e){} }, 500);
+  var _iv=setInterval(function(){ try{ if(ensureView()) clearInterval(_iv); }catch(e){} }, 700);
+  setTimeout(function(){ try{ clearInterval(_iv); }catch(e){} }, 600000);
 })();
 </script>
 </body>
