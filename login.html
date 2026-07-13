@@ -2175,5 +2175,53 @@ init();
   setTimeout(function(){ try{ clearInterval(_iv); }catch(e){} }, 600000);
 })();
 </script>
+
+<!-- mn-ob-view -->
+<script>
+(function(){
+  var SB_U="https://umgbtymowqavnmsbgceh.supabase.co", SB_K="sb_publishable_uwCtealR7TogA86X68-RZg_3FQ1RPT0";
+  var _cli=null, _sortKey="teilnahmen", _sortDir=-1, _monthsInit=false;
+  var MN=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+  function cli(){ if(!_cli) _cli=window.supabase.createClient(SB_U,SB_K); return _cli; }
+  function esc(s){ return (window.esc?window.esc(s):String(s==null?"":s)); }
+  function fmtOb(r){ if(r.ob_start){ var p=String(r.ob_start).split("-"); return p.length===3?(p[2]+"."+p[1]+"."+p[0]):r.ob_start; } return r.ob_note||"—"; }
+  var PANEL='<div class="panel" style="margin-bottom:14px;"><div class="ptitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>Onboarder-Auswertung <span style="font-weight:400;font-size:11px;color:var(--muted);">· Webinar-/ViV-Teilnahme je Onboarder (nach Webinar-Monat)</span></div><div style="margin-bottom:6px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;"><div><label style="font-size:13px;color:var(--muted);margin-right:6px;">Monat:</label><select id="ob-month" style="font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;min-width:170px;"></select></div><span id="ob-sum" style="font-size:12.5px;color:var(--muted);"></span></div><div style="font-size:11.5px;color:var(--muted);margin-bottom:12px;">Hinweis: KI-Seminare sind hier (noch) nicht erfasst; Kriterien-Bewertung folgt, sobald die Schwellen hinterlegt sind.</div><div id="ob-body" class="muted">Lädt…</div></div>';
+  function ensureView(){
+    if(document.getElementById("nav-ob")) return true;
+    var nav=document.querySelector(".sb-nav"), ov=document.getElementById("view-overview");
+    if(!nav||!ov||!ov.parentNode) return false;
+    var monat=document.querySelector('.nav-item[data-sec="monat"]');
+    var isAdm = monat && !monat.classList.contains("adm-hidden"); if(!isAdm) return false;
+    var b=document.createElement("button"); b.className="nav-item"; b.id="nav-ob"; b.type="button";
+    b.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>Onboarder-Auswertung';
+    var nh=document.getElementById("nav-hr"); if(nh&&nh.nextSibling) nav.insertBefore(b,nh.nextSibling); else nav.appendChild(b);
+    var v=document.createElement("div"); v.id="view-ob"; v.className="view-section hidden"; v.innerHTML=PANEL; ov.parentNode.appendChild(v);
+    b.onclick=showOb;
+    if(!window.__obWrapped && typeof window.showSection==="function"){ window.__obWrapped=true; var o=window.showSection; window.showSection=function(){ hideOb(); return o.apply(this,arguments); }; }
+    return true;
+  }
+  function hideOb(){ var v=document.getElementById("view-ob"); if(v) v.classList.add("hidden"); var b=document.getElementById("nav-ob"); if(b) b.classList.remove("on"); }
+  function showOb(){ document.querySelectorAll(".view-section").forEach(function(el){ el.classList.add("hidden"); }); var v=document.getElementById("view-ob"); if(v) v.classList.remove("hidden"); var st=document.getElementById("sec-title"); if(st) st.textContent="Onboarder-Auswertung"; document.querySelectorAll(".nav-item").forEach(function(x){ x.classList.remove("on"); }); var b=document.getElementById("nav-ob"); if(b) b.classList.add("on"); try{ window.scrollTo({top:0,behavior:"smooth"}); }catch(_){} loadMonths(); }
+  function loadMonths(){ var sel=document.getElementById("ob-month"); if(!sel) return; if(_monthsInit){ renderOb(); return; } cli().rpc("webinar_admin_stat_months").then(function(r){ var ms=(r&&r.data)||[]; sel.innerHTML='<option value="all">Alle Monate (gesamt)</option>'+ms.map(function(x){ return '<option value="'+x.y+'-'+x.m+'">'+MN[x.m-1]+' '+x.y+'</option>'; }).join(""); sel.onchange=renderOb; _monthsInit=true; renderOb(); }).catch(function(){ sel.innerHTML='<option value="all">Alle Monate (gesamt)</option>'; sel.onchange=renderOb; _monthsInit=true; renderOb(); }); }
+  function renderOb(){ var sel=document.getElementById("ob-month"), body=document.getElementById("ob-body"); if(!body) return; var v=(sel&&sel.value)||"all", y=null, m=null; if(v!=="all"){ var p=v.split("-"); y=+p[0]; m=+p[1]; } body.innerHTML='<span class="muted">Lädt…</span>'; cli().rpc("webinar_admin_onboarder_stats",{p_year:y,p_month:m}).then(function(r){ drawTable((r&&r.data)||[]); }).catch(function(){ body.innerHTML='<span class="muted">Konnte nicht geladen werden.</span>'; }); }
+  function quote(r){ var a=Number(r.eingeladen)||0; return a>0?Math.round((Number(r.teilnahmen)||0)/a*100):0; }
+  function std(r){ return Math.round((Number(r.dauer_min)||0)/60*10)/10; }
+  function drawTable(rows){
+    var body=document.getElementById("ob-body"), sum=document.getElementById("ob-sum"); if(!body) return;
+    if(!rows.length){ body.innerHTML='<div class="muted">Keine Daten für diese Auswahl.</div>'; if(sum) sum.textContent=""; return; }
+    var sorted=rows.slice().sort(function(a,b){ var av,bv; if(_sortKey==="name"||_sortKey==="fuehrungskraft"){ av=(a[_sortKey]||"").toLowerCase(); bv=(b[_sortKey]||"").toLowerCase(); return av<bv?-1*_sortDir:(av>bv?1*_sortDir:0); } if(_sortKey==="quote"){ av=quote(a); bv=quote(b); } else if(_sortKey==="std"){ av=std(a); bv=std(b); } else { av=Number(a[_sortKey])||0; bv=Number(b[_sortKey])||0; } return (av-bv)*_sortDir; });
+    var tE=0,tT=0,tMin=0,tEig=0; rows.forEach(function(r){ tE+=Number(r.eingeladen)||0; tT+=Number(r.teilnahmen)||0; tMin+=Number(r.dauer_min)||0; tEig+=Number(r.eigene)||0; });
+    if(sum) sum.textContent=rows.length+" Onboarder · "+tT+" Teilnahmen · "+tE+" eingeladen · "+Math.round(tMin/60*10)/10+" Std";
+    function th(key,label,ar){ var arrow=_sortKey===key?(_sortDir===-1?" ▾":" ▴"):""; return '<th data-k="'+key+'" style="padding:8px 10px;text-align:'+(ar?"right":"left")+';cursor:pointer;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;">'+label+arrow+'</th>'; }
+    var head='<tr style="border-bottom:1px solid var(--line);"><th style="padding:8px 10px;text-align:left;color:var(--muted);font-size:11px;font-weight:700;">#</th>'+th("name","Onboarder")+th("fuehrungskraft","Führungskraft")+'<th style="padding:8px 10px;text-align:left;color:var(--muted);font-size:11px;font-weight:700;white-space:nowrap;">OB-Start</th>'+th("eingeladen","Eingeladen",true)+th("teilnahmen","Teilnahmen",true)+th("quote","Quote",true)+th("std","Dauer (Std)",true)+th("eigene","Eigene ViV",true)+'</tr>';
+    var br=sorted.map(function(r,i){ var q=quote(r), s=std(r); return '<tr style="border-bottom:1px solid #f0f4f9;"><td style="padding:9px 10px;color:var(--muted);font-variant-numeric:tabular-nums;">'+(i+1)+'</td><td style="padding:9px 10px;font-weight:600;color:#0b2138;">'+esc(r.name||"—")+'</td><td style="padding:9px 10px;color:var(--muted);">'+esc(r.fuehrungskraft||"—")+'</td><td style="padding:9px 10px;color:var(--muted);white-space:nowrap;">'+esc(fmtOb(r))+'</td><td style="padding:9px 10px;text-align:right;font-variant-numeric:tabular-nums;">'+(Number(r.eingeladen)||0)+'</td><td style="padding:9px 10px;text-align:right;font-weight:700;color:#1a7d4b;font-variant-numeric:tabular-nums;">'+(Number(r.teilnahmen)||0)+'</td><td style="padding:9px 10px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums;">'+q+'%</td><td style="padding:9px 10px;text-align:right;font-variant-numeric:tabular-nums;">'+s.toLocaleString("de-DE")+'</td><td style="padding:9px 10px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums;">'+(Number(r.eigene)||0)+'</td></tr>'; }).join("");
+    var tot='<tr style="border-top:2px solid var(--line);font-weight:800;"><td></td><td style="padding:9px 10px;">Gesamt</td><td></td><td></td><td style="padding:9px 10px;text-align:right;">'+tE+'</td><td style="padding:9px 10px;text-align:right;color:#1a7d4b;">'+tT+'</td><td style="padding:9px 10px;text-align:right;color:var(--muted);">'+(tE>0?Math.round(tT/tE*100):0)+'%</td><td style="padding:9px 10px;text-align:right;">'+(Math.round(tMin/60*10)/10).toLocaleString("de-DE")+'</td><td style="padding:9px 10px;text-align:right;color:var(--muted);">'+tEig+'</td></tr>';
+    body.innerHTML='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px;">'+head+br+tot+'</table></div>';
+    body.querySelectorAll("th[data-k]").forEach(function(th){ th.onclick=function(){ var k=th.getAttribute("data-k"); if(_sortKey===k){ _sortDir=-_sortDir; } else { _sortKey=k; _sortDir=(k==="name"||k==="fuehrungskraft")?1:-1; } drawTable(rows); }; });
+  }
+  var _iv=setInterval(function(){ try{ if(ensureView()) clearInterval(_iv); }catch(e){} }, 700);
+  setTimeout(function(){ try{ clearInterval(_iv); }catch(e){} }, 600000);
+})();
+</script>
 </body>
 </html>
